@@ -1,0 +1,34 @@
+{
+  "name": "smarc",
+  "version": "0.0.1",
+  "description": "Smarc Home Automation Open Source System Using MEAN stack",
+  "main": "core/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xfoxawy/smarc.git"
+  },
+  "keywords": [
+    "smart",
+    "home",
+    "automation"
+  ],
+  "author": "Smarc Systems",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/xfoxawy/smarc/issues"
+  },
+  "homepage": "https://github.com/xfoxawy/smarc#readme",
+  "dependencies": {
+    "body-parser": "1.*",
+    "express": "4.*",
+    "socket.io": "1.*",
+    "telnet-client": "0.*"
+  },
+  "devDependencies": {
+    "morgan": "1.*",
+    "response-time": "2.*"
+  }
+}
