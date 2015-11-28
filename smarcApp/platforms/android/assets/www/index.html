@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="msapplication-tap-highlight" content="no" />
+        <meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'">
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+
+        <title>Smarc</title>
+
+        <link rel="stylesheet" type="text/css" href="js/libs/angular-material/angular-material.min.css" />
+        <link rel="stylesheet" type="text/css" href="css/style.css" />
+    </head>
+    <body>
+        <div id="appContainer" ng-controller="rootController">
+            <!-- header -->
+            <md-toolbar>
+                <div class="md-toolbar-tools">
+                    <md-button class="md-icon-button" aria-label="Menu" ng-click="toggleSideBar('mainSidebar')">
+                        <md-icon class="smarc-menu"></md-icon>
+                    </md-button>
+                    <h2>
+                        <span>Smarc App</span>
+                    </h2>
+                    <span flex></span>
+                    <md-button ng-href="#options" class="md-button" aria-label="Options">
+                        <md-icon class="smarc-options"></md-icon>
+                        options
+                    </md-button>
+                </div>
+            </md-toolbar>
+
+            <!-- sidebar -->
+            <md-sidenav class="md-sidenav-left md-whiteframe-z2" md-component-id="mainSidebar">
+                <md-toolbar class="md-theme-indigo">
+                    <h1 class="md-toolbar-tools">Sidenav Left</h1>
+                </md-toolbar>
+                <md-content layout-padding>
+                    <md-list>
+                        <md-list-item>
+                            <p><a href="#home" ng-click="toggleSideBar('mainSidebar')">Home</a></p>
+                        </md-list-item>
+                        <md-list-item>
+                            <p><a href="#options" ng-click="toggleSideBar('mainSidebar')">Options</a></p>
+                        </md-list-item>
+                        <md-list-item>
+                            <p><a href="#login" ng-click="toggleSideBar('mainSidebar')">Signin</a></p>
+                        </md-list-item>
+                        <md-list-item ng-repeat="room in rooms" ng-click="toggleSideBar('mainSidebar')">
+                            <p> {{ room.name }} </p>
+                            <!-- <md-checkbox class="md-secondary" ng-model="topping.wanted"></md-checkbox> -->
+                        </md-list-item>
+                    </md-list>
+                </md-content>
+            </md-sidenav>
+
+            <!-- content -->
+            <div id="ng-view" ng-view></div>
+        </div>
+
+        <!-- this file generates by cordova when building -->
+        <script type="text/javascript" src="cordova.js"></script>
+
+        <!-- Angular JS -->
+        <script type="text/javascript" src="js/libs/angular/angular.min.js"></script>
+        <script type="text/javascript" src="js/libs/angular-route/angular-route.min.js"></script>
+        <script type="text/javascript" src="js/libs/angular-aria/angular-aria.min.js"></script>
+        <script type="text/javascript" src="js/libs/angular-animate/angular-animate.min.js"></script>
+        <script type="text/javascript" src="js/libs/angular-touch/angular-touch.min.js"></script>
+        <script type="text/javascript" src="js/libs/angular-material/angular-material.min.js"></script>
+
+        <!-- Smarc App -->
+        <script type="text/javascript" src="js/scripts/app.js"></script>
+        <script type="text/javascript" src="js/scripts/config.js"></script>
+
+        <!-- all other scripts goes here -->
+        <script type="text/javascript" src="js/scripts/controllers/rootController.js"></script>
+        <script type="text/javascript" src="js/scripts/controllers/homeController.js"></script>
+        <script type="text/javascript" src="js/scripts/controllers/signController.js"></script>
+        <script type="text/javascript" src="js/scripts/controllers/optionsController.js"></script>
+
+        <!-- start app initialization -->
+        <script type="text/javascript" src="js/scripts/init.js"></script>
+    </body>
+</html>

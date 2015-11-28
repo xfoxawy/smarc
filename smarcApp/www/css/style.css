@@ -1,0 +1,10 @@
+@import url("fonts.css");
+
+html, body, #appContainer {
+    width: 100%;
+    height: 100%;
+}
+
+md-icon {
+    font-size: 1.5em;
+}

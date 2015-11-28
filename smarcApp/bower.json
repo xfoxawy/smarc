@@ -1,0 +1,17 @@
+{
+  "name": "smarcApp",
+  "homepage": "https://github.com/xfoxawy/smarc",
+  "authors": [
+    "Ibrahim Saqr <ebrahimes@gmail.com>"
+  ],
+  "description": "smart home automation open source project",
+  "main": "index.html",
+  "moduleType": [],
+  "license": "MIT",
+  "dependencies": {
+    "angular": "~1.4.8",
+    "angular-material": "~0.11.4",
+    "angular-touch": "~1.4.8",
+    "angular-route": "~1.4.8"
+  }
+}
