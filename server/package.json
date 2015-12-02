@@ -2,7 +2,7 @@
   "name": "smarc",
   "version": "0.0.1",
   "description": "Smarc Home Automation Open Source System Using MEAN stack",
-  "main": "index.js",
+  "main": "core/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -22,7 +22,14 @@
   },
   "homepage": "https://github.com/xfoxawy/smarc#readme",
   "dependencies": {
-    "express": "^4.13.3",
-    "socket.io": "^1.3.7"
+    "async": "^1.5.0",
+    "body-parser": "1.*",
+    "express": "4.*",
+    "socket.io": "1.*",
+    "telnet-client": "0.*"
+  },
+  "devDependencies": {
+    "morgan": "1.*",
+    "response-time": "2.*"
   }
 }
