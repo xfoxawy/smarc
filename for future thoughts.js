@@ -1,4 +1,3 @@
-// sockets init
 // redis init  
 // load db models
 // check db schema
