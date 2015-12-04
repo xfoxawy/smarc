@@ -26,7 +26,11 @@
     "body-parser": "1.*",
     "express": "4.*",
     "socket.io": "1.*",
-    "telnet-client": "0.*"
+    "telnet-client": "0.*",
+    "bcryptjs": "2.*",
+    "jsonwebtoken": "5.*",
+    "mongodb": "2.*",
+    "minimist" : "1.2.*"
   },
   "devDependencies": {
     "morgan": "1.*",

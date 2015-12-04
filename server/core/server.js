@@ -10,52 +10,51 @@ var http        = require("http").Server(Core.app);
 var Config      = require("./Config");
 var IOC         = require("./IOC");
 var path        = require("path");
+var MongoClient = require('mongodb').MongoClient;
 
 /**
- * console.log request info.
- * enable fo development
+ * setup Database Connection
  */
-if (Config.env == "development") {
-    var morgan       = require('morgan');
-    var responseTime = require('response-time');
-    Core.app.use(morgan('dev'));
-    Core.app.use(responseTime());
+MongoClient.connect('mongodb://'+ Config.db.host +':'+ Config.db.port +'/'+ Config.db.name).then(function(db){
+    
+    /**
+     * save database connection to Core to be ble to pass it to plugins
+     */
+    Core.db = db;
 
-};
+    /**
+     * console.log request info.
+     * enable fo development
+     */
+    if (Config.env == "development") {
+        var morgan       = require('morgan');
+        var responseTime = require('response-time');
+        Core.app.use(morgan('dev'));
+        Core.app.use(responseTime());
+    };
 
-/**
- * middlewares for express
- */
-Core.app.use(bodyParser.urlencoded({ extended: false }));
+    /**
+     * middlewares for express
+     */
+    Core.app.use(bodyParser.urlencoded({ extended: false }));
 
-/**
- * Route for testing
- */
-Core.app.get("/smarc", function(req, res){
-    return res.sendFile(path.resolve() + "mobileTest/main.html");
-});
+    /**
+     * load Plugins from IOC container
+     */
+    IOC.loadPlugins(Core);
 
-Core.app.post("/smarc/posttest", function(req, res){
-    Core.io.emit('incomeReq', msg);
-    return res.json(req.body);
-});
-
-/**
- * load Plugins from IOC container
- */
-IOC.loadPlugins(Core);
-
-/**
- * start Socket.IO
- */
-Core.io.on('connection', function(socket){
-    console.log('IO detect new Client');
-    // socket.on('incomeReq', function(msg){
-    //     console.log(msg);
-    // });
-    // socket.on('disconnect', function(){
-    //     console.log('user disconnected');
-    // });
+    /**
+     * start Socket.IO
+     */
+    Core.io.on('connection', function(socket){
+        console.log('IO detect new Client');
+        // socket.on('incomeReq', function(msg){
+        //     console.log(msg);
+        // });
+        // socket.on('disconnect', function(){
+        //     console.log('user disconnected');
+        // });
+    });
 });
 
 http.listen(3050, function(){

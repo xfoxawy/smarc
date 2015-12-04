@@ -31,7 +31,7 @@ var Connection = function(){
 		// handle on connection timeout
 		socket.on('timeout', function(){
 			//console.log(ip +" socket has been timeouted");
-			self.notify('timout',{ip})
+			self.notify('timeout',{ip})
 		});
 		
 		// handle on connection timeout
@@ -50,7 +50,7 @@ Connection.prototype.subscribe = function(driver){
 	this.drivers.push(driver);		
 };
 
-Connection.prototype.remove = function(driver){
+Connection.prototype.unsubscribe = function(driver){
 	for(var i = 0; i < this.drivers.length; i ++)
 	{
 		if(this.drivers[i] === driver)
