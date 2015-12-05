@@ -1,0 +1,20 @@
+<div class="page login-form">
+    <md-card>
+        <div class="logo">
+            <img src="img/logo.jpg" alt="logo">
+        </div>
+        <span class="login-subheader">Please Login</span>
+        <md-divider></md-divider>
+        <div class="login-form-container" layout layout-wrap>
+            <md-input-container flex="100">
+                <label>name</label>
+                <input ng-model="user.firstName">
+            </md-input-container>
+            <md-input-container flex="100">
+                <label>password</label>
+                <input ng-model="user.firstName">
+            </md-input-container>
+            <md-button flex="100" class="md-raised md-primary" ng-click="login()">Login</md-button>
+        </div>
+    </md-card>
+</div>

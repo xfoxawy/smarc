@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Smarc Test</title>
+</head>
+<body>
+
+    <ul id="messages"></ul>
+    <form>
+        <input id="m"/>
+        <button type="submit">Send</button>
+    </form>
+    
+    <!-- <script src="/socket.io/socket.io.js"></script> -->
+    <script src="/mobileTest/jquery.min.js"></script>
+    <script>
+        // var socket = io();
+        $('form').submit(function(e){
+            e.preventDefault();
+            var data = {
+                message: $("#m").val()
+            };
+            console.log(data);
+            $.post("/test1", data, function(res){
+                $('#m').val('');
+            });
+        });
+
+        // socket.on('incomeReq', function(msg){
+        //     document.getElementById('messages').innerHTML(msg);
+            // $('#').append($('<li>').text(msg));
+        // });
+    </script>
+</body>
+</html>
