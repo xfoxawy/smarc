@@ -1,0 +1,49 @@
+#smarc-toolbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    background: #3F51B5;
+}
+
+#smarc-toolbar .smarc-icon-button {
+    height: 56px;
+    width: 56px;
+    line-height: 56px;
+    text-align: center;
+    color: #fff;
+    cursor: pointer;
+    float: left;
+    margin: 0 8px 0 0;
+}
+#smarc-toolbar .smarc-icon-button i,
+#smarc-toolbar .smarc-button i {
+    vertical-align: middle;
+    font-size: 1.5em;
+}
+#smarc-toolbar .smarc-button {
+    height: 56px;
+    /*width: 56px;*/
+    line-height: 56px;
+    text-align: center;
+    color: #fff;
+    cursor: pointer;
+    float: right;
+    margin: 0;
+    padding: 0 10px;
+}
+#smarc-toolbar .smarc-button:hover,
+#smarc-toolbar .smarc-button:active,
+#smarc-toolbar .smarc-icon-button:hover,
+#smarc-toolbar .smarc-icon-button:active {
+    background: rgba(255, 255, 255, 0.15);
+}
+#smarc-toolbar h2 {
+    margin: 0;
+    padding: 0;
+    line-height: 56px;
+    height: 56px;
+    float: left;
+    color: #fff;
+}

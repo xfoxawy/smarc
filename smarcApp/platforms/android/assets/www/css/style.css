@@ -8,3 +8,52 @@ html, body, #appContainer {
 md-icon {
     font-size: 1.5em;
 }
+
+.page {
+    position: absolute;
+    top: 56px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+.login-form {
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    -webkit-box-align: center;
+
+    align-items: center;
+    
+    top: 0 !important;
+    z-index: 5;
+    background: #fff;
+}
+.login-form md-card {
+    margin: auto;
+    width: 60%;
+}
+.login-form .logo {
+    margin: 0 0 15px 0;
+    background: #0C0C0C;
+}
+.login-form .logo img {
+    width: 50%;
+    min-width: 50%;
+    max-width: 50%;
+    margin: 0 auto 10px auto;
+}
+.login-form .login-subheader {
+    display: block;
+    text-align: center;
+    margin: 0 0 15px 0;
+}
+.login-form .login-form-container {
+    padding: 35px;
+}
+.home-container {}
+.home-container md-card {
+    float: left;
+}

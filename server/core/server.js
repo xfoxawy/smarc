@@ -11,6 +11,7 @@ var Config      = require("./Config");
 var IOC         = require("./IOC");
 var path        = require("path");
 var MongoClient = require('mongodb').MongoClient;
+var crossOriginEnable = require('./Middlewares/crossOriginEnableMiddleware');
 
 /**
  * setup Database Connection
@@ -35,8 +36,16 @@ MongoClient.connect('mongodb://'+ Config.db.host +':'+ Config.db.port +'/'+ Conf
 
     /**
      * middlewares for express
+     * @description [crossOriginEnable] for anable cross origin to allow server recive reqs from other domains
      */
+    Core.app.use(crossOriginEnable);
+    Core.app.use(express.static('./'));
     Core.app.use(bodyParser.urlencoded({ extended: false }));
+
+    /**
+     * load Global Vars
+     */
+    IOC.globalVars(Core.app);
 
     /**
      * load Plugins from IOC container

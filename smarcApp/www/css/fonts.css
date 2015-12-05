@@ -23,7 +23,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
-
-.smarc-menu:before     { content: "\e20e"; }
+.smarc-back:before    { content: "\e200"; }
+.smarc-menu:before    { content: "\e20e"; }
 .smarc-options:before { content: "\e2cb"; }
 

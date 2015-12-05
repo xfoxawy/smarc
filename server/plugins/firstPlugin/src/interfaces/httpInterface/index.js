@@ -15,20 +15,25 @@
 module.exports = function(Core){
     // Core.app.get('/light/turnOn/1', function(req, res){
     // 	core.light(1,turnon, callback(status){
-    // 		if(status) res.json("ok");
-    // 		else res.json("error");
-    // 	});
+    //         if(status) {
+    //             Core.io.emit('incomeReq', "i'm a socket data");
+    //             res.json("ok");
+    //         } else { 
+    //             res.json("error");
+    //         }
+    //     });
     // });
     Core.app.get('/test1', function(req, res){
-        Core.io.emit('incomeReq', msg);
-        return res.json({
-            message: "test page loaded !!"
-        });
+        return res.sendFile( Core.app.get('root') + "mobileTest/main.html" );
     });
 
     Core.app.get('/test2', function(req, res){
+        // ssgdfgdhfgxbcbc
+        Core.io.emit('incomeReq', {
+            data: "i'm a socket data"
+        });
         return res.json({
-            message2: "test page 2 loaded successfully !!"
+            message: "request success!!"
         });
     });
 };
