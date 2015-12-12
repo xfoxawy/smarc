@@ -37,6 +37,7 @@ MongoClient.connect('mongodb://'+ Config.db.host +':'+ Config.db.port +'/'+ Conf
      * middlewares for express
      */
     Core.app.use(bodyParser.urlencoded({ extended: false }));
+    Core.app.use(bodyParser.json({limit : '1mb'}));
 
     /**
      * load Plugins from IOC container

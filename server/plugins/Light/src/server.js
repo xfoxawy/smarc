@@ -71,7 +71,7 @@ function receiveData(socket, data) {
     }
     switch ( cleanData ) {    
         case 'r':
-            output += "I0,0-I1,0-I2,1\n";
+            output += "I0,0-1,0-2,1\r\n";
             sendData(socket, output);
             break;
         case 'quit':
@@ -289,13 +289,19 @@ function closeSocket(socket) {
     if (i != -1) {
         sockets.splice(i, 1);
     }
+    console.log("Server : a user has been disconnected\n");
+    console.log("Server : number of users is " + sockets.length);
+
 }
+
 
 /*
 * Callback method executed when a new TCP socket is opened.
 */
 function newSocket(socket) {
     sockets.push(socket);
+    console.log("Server : new user has been connected\n");
+    console.log("Server : number of users is " + sockets.length);
     // socket.write("\n");
     // socket.write("Last updated: Wed May 14 18:59:40 MST by Zachary Flower\n");
     // socket.write("\n");
