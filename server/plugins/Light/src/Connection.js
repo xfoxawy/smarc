@@ -25,7 +25,6 @@ var Connection = function(){
 		// handle on data
 		var str = ''; // empty string to hold up coming data from socket
 		socket.on('data', function(data){
-			console.log("some data over : " + data)
 			if(!/\r|\n|\r\n/gm.test(data)){
 				str += data;
 			}
