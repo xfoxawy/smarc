@@ -41,6 +41,7 @@ MongoClient.connect('mongodb://'+ Config.db.host +':'+ Config.db.port +'/'+ Conf
     Core.app.use(crossOriginEnable);
     Core.app.use(express.static('./'));
     Core.app.use(bodyParser.urlencoded({ extended: false }));
+    Core.app.use(bodyParser.json({limit : '1mb'}));
 
     /**
      * load Global Vars

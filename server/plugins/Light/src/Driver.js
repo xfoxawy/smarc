@@ -1,0 +1,218 @@
+var Telnet = require('./Connection');
+var EventEmitter = new(require('events').EventEmitter);
+/**
+ * Light Plugin Driver
+ */
+
+var Driver = function(Core){
+	var self = this;
+	var model = "light";
+	var db = Core.db;
+	// all nodes placeholder
+	this.nodes = [];
+	// all errors placeholder
+	this.errors = [];
+	// hold all points mapped to their original 
+	this.mappedPoints = [];
+	// connect
+	(function connectNodes(){
+			loadNodes(function(nodes){
+				for (var i = 0; i < nodes.length ; i++) 
+				{
+					Telnet.connect(nodes[i].ip, nodes[i].port);
+				}
+			});
+	}());
+	// function load nodes from db
+	function loadNodes(cb){
+		db.collection(model).find().toArray(function(err, docs){
+			if(err) throw err;
+			else if(docs.length){
+				docs.forEach(function(doc){
+					self.nodes.push(doc);
+				})
+			}
+			cb(self.nodes);
+		});
+	};
+	// function to create new node
+	function saveNode(node){
+		Core.db.collection(model).insertOne(node, function(err,res){
+			if(err) throw err;
+			else
+				self.nodes.push(node);
+		});
+	};
+
+	function destoryNode(ip){
+		var node = findNodeByIp(ip);
+		// disconnect node first
+		Telnet.disconnect(node.socket);
+		// delete it from nodes array
+		delete node;
+		// delete it from db
+		db.collection(model).findAndRemove({ip : ip}, function(err){
+			if(err) throw err;
+		});
+	};
+
+	// helper function to get node by ip
+	function findNodeByIp(ip){
+		for (var i = 0; i < self.nodes.length; i++) 
+		{
+			if(self.nodes[i].ip === ip)
+			{
+				return self.nodes[i];
+			}
+		}
+		return false;
+	};
+
+	function findPointInNode(node ,pointId){
+		for(var i = 0; i < node.points.length; i++)
+		{
+			if(node.points[i].i == pointId)
+			{
+				return node.points[i];
+			}
+		}
+		return false;
+	};
+
+	// once nodes loaded we can map them to be able to be used 
+	function mapPoints(){
+
+	};
+
+	// update node status
+	function setNodeStatusConnected(ip, socket){
+		var node = findNodeByIp(ip);
+		node.connected = true;
+		node.socket = socket;
+		node.socket.write("R\r\n");
+		EventEmitter.emit("light/connected/"+ip);
+		return true;
+	};
+
+	function setNodeStatusDisconnected(ip){	
+		var node = findNodeByIp(ip);
+		node.connected = false;
+		delete node.socket;
+		EventEmitter.emit("light/disconnect/"+ip);
+		return true;
+	};
+
+	function setNodeStatusError(ip, error){
+		var node = findNodeByIp(ip);
+		node.connected = false;
+		self.errors.push({ip , error});
+		EventEmitter.emit("light/disconnect/"+ip);
+		console.log('this ' + ip + " has some connection issues : " + error);
+		return true;
+	};
+
+	function updateNodePointsStatus(ip, data){
+		var node = findNodeByIp(ip);
+		if(/(^I\d,\d$)/igm.test(data))
+		{
+			var pointId = data.slice(1,2);
+			var newstatus = (Number(data.split(',')[1]) == 0) ? false : true;
+			var point = findPointInNode(node,pointId);
+			point.s = newstatus;
+		}
+		else if(/(I)*(\d*\d,[0-1]){1}-/.test(data)){
+			// remove I and split on - delimiter
+			var all = data.substring(1).trim().split('-');
+			// iterate and update the points statuses 			
+			for(var i = 0; i < all.length; i++){
+				if(all[i])
+				{
+					var pointId = all[i].split(',')[0];
+					var newstatus = (Number(all[i].split(',')[1]) == 0) ? false : true;
+					var point = findPointInNode(node,pointId);
+					point.s = newstatus;
+				}
+			}
+		}
+	};
+
+	/**
+	 * [update description]
+	 * @param  {[type]} status [description]
+	 * @param  {[type]} args   [description]
+	 * @return {[type]}        [description]
+	 */
+	this.update = function(status , args){
+		switch(status){			
+			case 'connected': 
+					setNodeStatusConnected(args.address,args.socket);
+				break;
+			case 'end':
+					setNodeStatusDisconnected(args.address); 
+				break;
+			case 'timeout':
+					setNodeStatusDisconnected(args.address); 
+				break;
+			case 'error':
+					setNodeStatusError(args.address, args.error);
+				break;
+			case 'data':
+					updateNodePointsStatus(args.address, args.str);
+				break;
+		}
+	};
+
+	/**
+	 * [exec description]
+	 * @param  {[type]} nodeIp [description]
+	 * @param  {[type]} order  [description]
+	 * @return {[type]}        [description]
+	 */
+	this.exec = function(nodeIp,order){
+		var node = findNodeByIp(nodeIp);
+		if(node.connected)
+		{
+			node.socket.write(order + '\r\n');
+		}
+		else{
+			console.log(node.ip + " is disconnected");
+		}	
+	};
+
+	this.createNewNode = function(node){
+		if(!node === null && typeof node !== 'object'  || node === undefined )
+			throw "type of input must be an object";
+		else if(!node.ip || !node.name || !node.points.length)
+			throw "invalid properties of such a node";
+		else if(findNodeByIp(node.ip))
+			throw "node ip exists already";
+		else
+			saveNode(node);
+
+	};
+
+	this.deleteNode = function(nodeIp){
+		destoryNode(nodeIp);
+	};
+
+	this.mapPoints = function(){
+		var cursor = 0;
+		self.mappedPoints = [];
+		for (var y = 0; y < self.nodes.length ; y++) 
+		{
+			for(var x = 0; x < self.nodes[y].points.length; x++)
+			{
+				if(self.nodes[y].connected){
+					var newMappedPoint = {p : cursor , i : self.nodes[y].points[x].i ,s : self.nodes[y].points[x].s, node : self.nodes[y].name };
+					self.mappedPoints.push(newMappedPoint);
+					cursor++;
+				}
+			}
+		}
+
+		return self.mappedPoints;
+	};
+};
+
+module.exports = Driver;
+ 
