@@ -15,7 +15,6 @@ smarc.controller('rootController', [
             } else {
                 $scope.homePage = false;
             };
-            console.log($scope.homePage);
         });
         $scope.back = function(){
             history.back();

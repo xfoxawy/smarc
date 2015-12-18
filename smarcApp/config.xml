@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="io.smarchome.www" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="io.smarchome.www" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://www.smarchome.io">
     <name>Smarc</name>
     <description>
         smart home automation open source project
@@ -7,6 +7,32 @@
     <author email="info@smarchome.io" href="http://www.smarchome.io">
         Smarc Team
     </author>
+    <!-- for Android ONLY -->
+    <platform name="android">
+        <!-- Icons -->
+        <!-- <icon src="img/android/icon/ldpi.png"  width="57" height="57" density="ldpi" /> -->
+        <!-- <icon src="img/android/icon/mdpi.png"  width="57" height="57" density="mdpi" /> -->
+        <!-- <icon src="img/android/icon/hdpi.png"  width="57" height="57" density="hdpi" /> -->
+        <!-- <icon src="img/android/icon/xhdpi.png" width="57" height="57" density="xhdpi" /> -->
+
+        <!-- Splash Screen landscape -->
+        <!-- <splash src="img/android/splash/land-ldpi.png"  density="land-ldpi"/> -->
+        <!-- <splash src="img/android/splash/land-mdpi.png"  density="land-mdpi"/> -->
+        <!-- <splash src="img/android/splash/land-hdpi.png"  density="land-hdpi"/> -->
+        <!-- <splash src="img/android/splash/land-xhdpi.png" density="land-xhdpi"/> -->
+
+        <!-- Splash Screen portrait -->
+        <!-- <splash src="img/android/splash/port-ldpi.png"  density="port-ldpi"/> -->
+        <!-- <splash src="img/android/splash/port-mdpi.png"  density="port-mdpi"/> -->
+        <!-- <splash src="img/android/splash/port-hdpi.png"  density="port-hdpi"/> -->
+        <!-- <splash src="img/android/splash/port-xhdpi.png" density="port-xhdpi"/> -->
+
+        <!-- Splash Screen preferences -->
+        <preference name="AutoHideSplashScreen" value="false" />
+        <preference name="SplashMaintainAspectRatio" value="true" />    
+
+        <allow-intent href="market:*" />
+    </platform>
     <content src="index.html" />
     <plugin name="cordova-plugin-whitelist" spec="1" />
     <access origin="*" />
@@ -16,7 +42,4 @@
     <allow-intent href="sms:*" />
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
-    <platform name="android">
-        <allow-intent href="market:*" />
-    </platform>
 </widget>

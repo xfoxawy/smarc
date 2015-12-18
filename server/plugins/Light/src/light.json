@@ -1,2 +1,1 @@
-{ "_id" : { "$oid" : "5663300014628ed710098d0a" }, "name" : "local", "ip" : "127.0.0.1", "port" : 23, "points" : [ { "i" : 0, "s" : false }, { "i" : 1, "s" : false }, { "i" : 2, "s" : false } ] }
-{ "_id" : { "$oid" : "56633174fd3b1e69f9c5e9bb" }, "name" : "node1", "ip" : "192.168.0.177", "port" : 23, "points" : [ { "i" : 0, "s" : false }, { "i" : 1, "s" : false }, { "i" : 2, "s" : false }, { "i" : 3, "s" : false }, { "i" : 4, "s" : false }, { "i" : 5, "s" : false }, { "i" : 6, "s" : false }, { "i" : 7, "s" : false }, { "i" : 8, "s" : false }, { "i" : 9, "s" : false }, { "i" : 10, "s" : false }, { "i" : 11, "s" : false }, { "i" : 12, "s" : false }, { "i" : 13, "s" : false }, { "i" : 14, "s" : false } ] }
+mo

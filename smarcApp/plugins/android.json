@@ -9,6 +9,9 @@
     "installed_plugins": {
         "cordova-plugin-whitelist": {
             "PACKAGE_NAME": "io.smarchome.www"
+        },
+        "cordova-plugin-splashscreen": {
+            "PACKAGE_NAME": "io.smarchome.www"
         }
     },
     "dependent_plugins": {}
