@@ -16,6 +16,7 @@ var Driver = function(Core){
 	this.mappedPoints = [];
 	// connect
 	(function connectNodes(){
+			// load nodes from database
 			loadNodes(function(nodes){
 				for (var i = 0; i < nodes.length ; i++) 
 				{
@@ -40,20 +41,52 @@ var Driver = function(Core){
 
 	//once nodes loaded we can map them to be able to be used 
 	function mapPoints(){
-		var cursor = 0;
+		
 		self.mappedPoints = [];
 		for (var y = 0; y < self.nodes.length ; y++) 
 		{
 			for(var x = 0; x < self.nodes[y].points.length; x++)
 			{
-					var newMappedPoint = {p : cursor , i : self.nodes[y].points[x].i ,s : self.nodes[y].points[x].s, node_name : self.nodes[y].name , node_status : self.nodes[y].connected, node_ip : self.nodes[y].ip};
+					if(!self.nodes[y].points[x].p){
+						self.nodes[y].points[x].p = "p" + Math.floor((Math.random()*100)+(Math.random()*100));
+						saveMappedPoint(self.nodes[y].name , self.nodes[y].points[x])
+					}
+
+					var newMappedPoint = { 
+							p : self.nodes[y].points[x].p , 
+							i : self.nodes[y].points[x].i ,
+							s : self.nodes[y].points[x].s,
+							node_name : self.nodes[y].name , 
+							node_status : self.nodes[y].connected, 
+							node_ip : self.nodes[y].ip
+						};
 					self.mappedPoints.push(newMappedPoint);
-					cursor++;
 			}
 		}
 		return self.mappedPoints;
 	};
 
+	// save the unique mapped id for each point after generating it
+	function saveMappedPoint(nodeName ,point)
+	{
+		db.collection(model).updateOne({"name" : nodeName, "points" : {$elemMatch:{ i : point.i}}}, {$set : {"points.$.p" : point.p}}, function(err,r){
+			if(err) throw err;
+			else 
+				return true;
+		});
+	};
+
+	function findPointInMappedPoints(pointNumber)
+	{
+		for (var i = 0; i < self.mappedPoints.length ; i++) 
+		{
+			if(self.mappedPoints[i].p == pointNumber)
+			{	
+				return self.mappedPoints[i];
+			}
+		}
+		return false;
+	};
 	// function to create new node
 	function saveNode(node){
 		Core.db.collection(model).insertOne(node, function(err,res){
@@ -62,6 +95,7 @@ var Driver = function(Core){
 				self.nodes.push(node);
 		});
 	};
+
 	// discconect and delete from db 
 	function destoryNode(ip){
 		var node = findNodeByIp(ip);
@@ -86,6 +120,7 @@ var Driver = function(Core){
 		}
 		return false;
 	};
+
 	// find point object in node
 	function findPointInNode(node ,pointId){
 		for(var i = 0; i < node.points.length; i++)
@@ -195,24 +230,21 @@ var Driver = function(Core){
 
 	this.toggle = function(pointNumber){
 		var pointNumber = pointNumber || '';
-		var points = mapPoints();
-		
-		for (var i = 0; i < points.length ; i++) 
-		{
-			if(points[i].p == pointNumber)
-			{	
-				if(points[i].node_status === true)
-				{
-					if(points[i].s === false)
-						return self.exec(points[i].node_ip , 'O'+points[i].p+',1');
-					else if(points[i].s === true)
-						return self.exec(points[i].node_ip , 'O'+points[i].p+',0');
+		mapPoints();
+		var point = findPointInMappedPoints(pointNumber);
 
-				}
-				else if(points[i].node_status === false){
-					console.log("its not connected");
-				}
-			}
+		if(point.node_status === true)
+		{
+			if(point.s === false)
+				return self.exec(point.node_ip , 'O'+point.i+',1');
+			else if(point.s === true)
+				return self.exec(point.node_ip , 'O'+point.i+',0');
+			else
+				throw "unknown point status , point number:-> " + pointNumber + " node ip:-> " + point.node_ip ;
+
+		}
+		else if(point.node_status === false){
+			console.log("its not connected");
 		}
 	};
 	
