@@ -44,11 +44,6 @@ MongoClient.connect('mongodb://'+ Config.db.host +':'+ Config.db.port +'/'+ Conf
     Core.app.use(bodyParser.json({limit : '1mb'}));
 
     /**
-     * load Global Vars
-     */
-    IOC.globalVars(Core.app);
-
-    /**
      * load Plugins from IOC container
      */
     IOC.loadPlugins(Core);
