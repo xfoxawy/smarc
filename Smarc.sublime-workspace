@@ -1,0 +1,244 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 392.0,
+		"selected_items":
+		[
+			[
+				"",
+				"Convert Case: Upper Case"
+			],
+			[
+				"Package Control: ins",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 449.0
+	},
+	"console":
+	{
+		"height": 125.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Users/foxawy/projects/blook-node/seeds/faker.js",
+		"/Users/foxawy/projects/blook-node/app/Commands/generateUserSettings.js",
+		"/Users/foxawy/projects/blook-node/.gitignore",
+		"/Users/foxawy/projects/blook-node/.env",
+		"/Users/foxawy/projects/blook-node/public/main original.html",
+		"/Users/foxawy/projects/blook-node/app/Utilities/Validate.js",
+		"/Users/foxawy/projects/blook-node/app/Models/User.js",
+		"/Users/foxawy/projects/blook-node/app/Controllers/Front/RegionController.js",
+		"/Users/foxawy/projects/blook-node/app/Controllers/Front/GeographicalController.js",
+		"/Users/foxawy/projects/blook-node/app/Controllers/Front/CategoryController.js",
+		"/Users/foxawy/projects/blook-node/package.json",
+		"/Users/foxawy/projects/blook-node/app/App.js",
+		"/Users/foxawy/projects/blook-node/spec/app/Routes/apiRoutes/QRCheckerTest_spec.js",
+		"/Users/foxawy/projects/blook-node/app/Utilities/helper.js",
+		"/Users/foxawy/projects/blook-node/app/Config/development.js",
+		"/Users/foxawy/projects/blook-node/app/Utilities/Config.js",
+		"/Users/foxawy/projects/blook-node/app/Controllers/Api/UserAttendenceController.js",
+		"/Users/foxawy/projects/blook-node/app/Controllers/Api/QRCheckerController.js",
+		"/Users/foxawy/projects/blook-node/BlookMobileAPIDocumentation.txt",
+		"/Users/foxawy/projects/blook-node/app/Controllers/Api/UserMessagesController.js"
+	],
+	"find":
+	{
+		"height": 35.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+			"/Users/foxawy/projects/blook-node/app",
+			""
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"todolist",
+			"console.log"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 0.0
+	},
+	"input":
+	{
+		"height": 31.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"replace":
+	{
+		"height": 0.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+			[
+				"todolistcontroller",
+				"app/Controllers/Front/TodolistController.js"
+			],
+			[
+				"front",
+				"app/Routes/FrontRoutes.js"
+			],
+			[
+				"app",
+				"/Users/foxawy/projects/blook-node/app/App.js"
+			],
+			[
+				"fak",
+				"seeds/faker.js"
+			],
+			[
+				"qr",
+				"app/Controllers/Api/QRCheckerController.js"
+			],
+			[
+				"",
+				"app/App.js"
+			],
+			[
+				"a",
+				"app/App.js"
+			],
+			[
+				"help",
+				"app/Utilities/helper.js"
+			],
+			[
+				"he",
+				"app/Utilities/helper.js"
+			],
+			[
+				"ap",
+				"app/App.js"
+			],
+			[
+				"origina",
+				"public/main original.html"
+			],
+			[
+				".env",
+				".env"
+			],
+			[
+				".git",
+				".gitignore"
+			],
+			[
+				"pac",
+				"package.json"
+			],
+			[
+				"co",
+				"app/Utilities/Config.js"
+			],
+			[
+				"dev",
+				"app/Config/development.js"
+			],
+			[
+				".en",
+				".env"
+			],
+			[
+				"con",
+				"app/Utilities/Config.js"
+			],
+			[
+				"useratt",
+				"app/Controllers/Api/UserAttendenceController.js"
+			],
+			[
+				"usermess",
+				"app/Controllers/Api/UserMessagesController.js"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"selected_items":
+		[
+		],
+		"width": 380.0
+	},
+	"show_minimap": false,
+	"show_open_files": true,
+	"show_tabs": false,
+	"side_bar_visible": true,
+	"side_bar_width": 173.0,
+	"status_bar_visible": true
+}
