@@ -16,8 +16,9 @@ var crossOriginEnable = require('./Middlewares/crossOriginEnableMiddleware');
 /**
  * setup Database Connection
  */
-MongoClient.connect('mongodb://'+ Config.db.host +':'+ Config.db.port +'/'+ Config.db.name).then(function(db){
-    
+MongoClient.connect('mongodb://'+ Config.db.host +':'+ Config.db.port +'/'+ Config.db.name).then(
+// connect success with database
+function(db){
     /**
      * save database connection to Core to be ble to pass it to plugins
      */
@@ -53,13 +54,17 @@ MongoClient.connect('mongodb://'+ Config.db.host +':'+ Config.db.port +'/'+ Conf
      */
     Core.io.on('connection', function(socket){
         console.log('IO detect new Client');
-        // socket.on('incomeReq', function(msg){
-        //     console.log(msg);
-        // });
+        // send back current status to this socket
+        socket.emit("overallStatus", {one: "One", two: "Two"});
+
         // socket.on('disconnect', function(){
         //     console.log('user disconnected');
         // });
     });
+},
+// connect failed with database
+function(err){
+    throw err;
 });
 
 http.listen(3050, function(){

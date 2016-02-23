@@ -1,15 +1,19 @@
 <div class="page options-container">
     <md-card class="md-padding">
         <h1>App Options</h1>
-        <div class="options-form">
-            <md-input-container>
+        <div layout="column">
+            <md-input-container flex="100">
                 <label>IP address</label>
-                <input ng-model="user.firstName">
+                <input ng-model="options.serverIp">
+            </md-input-container>
+            <md-input-container flex="100">
+                <label>Port</label>
+                <input ng-model="options.serverPort">
             </md-input-container>
         </div>
         <div layout="row" layout-align="center">
-            <md-button type="button" flex class="md-primary md-raised" ng-click="">save</md-button>
-            <md-button type="button" flex class="md-primary md-raised" ng-click="">reset</md-button>
+            <md-button type="button" flex class="md-primary md-raised" ng-click="save()">save</md-button>
+            <md-button type="button" flex class="md-primary md-raised" ng-click="reset()">reset</md-button>
         </div>
     </md-card>
 </div>

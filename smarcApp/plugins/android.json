@@ -10,7 +10,13 @@
         "cordova-plugin-whitelist": {
             "PACKAGE_NAME": "io.smarchome.www"
         },
+        "cordova-plugin-device": {
+            "PACKAGE_NAME": "io.smarchome.www"
+        },
         "cordova-plugin-splashscreen": {
+            "PACKAGE_NAME": "io.smarchome.www"
+        },
+        "cordova-plugin-network-information": {
             "PACKAGE_NAME": "io.smarchome.www"
         }
     },

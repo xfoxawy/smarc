@@ -23,7 +23,9 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
-.smarc-back:before    { content: "\e200"; }
-.smarc-menu:before    { content: "\e20e"; }
-.smarc-options:before { content: "\e2cb"; }
+.smarc-back:before      { content: "\e200"; }
+.smarc-menu:before      { content: "\e20e"; }
+.smarc-options:before   { content: "\e2cb"; }
+.smarc-more_vert:before { content: "\e5d4"; }
+
 

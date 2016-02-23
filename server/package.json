@@ -23,14 +23,14 @@
   "homepage": "https://github.com/xfoxawy/smarc#readme",
   "dependencies": {
     "async": "^1.5.0",
+    "bcryptjs": "^2.3.0",
     "body-parser": "1.*",
     "express": "4.*",
-    "socket.io": "1.*",
-    "telnet-client": "0.*",
-    "bcryptjs": "2.*",
-    "jsonwebtoken": "5.*",
+    "jsonwebtoken": "^5.7.0",
+    "minimist": "1.2.*",
     "mongodb": "2.*",
-    "minimist" : "1.2.*"
+    "socket.io": "1.*",
+    "telnet-client": "0.*"
   },
   "devDependencies": {
     "morgan": "1.*",

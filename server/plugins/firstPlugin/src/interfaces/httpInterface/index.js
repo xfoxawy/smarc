@@ -24,11 +24,10 @@ module.exports = function(Core){
     //     });
     // });
     Core.app.get('/test1', function(req, res){
-        return res.sendFile( Core.app.get('root') + "mobileTest/main.html" );
+        return res.json("test1");
     });
 
     Core.app.get('/test2', function(req, res){
-        // ssgdfgdhfgxbcbc
         Core.io.emit('incomeReq', {
             data: "i'm a socket data"
         });

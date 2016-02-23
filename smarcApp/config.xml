@@ -7,34 +7,11 @@
     <author email="info@smarchome.io" href="http://www.smarchome.io">
         Smarc Team
     </author>
-    <!-- for Android ONLY -->
-    <platform name="android">
-        <!-- Icons -->
-        <!-- <icon src="img/android/icon/ldpi.png"  width="57" height="57" density="ldpi" /> -->
-        <!-- <icon src="img/android/icon/mdpi.png"  width="57" height="57" density="mdpi" /> -->
-        <!-- <icon src="img/android/icon/hdpi.png"  width="57" height="57" density="hdpi" /> -->
-        <!-- <icon src="img/android/icon/xhdpi.png" width="57" height="57" density="xhdpi" /> -->
-
-        <!-- Splash Screen landscape -->
-        <!-- <splash src="img/android/splash/land-ldpi.png"  density="land-ldpi"/> -->
-        <!-- <splash src="img/android/splash/land-mdpi.png"  density="land-mdpi"/> -->
-        <!-- <splash src="img/android/splash/land-hdpi.png"  density="land-hdpi"/> -->
-        <!-- <splash src="img/android/splash/land-xhdpi.png" density="land-xhdpi"/> -->
-
-        <!-- Splash Screen portrait -->
-        <!-- <splash src="img/android/splash/port-ldpi.png"  density="port-ldpi"/> -->
-        <!-- <splash src="img/android/splash/port-mdpi.png"  density="port-mdpi"/> -->
-        <!-- <splash src="img/android/splash/port-hdpi.png"  density="port-hdpi"/> -->
-        <!-- <splash src="img/android/splash/port-xhdpi.png" density="port-xhdpi"/> -->
-
-        <!-- Splash Screen preferences -->
-        <preference name="AutoHideSplashScreen" value="false" />
-        <preference name="SplashMaintainAspectRatio" value="true" />    
-
-        <allow-intent href="market:*" />
-    </platform>
     <content src="index.html" />
     <plugin name="cordova-plugin-whitelist" spec="1" />
+    <plugin name="cordova-plugin-device" spec="1" />
+    <plugin name="cordova-plugin-splashscreen" spec="1" />
+    <plugin name="cordova-plugin-network-information" spec="1" />
     <access origin="*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
@@ -42,4 +19,31 @@
     <allow-intent href="sms:*" />
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
+
+    <!-- for Android ONLY -->
+    <platform name="android">
+        <allow-intent href="market:*" />
+        <!-- Icons -->
+        <icon src="www/img/android/icons/LDPI.png"  width="36" height="36" density="ldpi" />
+        <icon src="www/img/android/icons/MDPI.png"  width="48" height="48" density="mdpi" />
+        <icon src="www/img/android/icons/HDPI.png"  width="72" height="72" density="hdpi" />
+        <icon src="www/img/android/icons/XHDPI.png" width="96" height="96" density="xhdpi" />
+
+        <!-- Splash Screen landscape -->
+        <splash src="www/img/android/splash/land/LDPI.png"  density="land-ldpi"/>
+        <splash src="www/img/android/splash/land/MDPI.png"  density="land-mdpi"/>
+        <splash src="www/img/android/splash/land/HDPI.png"  density="land-hdpi"/>
+        <splash src="www/img/android/splash/land/XHDPI.png" density="land-xhdpi"/>
+
+        <!-- Splash Screen portrait -->
+        <splash src="www/img/android/splash/port/LDPI.png"  density="port-ldpi"/>
+        <splash src="www/img/android/splash/port/MDPI.png"  density="port-mdpi"/>
+        <splash src="www/img/android/splash/port/HDPI.png"  density="port-hdpi"/>
+        <splash src="www/img/android/splash/port/XHDPI.png" density="port-xhdpi"/>
+
+        <!-- Splash Screen preferences -->
+        <preference name="AutoHideSplashScreen" value="true" />
+        <preference name="SplashScreenDelay" value="10000" />
+        <preference name="SplashMaintainAspectRatio" value="true" />    
+    </platform>
 </widget>

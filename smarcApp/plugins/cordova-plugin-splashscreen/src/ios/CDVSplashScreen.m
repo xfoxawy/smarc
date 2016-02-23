@@ -244,10 +244,47 @@
     return imageName;
 }
 
+- (UIInterfaceOrientation)getCurrentOrientation
+{
+    UIInterfaceOrientation iOrientation = [UIApplication sharedApplication].statusBarOrientation;
+    UIDeviceOrientation dOrientation = [UIDevice currentDevice].orientation;
+
+    bool landscape;
+
+    if (dOrientation == UIDeviceOrientationUnknown || dOrientation == UIDeviceOrientationFaceUp || dOrientation == UIDeviceOrientationFaceDown) {
+        // If the device is laying down, use the UIInterfaceOrientation based on the status bar.
+        landscape = UIInterfaceOrientationIsLandscape(iOrientation);
+    } else {
+        // If the device is not laying down, use UIDeviceOrientation.
+        landscape = UIDeviceOrientationIsLandscape(dOrientation);
+
+        // There's a bug in iOS!!!! http://openradar.appspot.com/7216046
+        // So values needs to be reversed for landscape!
+        if (dOrientation == UIDeviceOrientationLandscapeLeft)
+        {
+            iOrientation = UIInterfaceOrientationLandscapeRight;
+        }
+        else if (dOrientation == UIDeviceOrientationLandscapeRight)
+        {
+            iOrientation = UIInterfaceOrientationLandscapeLeft;
+        }
+        else if (dOrientation == UIDeviceOrientationPortrait)
+        {
+            iOrientation = UIInterfaceOrientationPortrait;
+        }
+        else if (dOrientation == UIDeviceOrientationPortraitUpsideDown)
+        {
+            iOrientation = UIInterfaceOrientationPortraitUpsideDown;
+        }
+    }
+
+    return iOrientation;
+}
+
 // Sets the view's frame and image.
 - (void)updateImage
 {
-    NSString* imageName = [self getImageName:[[UIApplication sharedApplication] statusBarOrientation] delegate:(id<CDVScreenOrientationDelegate>)self.viewController device:[self getCurrentDevice]];
+    NSString* imageName = [self getImageName:[self getCurrentOrientation] delegate:(id<CDVScreenOrientationDelegate>)self.viewController device:[self getCurrentDevice]];
 
     if (![imageName isEqualToString:_curImageName])
     {
@@ -281,8 +318,8 @@
      * landscape. In this case the image must be rotated in order to appear
      * correctly.
      */
-    BOOL isIPad = [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad;
-    if (UIInterfaceOrientationIsLandscape(orientation) && !isIPad)
+    CDV_iOSDevice device = [self getCurrentDevice];
+    if (UIInterfaceOrientationIsLandscape(orientation) && !device.iPhone6Plus && !device.iPad)
     {
         imgTransform = CGAffineTransformMakeRotation(M_PI / 2);
         imgBounds.size = CGSizeMake(imgBounds.size.height, imgBounds.size.width);
@@ -331,17 +368,25 @@
 
         float fadeDuration = fadeSplashScreenDuration == nil ? kSplashScreenDurationDefault : [fadeSplashScreenDuration floatValue];
 
-        if ((fadeSplashScreenValue == nil) || ![fadeSplashScreenValue boolValue])
+        id splashDurationString = [self.commandDelegate.settings objectForKey: [@"SplashScreenDelay" lowercaseString]];
+        float splashDuration = splashDurationString == nil ? kSplashScreenDurationDefault : [splashDurationString floatValue];
+
+        if (fadeSplashScreenValue == nil)
+        {
+            fadeSplashScreenValue = @"true";
+        }
+
+        if (![fadeSplashScreenValue boolValue])
         {
             fadeDuration = 0;
         }
-        else if(fadeDuration < 30)
+        else if (fadeDuration < 30)
         {
             // [CB-9750] This value used to be in decimal seconds, so we will assume that if someone specifies 10
             // they mean 10 seconds, and not the meaningless 10ms
             fadeDuration *= 1000;
         }
-        
+
         if (_visible)
         {
             if (_imageView == nil)
@@ -349,26 +394,29 @@
                 [self createViews];
             }
         }
-        else if (fadeDuration == 0)
+        else if (fadeDuration == 0 && splashDuration == 0)
         {
             [self destroyViews];
         }
         else
         {
             __weak __typeof(self) weakSelf = self;
-            [UIView transitionWithView:self.viewController.view
-                            duration:(fadeDuration / 1000)
-                            options:UIViewAnimationOptionTransitionNone
-                            animations:^(void) {
-                                [weakSelf hideViews];
-                            }
-                            completion:^(BOOL finished) {
-                                if (finished) {
-                                    [weakSelf destroyViews];
-                                    // TODO: It might also be nice to have a js event happen here -jm
-                                }
-                            }
-             ];
+            float effectiveSplashDuration = (splashDuration - fadeDuration) / 1000;
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (uint64_t) effectiveSplashDuration * NSEC_PER_SEC), dispatch_get_main_queue(), CFBridgingRelease(CFBridgingRetain(^(void) {
+                   [UIView transitionWithView:self.viewController.view
+                                   duration:(fadeDuration / 1000)
+                                   options:UIViewAnimationOptionTransitionNone
+                                   animations:^(void) {
+                                       [weakSelf hideViews];
+                                   }
+                                   completion:^(BOOL finished) {
+                                       if (finished) {
+                                           [weakSelf destroyViews];
+                                           // TODO: It might also be nice to have a js event happen here -jm
+                                       }
+                                     }
+                    ];
+            })));
         }
     }
 }

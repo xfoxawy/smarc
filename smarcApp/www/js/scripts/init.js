@@ -20,10 +20,7 @@ var app = {
     //
     // The scope of 'this' is the event.
     onDeviceReady: function() {
-        // Smarc.run(function() {
-            // navigator.splashscreen.hide();
-        // });
-        // angular.bootstrap(document, ['Smarc']);
+        angular.bootstrap(document, ['Smarc']);
     }
 };
 
