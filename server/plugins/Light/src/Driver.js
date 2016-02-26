@@ -14,6 +14,8 @@ var Driver = function(Core){
 	this.errors = [];
 	// hold all points mapped to their original 
 	this.mappedPoints = [];
+	// hold all rooms in array
+	this.rooms = [];
 	// connect
 	(function connectNodes(){
 			// load nodes from database
@@ -23,6 +25,10 @@ var Driver = function(Core){
 					Telnet.connect(nodes[i].ip, nodes[i].port);
 				}
 			});
+			// load rooms from database
+			loadRooms(function(rooms){
+				self.rooms = rooms;
+			})
 	}());
 
 	// function load nodes from db
@@ -37,8 +43,16 @@ var Driver = function(Core){
 			cb(self.nodes);
 		});
 	};
-	
 
+	// load rooms instaces from database
+	function loadRooms (cb){
+		db.collection('rooms').find().toArray(function(err, docs){
+			if(err) throw err;
+			else if(docs.length){
+				cb(docs);
+			}
+		});
+	}
 	//once nodes loaded we can map them to be able to be used 
 	function mapPoints(){
 		
@@ -56,6 +70,7 @@ var Driver = function(Core){
 							p : self.nodes[y].points[x].p , 
 							i : self.nodes[y].points[x].i ,
 							s : self.nodes[y].points[x].s,
+							r : self.nodes[y].points[x].r,
 							node_name : self.nodes[y].name , 
 							node_status : self.nodes[y].connected, 
 							node_ip : self.nodes[y].ip
@@ -264,6 +279,9 @@ var Driver = function(Core){
 		destoryNode(nodeIp);
 	};
 
+	this.getRooms = function(){
+		return this.rooms;
+	};
 	this.mapPoints = mapPoints;
 };
 

@@ -20,6 +20,10 @@ var Delegator = function(Core){
 	this.deleteNode = function(nodeIp){
 		Driver.deleteNode(nodeIp);
 	};
+
+	this.getRooms =  function(){
+		return Driver.getRooms();
+	};
 };
 
 module.exports = Delegator;

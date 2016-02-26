@@ -4,9 +4,11 @@ module.exports = function(Core){
     var Delegator = new delegator(Core);
 
     Core.app.get('/light/toggle/:id', function(req,res){
-        var e = Delegator.toggle(req.params.id);
+        // toggle this point
+        Delegator.toggle(req.params.id);
         //Core.io.emit("light/point/" + req.params.id + "")
-        return res.status(200).json("ok"); // return status instead with id 
+        //return res.status(200).json({}); // return status instead with id 
+        res.status(200).json(Delegator.getAllStatus());
     });
 
     Core.app.get('/light/points', function(req, res){
@@ -17,5 +19,10 @@ module.exports = function(Core){
     Core.app.post('/light/new/', function(req,res){
         Delegator.createNewNode(req.body.node);
         return res.status(200).json("ok");
+    });
+
+    Core.app.get('/light/rooms', function(req,res){
+        var rooms = Delegator.getRooms();
+        res.status(200).json(rooms);
     });
 };
