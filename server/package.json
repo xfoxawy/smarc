@@ -29,6 +29,7 @@
     "jsonwebtoken": "^5.7.0",
     "minimist": "1.2.*",
     "mongodb": "2.*",
+    "nodemon": "^1.9.1",
     "socket.io": "1.*",
     "telnet-client": "0.*"
   },

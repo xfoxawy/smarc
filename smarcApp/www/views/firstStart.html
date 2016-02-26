@@ -1,0 +1,33 @@
+<md-dialog aria-label="Mango (Fruit)"  ng-cloak>
+    <form>
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2>Please type your config to begin</h2>
+                <span flex></span>
+            </div>
+        </md-toolbar>
+        <md-dialog-content>
+            <md-content flex layout-padding>
+                <md-subheader class="md-primary">Server Info</md-subheader>
+        
+                <md-input-container class="md-block" flex-gt-sm>
+                    <label>Server IP</label>
+                    <input ng-model="options.serverIp">
+                </md-input-container>
+                <md-input-container class="md-block" flex-gt-sm>
+                    <label>Server Port</label>
+                    <input ng-model="options.serverPort">
+                </md-input-container>
+            </md-content>
+        </md-dialog-content>
+        <md-dialog-actions layout="row">
+            <span flex></span>
+            <md-button ng-click="saveConfig()">
+                Save Settings
+            </md-button>
+            <md-button ng-click="closeApp()" style="margin-right:20px;">
+                Close App
+            </md-button>
+        </md-dialog-actions>
+    </form>
+</md-dialog>

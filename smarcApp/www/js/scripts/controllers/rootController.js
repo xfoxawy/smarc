@@ -3,18 +3,15 @@ smarc.controller('rootController', [
     '$http',
     '$location',
     '$mdSidenav',
-    'Room',
     'IO',
     'Auth',
-    function($scope, $http, $location, $mdSidenav, Room, IO, Auth){
-        // server iIP that will use in all requests to backend API.
-        $scope.serverIp = ( window.localStorage.getItem('options') ) ? JSON.parse( window.localStorage.getItem('options') ).serverIp : '';
-
+    'Startup',
+    function($scope, $http, $location, $mdSidenav, IO, Auth, Startup){
         /**
          * for test purbose
          */
         IO.on('overallStatus', function(data){
-            console.log(data);
+            // console.log(data);
             // $scope.overallStatus = data;
         });
 
@@ -29,7 +26,8 @@ smarc.controller('rootController', [
         /*********************************************/
 
         $scope.currentPage = '';
-        $scope.rooms = Room.rooms;
+        $scope.rooms       = {};
+        $scope.points      = [];
         
         $scope.$on('$locationChangeStart', function(event) {
             $scope.currentPage = $location.path().substr(1);
@@ -69,25 +67,55 @@ smarc.controller('rootController', [
             if ($scope.currentPage != 'login') $mdSidenav(id).close();
         };
 
+        $scope.openRoom = function(id){
+            // show just room points;
+        };
+
         /**
          * After all things Done Hide splash Screen
          */
         $scope.appReady = function(){
+            window.localStorage.removeItem('notFirstStart');
+            
+            var notFirstStart = window.localStorage.getItem('notFirstStart');
+            
             // get auth from local storage
-            var auth = window.localStorage.getItem('auth');
+            var auth          = window.localStorage.getItem('auth');
 
-            // if present then
-            if (auth) {
-                // redirect to home page
-                $location.path("/home");
+            if (notFirstStart) {
+                // if present then
+                if (auth) {
+                    // redirect to home page
+                    $location.path("/home");
 
-                // hide loading screen
-                // navigator.splashscreen.hide();
+                    // init application
+                    refresh();
+
+                    // hide loading screen
+                    // navigator.splashscreen.hide();
+                } else {
+                    // redirect to login page
+                    $location.path("/login");
+                };
             } else {
-                // redirect to login page
-                $location.path("/login");
-            }
-
+                // show page for typing config
+                Startup.showSetConfig(function(){
+                    // reload the app
+                    console.log('refresh app');
+                    refresh();
+                });
+            };
         };
+
+        function refresh(){
+            console.log('refreshing app');
+            Startup.refresh(function(status){
+                console.log('app refreshed');
+                // update app status
+                $scope.rooms  = status.rooms;
+                $scope.points = status.points;
+            });
+        };
+
     }
 ]);
