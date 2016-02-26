@@ -46,7 +46,7 @@ function receiveData(socket, data) {
     }
 
     var output = "";
-    var points = ['0','1','2'];
+    var points = ['0','1','2','3'];
 
     if(/^o\d,\d/.test(cleanData))
     {
@@ -71,7 +71,7 @@ function receiveData(socket, data) {
     }
     switch ( cleanData ) {    
         case 'r':
-            output += "I0,0-1,0-2,1\r\n";
+            output += "I0,0-1,0-2,1-3,0\r\n";
             sendData(socket, output);
             break;
         case 'quit':
