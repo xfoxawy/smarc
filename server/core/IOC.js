@@ -9,6 +9,7 @@ var IOC = function(){
     this.loadPlugins = function(Core){
         // console.log(Config.pluginsDir);
         fs.readdir(Config.pluginsDir, function(err, files){
+        	if(err) throw err;
             files.forEach(function(file, index){
                 var plugin = require(Config.pluginsDir + file);
                 plugin.register(Core);

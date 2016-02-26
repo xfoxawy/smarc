@@ -6,7 +6,7 @@ module.exports = function(Core){
     Core.app.get('/light/toggle/:id', function(req,res){
         var e = Delegator.toggle(req.params.id);
         //Core.io.emit("light/point/" + req.params.id + "")
-        return res.status(200).json("ok");
+        return res.status(200).json("ok"); // return status instead with id 
     });
 
     Core.app.get('/light/points', function(req, res){

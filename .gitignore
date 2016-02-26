@@ -5,3 +5,7 @@ smarc.sublime-workspace
 Smarc.sublime-workspace
 Smarc.sublime-project
 SOURCE
+
+*.log
+
+server/plugins/Light/src/output.json
