@@ -11,6 +11,7 @@ var IOC = function(){
     this.loadPlugins = function(Core){
         IOC = this;
         fs.readdir(Config.pluginsDir, function(err, files){
+            if(err) throw err;
             files.forEach(function(item, index){
                 if (CorePlugins.indexOf(item) == -1) CorePlugins.push(item);
             });
