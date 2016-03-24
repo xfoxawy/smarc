@@ -4,6 +4,9 @@ smarc.factory('Auth', ['$http', '$location', function($http, $location){
         return ( window.localStorage.getItem('options') ) ? JSON.parse( window.localStorage.getItem('options') ) : {};
     };
     return {
+        isLogin: function(){
+            return window.localStorage.getItem('auth');
+        },
         login: function(data, cb){
             $http.post('http://'+ config().serverIp +':'+ config().serverPort +'/signin', {
                 name:     data.name,
