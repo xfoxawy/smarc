@@ -25,4 +25,8 @@ module.exports = function(Core){
         var rooms = Delegator.getRooms();
         res.status(200).json(rooms);
     });
+
+    Core.app.get('/checkConnection', function(req,res){
+        res.status(200).json({msg : 'ok'});
+    });
 };
