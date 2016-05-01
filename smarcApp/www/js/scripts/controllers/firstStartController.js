@@ -16,8 +16,8 @@ smarc.controller('firstStartController', [
         };
 
         $scope.closeApp = function(){
-            console.log("closing");
-            // navigator.app.exitApp();
+            // console.log("closing");
+            navigator.app.exitApp();
         };
 
     }

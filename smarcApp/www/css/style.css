@@ -4,6 +4,13 @@ html, body, #appContainer {
     width: 100%;
     height: 100%;
 }
+#appContainer, .login-form {
+    background: #598bc7; /* Old browsers */
+    background: -moz-radial-gradient(center, ellipse cover, #598bc7 0%, #03070a 100%); /* FF3.6-15 */
+    background: -webkit-radial-gradient(center, ellipse cover, #598bc7 0%,#03070a 100%); /* Chrome10-25,Safari5.1-6 */
+    background: radial-gradient(ellipse at center, #598bc7 0%,#03070a 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#598bc7', endColorstr='#03070a',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+}
 
 md-icon {
     font-size: 1.5em;
@@ -11,7 +18,7 @@ md-icon {
 
 .page {
     position: absolute;
-    top: 56px;
+    top: 62px;
     bottom: 0;
     left: 0;
     right: 0;
@@ -29,7 +36,6 @@ md-icon {
     
     top: 0 !important;
     z-index: 5;
-    background: #fff;
 }
 .login-form md-card {
     margin: auto;
@@ -53,7 +59,37 @@ md-icon {
 .login-form .login-form-container {
     padding: 35px;
 }
-.home-container {}
-.home-container md-card {
-    float: left;
+
+/*.card-container:nth-child(5n+1) .card { background: #8CE1FF; }
+.card-container:nth-child(5n+2) .card { background: #A7DDFD; }
+.card-container:nth-child(5n+3) .card { background: #F3E2D1; }
+.card-container:nth-child(5n+4) .card { background: #8DC2E6; }
+.card-container:nth-child(5n+5) .card { background: #8CCCFF; }*/
+
+.card-container:nth-child(odd) .card {
+    margin-right: 13px;
+}
+.card-container:nth-child(even) .card {
+    margin-left: 13px;
+}
+.card-container .card {
+    margin-bottom: 20px;
+    height: 130px;
+    /*background: #eee;*/
+    outline: none;
+}
+.card-container .card .icon {
+    text-align: center;
+    height: 80px;
+    padding: 5px 0;
+}
+.card-container .card .icon img {
+    width: 50px;
+}
+.card-container .card .name {
+    text-align: center;
+    height: 40px;
+    line-height: 40px;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.1);
 }

@@ -1,10 +1,8 @@
 @font-face {
     font-family: 'Smarc';
-    src:url('../fonts/Smarc.eot?am6elh');
-    src:url('../fonts/Smarc.eot?am6elh#iefix') format('embedded-opentype'),
-        url('../fonts/Smarc.ttf?am6elh') format('truetype'),
-        url('../fonts/Smarc.woff?am6elh') format('woff'),
-        url('../fonts/Smarc.svg?am6elh#Smarc') format('svg');
+    src:url('../fonts/Smarc.ttf?8pdsms') format('truetype'),
+        url('../fonts/Smarc.woff?8pdsms') format('woff'),
+        url('../fonts/Smarc.svg?8pdsms#Smarc') format('svg');
     font-weight: normal;
     font-style: normal;
 }
@@ -27,5 +25,8 @@
 .smarc-menu:before      { content: "\e20e"; }
 .smarc-options:before   { content: "\e2cb"; }
 .smarc-more_vert:before { content: "\e5d4"; }
+.smarc-light-on:before  { content: "\e900"; }
+.smarc-light-off:before { content: "\f0eb"; }
+
 
 

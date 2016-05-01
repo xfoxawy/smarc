@@ -1,26 +1,15 @@
 smarc.controller('homeController', [
+	'$rootScope',
 	'$scope',
 	'$http',
-	'Miscellaneous',
-	function($scope, $http, Miscellaneous){
-		$scope.points = $scope.$parent.points;
-	    
-	    // $scope.toggle = function(id){
-	    // 	$http({
-	    // 		method: "GET",
-	    // 		url: "http://192.168.0.177:3050/light/toggle/" + id
-	    // 	}).then(function(data){
-	    // 		console.log(data);
-	    // 	});
-	    // };
-
-	    // $scope.testJwt = function(){
-	    // 	$http({
-	    // 		method: "GET",
-	    // 		url: "http://localhost:3050/testjwt"
-	    // 	}).then(function(data){
-	    // 		console.log(data);
-	    // 	});
-	    // };
+	'Server',
+	function($rootScope, $scope, $http, Server){
+	    // get all points and rooms
+        Server.getStatus().then(function(response){
+            $rootScope.rooms  = response.data.rooms;
+            $rootScope.points = response.data.points;
+        }, function(response){
+            console.log(response);
+        });
 	}
 ]);

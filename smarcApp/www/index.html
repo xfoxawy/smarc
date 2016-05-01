@@ -70,6 +70,9 @@
                 </md-toolbar>
                 <md-content layout-padding>
                     <md-list>
+                        <md-list-item href="#home" ng-click="closeSidebar('mainSidebar')">
+                            <p> All Points </p>
+                        </md-list-item>
                         <md-list-item ng-repeat="room in rooms" href="#room/{{ room.id }}" ng-click="closeSidebar('mainSidebar')">
                             <p> {{ room.name }} </p>
                         </md-list-item>
@@ -109,7 +112,7 @@
         <script src="js/scripts/controllers/noInternetConnectionExController.js"></script>
 
         <!-- Providers -->
-        <script src="js/scripts/providers/ioFactory.js"></script>
+        <!-- <script src="js/scripts/providers/EventSourceFactory.js"></script> -->
         <script src="js/scripts/providers/AuthFactory.js"></script>
         <script src="js/scripts/providers/LightFactory.js"></script>
         <script src="js/scripts/providers/ServerFactory.js"></script>

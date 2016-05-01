@@ -5,8 +5,6 @@ var express     = require("express");
 var bodyParser  = require("body-parser");
 var Core        = {};
     Core.app    = express();
-var http        = require("http").Server(Core.app);
-    Core.io     = require('socket.io')(http);
 var Config      = require("./Config");
 var IOC         = require("./IOC");
 var path        = require("path");
@@ -19,6 +17,7 @@ var crossOriginEnable = require('./Middlewares/crossOriginEnableMiddleware');
 MongoClient.connect('mongodb://'+ Config.db.host +':'+ Config.db.port +'/'+ Config.db.name).then(
 // connect success with database
 function(db){
+    console.log('DB Connected');
     /**
      * save database connection to Core to be ble to pass it to plugins
      */
@@ -48,25 +47,12 @@ function(db){
      * load Plugins from IOC container
      */
     IOC.loadPlugins(Core);
-
-    /**
-     * start Socket.IO
-     */
-    Core.io.on('connection', function(socket){
-        console.log('IO detect new Client');
-        // send back current status to this socket
-        socket.emit("overallStatus", {one: "One", two: "Two"});
-
-        // socket.on('disconnect', function(){
-        //     console.log('user disconnected');
-        // });
-    });
 },
 // connect failed with database
 function(err){
     throw err;
 });
 
-http.listen(3050, function(){
+Core.app.listen(3050, function(){
     console.log('listening on *:3050');
 });

@@ -7,32 +7,36 @@ smarc.config([
             '$q',
             '$location',
             function ($q, $location) {
+                function getAuth(){
+                    return ( window.localStorage.getItem('auth') ) ? window.localStorage.getItem('auth') : {};
+                };
                 return {
                     'request': function(config) {
-                        var auth = window.localStorage.getItem('auth');
+                        var auth = getAuth();
                         // config.data = config.data || {};
                         config.headers = config.headers || {};
                         // if (auth) config.data.auth = auth;
                         if (auth) config.headers.auth = auth;
                         return config;
                     }
-                    // ,'responseError': function (response) {
-                    //     if (response.status === 401 || response.status === 406) {
-                    //         alert = $mdDialog.alert()
-                    //             .title('Error')
-                    //             .textContent('You don\'t have premission to do that!!')
-                    //             .clickOutsideToClose(true)
-                    //             .ok('Back');
+                    ,'responseError': function (response) {
+                        if (response.status === 401 || response.status === 406) {
+                            console.log('not authed');
+                        //     alert = $mdDialog.alert()
+                        //         .title('Error')
+                        //         .textContent('You don\'t have premission to do that!!')
+                        //         .clickOutsideToClose(true)
+                        //         .ok('Back');
 
-                    //         $mdDialog
-                    //             .show( alert )
-                    //             .finally(function() {
-                    //                 alert = undefined;
-                    //             }
-                    //         );
-                    //     };
-                    //     return $q.reject(response);
-                    // }
+                        //     $mdDialog
+                        //         .show( alert )
+                        //         .finally(function() {
+                        //             alert = undefined;
+                        //         }
+                        //     );
+                        };
+                        return $q.reject(response);
+                    }
                 };
             }
         ]);

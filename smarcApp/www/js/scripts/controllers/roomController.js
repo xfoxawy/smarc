@@ -1,14 +1,19 @@
 smarc.controller('roomController', [
+    '$rootScope',
     '$scope',
     '$routeParams',
-    function($scope, $routeParams){
-        console.log($scope.$parent);
-        $scope.roomPoints = $scope.$parent.points.filter(function(val){
-            return val.r == $routeParams.id;
-        });
-
-        $scope.togglePoint = function(id){
-            console.log(id);
-        };
+    function($rootScope, $scope, $routeParams){
+        $scope.id = $routeParams.id;
+        // function filter(obj, id) {
+        //     var result = {}, key;
+        //     // ---------------^---- as noted by @CMS, 
+        //     // always declare variables with the "var" keyword
+        //     for (key in obj) {
+        //         if ( obj.hasOwnProperty(key) && obj[key].r == id ) {
+        //             result[key] = obj[key];
+        //         }
+        //     }
+        //     return result;
+        // };
     }
 ]);
