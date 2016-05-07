@@ -7,17 +7,21 @@ smarc.factory('Light', [
         };
         return {
             toggle: function(id){
-                // return $http({
-                //     method: "GET",
-                //     url: "http://" + config().serverIp + ":" + config().serverPort + "/light/toggle/" + id
-                // });
-                return $q(function(resolve, reject) {
-                    var data = {
-                        's': true,
-                        'r': 1,
-                    };
-                    resolve(data);
-                });
+                if (env == "production") {
+                    return $http({
+                        method: "GET",
+                        url: "http://" + config().serverIp + ":" + config().serverPort + "/light/toggle/" + id
+                    });
+                }
+                if (env == "development") {
+                    return $q(function(resolve, reject) {
+                        var data = {
+                            's': true,
+                            'r': 1,
+                        };
+                        resolve(data);
+                    });
+                }
             },
         }
     }

@@ -22,11 +22,13 @@ smarc.controller('rootController', [
             var source = new EventSource("http://"+ config().serverIp +":"+ config().serverPort +"/notification");
 
             source.onmessage = function(e) {
-                console.log(e.data);
                 // update UI
-                // console.log(JSON.parse(e.data));
+                console.log(JSON.parse(e.data));
+                // $rootScope.rooms  = data.rooms;
+                $rootScope.points = JSON.parse(e.data);
+
                 // after updating UI, confirm the changes by ...
-                // $scope.$apply();
+                $rootScope.$apply();
             };
         } else {
             // Sorry! No server-sent events support..
@@ -81,7 +83,9 @@ smarc.controller('rootController', [
 
         $scope.appReady = function(){
             // hide splash screen;
-            // navigator.splashscreen.hide();
+            if (env == "production") {
+                navigator.splashscreen.hide();
+            }
 
             // show loading page
             Loading.show('check internet connection', function(){

@@ -4,7 +4,19 @@ var redis           = require("redis"),
 module.exports = function(Core){
 
     Core.app.get('/test-notification/:e', function(req, res){
-        publisherClient.publish('updates', req.params.e );
+        var json = {
+            'p177': { 's': false, 'r': '1' },
+            'p178': { 's': false, 'r': '2' },
+            'p179': { 's': true,  'r': '3' },
+            'p180': { 's': true,  'r': '2' },
+            'p181': { 's': false, 'r': '3' },
+            'p182': { 's': true,  'r': '1' },
+            'p183': { 's': false, 'r': '2' },
+            'p184': { 's': false, 'r': '1' },
+            'p185': { 's': false, 'r': '3' },
+            'p186': { 's': true,  'r': '3' },
+        };
+        publisherClient.publish( 'updates', JSON.stringify(json) );
         res.end();
     });
 
