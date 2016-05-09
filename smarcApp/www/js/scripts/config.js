@@ -46,6 +46,10 @@ smarc.config([
             templateUrl: "views/options.html",
             controller: "optionsController"
         })
+        .when('/room/:id', {
+            templateUrl: "views/room.html",
+            controller: "roomController"
+        })
         .when('/login', {
             templateUrl: "views/login.html",
             controller: "signController"

@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8" />
         
-        <meta http-equiv="Content-Security-Policy" content="default-src *; img-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; media-src *">
+        <meta http-equiv="Content-Security-Policy" content="default-src *;font-src 'self' data:; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; media-src *">
 
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
 
@@ -70,7 +70,7 @@
                 </md-toolbar>
                 <md-content layout-padding>
                     <md-list>
-                        <md-list-item ng-repeat="room in rooms" ng-click="closeSidebar('mainSidebar')">
+                        <md-list-item ng-repeat="room in rooms" href="#room/{{ room.id }}" ng-click="closeSidebar('mainSidebar')">
                             <p> {{ room.name }} </p>
                         </md-list-item>
                     </md-list>
@@ -101,14 +101,20 @@
 
         <!-- Controllers -->
         <script src="js/scripts/controllers/rootController.js"></script>
+        <script src="js/scripts/controllers/roomController.js"></script>
         <script src="js/scripts/controllers/homeController.js"></script>
         <script src="js/scripts/controllers/signController.js"></script>
         <script src="js/scripts/controllers/optionsController.js"></script>
+        <script src="js/scripts/controllers/firstStartController.js"></script>
+        <script src="js/scripts/controllers/noInternetConnectionExController.js"></script>
 
         <!-- Providers -->
         <script src="js/scripts/providers/ioFactory.js"></script>
-        <script src="js/scripts/providers/RoomFactory.js"></script>
         <script src="js/scripts/providers/AuthFactory.js"></script>
+        <script src="js/scripts/providers/LightFactory.js"></script>
+        <script src="js/scripts/providers/ServerFactory.js"></script>
+        <script src="js/scripts/providers/LoadingService.js"></script>
+        <script src="js/scripts/providers/ConnectionService.js"></script>
 
         <!-- Directives -->
         <script src="js/scripts/directives/ngAppReady.js"></script>

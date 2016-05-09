@@ -13,7 +13,8 @@ module.exports = function(Core){
 
     Core.app.get('/light/points', function(req, res){
         var e = Delegator.getAllStatus();
-        return res.status(200).json(e);
+        var rooms = Delegator.getRooms();
+        return res.status(200).json({'points' : e, 'rooms' : rooms});
     });
 
     Core.app.post('/light/new/', function(req,res){
