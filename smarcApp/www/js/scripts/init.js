@@ -1,6 +1,10 @@
-angular.element(document).ready(function() {
-    angular.bootstrap(document, ['Smarc']);
-});
+window.env = "development";
+
+if (env == "development") {
+    angular.element(document).ready(function() {
+        angular.bootstrap(document, ['Smarc']);
+    });
+}
 
 var app = {
     // Application Constructor
@@ -25,4 +29,6 @@ var app = {
 };
 
 // start init app
-// app.initialize();
+if (env == "production") {
+    app.initialize();
+}

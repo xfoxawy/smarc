@@ -12,19 +12,17 @@ smarc.service('Connection', [
         this.check = function(content) {
             return $q(function(resolve, reject) {
                 var networkState = navigator.connection.type;
-                // if (networkState == 'unknown' || networkState == 'none') reject();
-                resolve();
+                if (env == "production") {
+                    if (networkState == 'unknown' || networkState == 'none') {
+                        reject();
+                    } else {
+                        resolve();
+                    }
+                }
+                if (env == "development") {
+                    resolve();
+                }
             });
         };
-
-        // this.toServer = function(){
-        //     Server.connectToServer().then(function(){
-        //         Loading.hide();
-        //         Server.getStatus();
-        //     }, function(){
-        //         Loading.hide();
-        //         Loading.configPage();
-        //     });
-        // };
     }
 ]);

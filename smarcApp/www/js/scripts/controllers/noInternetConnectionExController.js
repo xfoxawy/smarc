@@ -5,8 +5,12 @@ smarc.controller('noInternetConnectionExController', [
     'Connection',
     function($scope, $mdDialog, Loading, Connection) {
         $scope.close = function(){
-            console.log('closing app');
-            // navigator.app.exitApp();
+            if (env == "production") {
+                navigator.app.exitApp();
+            }
+            if (env == "edvelopment") {
+                console.log('closing app');
+            }
         };
 
         $scope.reload = function(data) {

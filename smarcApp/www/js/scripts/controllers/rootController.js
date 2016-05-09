@@ -4,15 +4,37 @@ smarc.controller('rootController', [
     '$http',
     '$location',
     '$mdSidenav',
-    'IO',
     'Auth',
     'Loading',
     'Connection',
     'Server',
-    function($rootScope, $scope, $http, $location, $mdSidenav, IO, Auth, Loading, Connection, Server){
+    'Light',
+    function($rootScope, $scope, $http, $location, $mdSidenav, Auth, Loading, Connection, Server, Light){
         $scope.currentPage = '';
         $rootScope.rooms   = {};
         $rootScope.points  = [];
+
+        function config(){
+            return ( window.localStorage.getItem('options') ) ? JSON.parse( window.localStorage.getItem('options') ) : {};
+        };
+        if (typeof EventSource !== "undefined") {
+            // Yes! Server-sent events support!
+            var source = new EventSource("http://"+ config().serverIp +":"+ config().serverPort +"/notification");
+
+            source.onmessage = function(e) {
+                // update UI
+                console.log(JSON.parse(e.data));
+                // $rootScope.rooms  = data.rooms;
+                $rootScope.points = JSON.parse(e.data);
+
+                // after updating UI, confirm the changes by ...
+                $rootScope.$apply();
+            };
+        } else {
+            // Sorry! No server-sent events support..
+            alert('SSE not supported by browser.');
+        }
+
         
         $scope.$on('$locationChangeStart', function(event) {
             $scope.currentPage = $location.path().substr(1);
@@ -52,12 +74,21 @@ smarc.controller('rootController', [
             // show just room points;
         };
 
+        $scope.toggle = function(id){
+            console.log(id);
+            Light.toggle(id).then(function(response){
+                $rootScope.points[id] = response;
+            }, function(){});
+        };
+
         $scope.appReady = function(){
             // hide splash screen;
-            // navigator.splashscreen.hide();
+            if (env == "production") {
+                navigator.splashscreen.hide();
+            }
 
             // show loading page
-            Loading.show('checking internet connection', function completeShowing(){
+            Loading.show('check internet connection', function(){
 
                 // check internet connection
                 Connection.check().then(function success(){
@@ -71,7 +102,7 @@ smarc.controller('rootController', [
                             Loading.configPage();
                         } else {
                             Loading.hide();
-                            Server.connectToServer().then(function(){
+                            Server.connectToServer().then(function(data){
                                 // check Auth
                                 if ( Auth.isLogin() ) {
                                     // get all points and rooms
@@ -93,73 +124,7 @@ smarc.controller('rootController', [
                     Loading.hide();
                     Loading.noInternetConnectionEx();
                 });
-                
             });
         };
-
-        /**
-         * After all things Done Hide splash Screen
-         */
-        // $scope.appReady = function(){
-            // window.localStorage.removeItem('notFirstStart');
-            
-            // var notFirstStart = window.localStorage.getItem('notFirstStart');
-            
-            // get auth from local storage
-            // var auth          = window.localStorage.getItem('auth');
-
-            // if (notFirstStart) {
-                // if present then
-                // if (auth) {
-                    // redirect to home page
-                    // $location.path("/home");
-
-                    // init application
-                    // refresh();
-
-                    // hide loading screen
-                    // navigator.splashscreen.hide();
-                // } else {
-                    // redirect to login page
-                    // $location.path("/login");
-                // };
-            // } else {
-                // show page for typing config
-                // Startup.showSetConfig(function(){
-                    // reload the app
-                    // console.log('refresh app');
-                    // refresh();
-                // });
-            // };
-        // };
-
-        // function refresh(){
-        //     console.log('refreshing app');
-        //     Startup.refresh(function(status){
-        //         console.log('app refreshed');
-        //         // update app status
-        //         $scope.rooms  = status.rooms;
-        //         $scope.points = status.points;
-        //     });
-        // };
-
-
-        /**
-         * for test purbose
-         */
-        // IO.on('overallStatus', function(data){
-            // console.log(data);
-            // $scope.overallStatus = data;
-        // });
-
-        // $scope.test = function(){
-        //     $http({
-        //         method: "GET",
-        //         url: "http://localhost:3050/test2"
-        //     }).then(function(data){
-        //         $scope.tests = data.data;
-        //     });
-        // };
-        /*********************************************/
     }
 ]);

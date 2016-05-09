@@ -18,7 +18,6 @@ module.exports = function(Core){
             password: ['required']
         };
         Validate.make(user, methods, function(errs){
-            // return res.status(403).json(errs);
             if (errs) return res.status(403).end();
 
             // search for user in DB.
