@@ -17,7 +17,7 @@ var Connection = function(){
 		socket.setNoDelay(true);
 		// handle on connect
 		socket.on('connect', function(){
-			//console.log(address + ' connected');
+			console.log(address + ' connected');
 			process.emit('light/sockets/'+address, socket);
 			self.notify('connected',{address,socket});
 		});
@@ -43,13 +43,13 @@ var Connection = function(){
 		
 		// handle on connection timeout
 		socket.on('timeout', function(){
-			//console.log(address +" socket has been timeouted");
+			console.log(address +" socket has been timeouted");
 			self.notify('timeout',{address})
 		});
 		
 		// handle on connection timeout
 		socket.on('end', function(){
-			//console.log(address +" socket has been closed");
+			console.log(address +" socket has been closed");
 			self.notify('end', {address});
 		});
 

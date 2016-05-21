@@ -61,21 +61,26 @@ var Driver = function(Core){
 		{
 			for(var x = 0; x < self.nodes[y].points.length; x++)
 			{
+					// if not saved in db ,, save it
 					if(!self.nodes[y].points[x].p){
 						self.nodes[y].points[x].p = "p" + Math.floor((Math.random()*100)+(Math.random()*100));
 						saveMappedPoint(self.nodes[y].name , self.nodes[y].points[x])
 					}
 
-					var newMappedPoint = { 
-							p : self.nodes[y].points[x].p , 
-							i : self.nodes[y].points[x].i ,
-							s : self.nodes[y].points[x].s,
-							r : self.nodes[y].points[x].r,
-							node_name : self.nodes[y].name , 
-							node_status : self.nodes[y].connected, 
-							node_ip : self.nodes[y].ip
-						};
-					self.mappedPoints.push(newMappedPoint);
+					// push if connected
+					if(self.nodes[y].connected){
+						var newMappedPoint = { 
+								p : self.nodes[y].points[x].p , 
+								i : self.nodes[y].points[x].i ,
+								s : self.nodes[y].points[x].s,
+								r : self.nodes[y].points[x].r,
+								node_name : self.nodes[y].name , 
+								node_status : self.nodes[y].connected, 
+								node_ip : self.nodes[y].ip
+							};
+						
+						self.mappedPoints.push(newMappedPoint);
+					}
 			}
 		}
 		return self.mappedPoints;
@@ -136,6 +141,19 @@ var Driver = function(Core){
 		return false;
 	};
 
+	/**
+	 * Updates Point's Status in DB
+	 * @param  {string} nodeName node's name in db
+	 * @param  {INT} pointID  [description]
+	 */
+	function updatePointStatusDB(nodeName, pointID , pointStatus)
+	{
+		// returnconsole.log(arguments);
+
+		db.collection(model).update({ name : nodeName, points : {$elemMatch : { i : pointID } } }, { $set : { "points.$.s" : pointStatus } }, function(err){
+			if(err) throw err;
+		});
+	}
 	// find point object in node
 	function findPointInNode(node ,pointId){
 		for(var i = 0; i < node.points.length; i++)
@@ -182,18 +200,20 @@ var Driver = function(Core){
 			var pointId = data.slice(1,2);
 			var newstatus = (Number(data.split(',')[1]) == 0) ? false : true;
 			var point = findPointInNode(node,pointId);
+			updatePointStatusDB(node.name , point , newstatus);
 			point.s = newstatus;
 		}
 		else if(/(I)*(\d*\d,[0-1]){1}-/.test(data)){
 			// remove I and split on - delimiter
 			var all = data.substring(1).trim().split('-');
-			// iterate and update the points statuses 			
+			// iterate and update the points statuses in memory and db			
 			for(var i = 0; i < all.length; i++){
 				if(all[i])
 				{
 					var pointId = all[i].split(',')[0];
 					var newstatus = (Number(all[i].split(',')[1]) == 0) ? false : true;
 					var point = findPointInNode(node,pointId);
+					updatePointStatusDB(node.name , point , newstatus);
 					point.s = newstatus;
 				}
 			}
@@ -232,8 +252,7 @@ var Driver = function(Core){
 	 * @param  {[type]} order  [description]
 	 * @return {[type]}        [description]
 	 */
-	this.exec = function(nodeIp,order){
-		var node = findNodeByIp(nodeIp);
+	this.exec = function(node,order){
 		if(node.connected)
 		{
 			node.socket.write(order + '\r\n');
@@ -243,19 +262,39 @@ var Driver = function(Core){
 		}	
 	};
 
+	this.turnOn = function(nodeIp , pointNumber)
+	{
+		var node = findNodeByIp(nodeIp);
+		var order = 'O' + pointNumber + ',1';
+		var last_status = updatePointStatusDB(node.node_name, pointNumber , true);
+		self.exec(node, order);
+	};
+
+	this.turnOff =  function(point)
+	{
+		var order = 'O' + pointNumber + ',0';
+		var last_status = updatePointStatusDB(node.node_name, pointNumber , false);
+		self.exec(node, order);
+	};
+
 	this.toggle = function(pointNumber){
 		var pointNumber = pointNumber || '';
 		mapPoints();
 		var point = findPointInMappedPoints(pointNumber);
+		console.log(point);
 
 		if(point.node_status === true)
 		{
 			if(point.s === false)
-				return self.exec(point.node_ip , 'O'+point.i+',1');
-			else if(point.s === true)
-				return self.exec(point.node_ip , 'O'+point.i+',0');
-			else
+			{
+				self.turnOn(point);
+			}
+			else if(point.s === true){
+				self.turnOff(point);
+			}
+			else{
 				throw "unknown point status , point number:-> " + pointNumber + " node ip:-> " + point.node_ip ;
+			}
 
 		}
 		else if(point.node_status === false){
