@@ -148,9 +148,7 @@ var Driver = function(Core){
 	 */
 	function updatePointStatusDB(nodeName, pointID , pointStatus)
 	{
-		// returnconsole.log(arguments);
-
-		db.collection(model).update({ name : nodeName, points : {$elemMatch : { i : pointID } } }, { $set : { "points.$.s" : pointStatus } }, function(err){
+		db.collection(model).update({name : nodeName, points : {$elemMatch: { i : pointID } } }, { $set : { "points.$.s" : pointStatus} }, function(err){
 			if(err) throw err;
 		});
 	}
@@ -200,8 +198,9 @@ var Driver = function(Core){
 			var pointId = data.slice(1,2);
 			var newstatus = (Number(data.split(',')[1]) == 0) ? false : true;
 			var point = findPointInNode(node,pointId);
-			updatePointStatusDB(node.name , point , newstatus);
 			point.s = newstatus;
+			updatePointStatusDB(node.name , point.i , newstatus);
+			console.log("the status has been updated for " + pointId + " with status " + newstatus);
 		}
 		else if(/(I)*(\d*\d,[0-1]){1}-/.test(data)){
 			// remove I and split on - delimiter
@@ -252,7 +251,8 @@ var Driver = function(Core){
 	 * @param  {[type]} order  [description]
 	 * @return {[type]}        [description]
 	 */
-	this.exec = function(node,order){
+	this.exec = function(nodeIp,order){
+		var node = findNodeByIp(nodeIp);
 		if(node.connected)
 		{
 			node.socket.write(order + '\r\n');
@@ -262,26 +262,24 @@ var Driver = function(Core){
 		}	
 	};
 
-	this.turnOn = function(nodeIp , pointNumber)
+	this.turnOn = function(point)
 	{
-		var node = findNodeByIp(nodeIp);
-		var order = 'O' + pointNumber + ',1';
-		var last_status = updatePointStatusDB(node.node_name, pointNumber , true);
-		self.exec(node, order);
+		var order = 'O' + point.i + ',1';
+		var last_status = updatePointStatusDB(point.node_name, point.i , true);
+		self.exec(point.node_ip, order);
 	};
 
 	this.turnOff =  function(point)
 	{
-		var order = 'O' + pointNumber + ',0';
-		var last_status = updatePointStatusDB(node.node_name, pointNumber , false);
-		self.exec(node, order);
+		var order = 'O' + point.i + ',0';
+		var last_status = updatePointStatusDB(point.node_name, point.i , false);
+		self.exec(point.node_ip, order);
 	};
 
 	this.toggle = function(pointNumber){
 		var pointNumber = pointNumber || '';
 		mapPoints();
 		var point = findPointInMappedPoints(pointNumber);
-		console.log(point);
 
 		if(point.node_status === true)
 		{
