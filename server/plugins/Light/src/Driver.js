@@ -1,5 +1,7 @@
 var Telnet = require('./Connection');
 var EventEmitter = new(require('events').EventEmitter);
+var Transformer = require('./Transformer');
+
 /**
  * Light Plugin Driver
  */
@@ -8,6 +10,7 @@ var Driver = function(Core){
 	var self = this;
 	var model = "light";
 	var db = Core.db;
+	var publisherClient = Core.redis.createClient();
 	// all nodes placeholder
 	this.nodes = [];
 	// all errors placeholder
@@ -152,6 +155,15 @@ var Driver = function(Core){
 			if(err) throw err;
 		});
 	}
+
+	/**
+	 * publish a json statuses of all points to redis server
+	 */
+	function publishPointsStatusUpdates()
+	{
+		publisherClient.publish('updates',JSON.stringify(Transformer.transform(mapPoints())));
+	}
+
 	// find point object in node
 	function findPointInNode(node ,pointId){
 		for(var i = 0; i < node.points.length; i++)
@@ -200,6 +212,7 @@ var Driver = function(Core){
 			var point = findPointInNode(node,pointId);
 			point.s = newstatus;
 			updatePointStatusDB(node.name , point.i , newstatus);
+			publishPointsStatusUpdates();
 			console.log("the status has been updated for " + pointId + " with status " + newstatus);
 		}
 		else if(/(I)*(\d*\d,[0-1]){1}-/.test(data)){
@@ -216,6 +229,7 @@ var Driver = function(Core){
 					point.s = newstatus;
 				}
 			}
+			publishPointsStatusUpdates();
 		}
 	};
 
@@ -265,14 +279,12 @@ var Driver = function(Core){
 	this.turnOn = function(point)
 	{
 		var order = 'O' + point.i + ',1';
-		var last_status = updatePointStatusDB(point.node_name, point.i , true);
 		self.exec(point.node_ip, order);
 	};
 
 	this.turnOff =  function(point)
 	{
 		var order = 'O' + point.i + ',0';
-		var last_status = updatePointStatusDB(point.node_name, point.i , false);
 		self.exec(point.node_ip, order);
 	};
 
@@ -305,7 +317,7 @@ var Driver = function(Core){
 			throw "type of input must be an object";
 		else if(!node.ip || !node.name || !node.points.length)
 			throw "invalid properties of such a node";
-		else if(findNodeByIp(node.ip))
+		else if(!findNodeByIp(node.ip))
 			throw "node ip exists already";
 		else
 			saveNode(node);

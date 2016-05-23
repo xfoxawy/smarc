@@ -1,24 +1,4 @@
-var redis           = require("redis"),
-    publisherClient = redis.createClient();
-
 module.exports = function(Core){
-
-    Core.app.get('/test-notification/:e', function(req, res){
-        var json = {
-            'p177': { 's': false, 'r': '1' },
-            'p178': { 's': false, 'r': '2' },
-            'p179': { 's': true,  'r': '3' },
-            'p180': { 's': true,  'r': '2' },
-            'p181': { 's': false, 'r': '3' },
-            'p182': { 's': true,  'r': '1' },
-            'p183': { 's': false, 'r': '2' },
-            'p184': { 's': false, 'r': '1' },
-            'p185': { 's': false, 'r': '3' },
-            'p186': { 's': true,  'r': '3' },
-        };
-        publisherClient.publish( 'updates', JSON.stringify(json) );
-        res.end();
-    });
 
     Core.app.get('/notification', function(req,res){
 
@@ -32,7 +12,7 @@ module.exports = function(Core){
         /**
          * recieve Updates from Redis
          */
-        var subscriber = redis.createClient();
+        var subscriber = Core.redis.createClient();
         subscriber.subscribe("updates");
 
         /**

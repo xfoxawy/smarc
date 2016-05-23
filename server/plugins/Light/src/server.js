@@ -63,7 +63,7 @@ function receiveData(socket, data) {
             setTimeout(function(){
                 sendData(socket,out);
                 out = '';
-            }, 500);
+            }, 7000);
         }
         else
         {

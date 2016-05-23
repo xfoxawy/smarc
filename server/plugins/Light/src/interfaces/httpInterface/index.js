@@ -8,7 +8,8 @@ module.exports = function(Core){
         Delegator.toggle(req.params.id);
         //Core.io.emit("light/point/" + req.params.id + "")
         //return res.status(200).json({}); // return status instead with id 
-        res.status(200).json(Delegator.getAllStatus());
+        // res.status(200).json(Delegator.getAllStatus());
+        res.status(200).json('OK');
     });
 
     Core.app.get('/light/points', function(req, res){
