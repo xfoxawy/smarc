@@ -8,12 +8,14 @@ module.exports = function(Core){
         Delegator.toggle(req.params.id);
         //Core.io.emit("light/point/" + req.params.id + "")
         //return res.status(200).json({}); // return status instead with id 
-        res.status(200).json(Delegator.getAllStatus());
+        // res.status(200).json(Delegator.getAllStatus());
+        res.status(200).json('OK');
     });
 
     Core.app.get('/light/points', function(req, res){
         var e = Delegator.getAllStatus();
-        return res.status(200).json(e);
+        var rooms = Delegator.getRooms();
+        return res.status(200).json({'points' : e, 'rooms' : rooms});
     });
 
     Core.app.post('/light/new/', function(req,res){
@@ -24,5 +26,9 @@ module.exports = function(Core){
     Core.app.get('/light/rooms', function(req,res){
         var rooms = Delegator.getRooms();
         res.status(200).json(rooms);
+    });
+
+    Core.app.get('/checkConnection', function(req,res){
+        res.status(200).json({msg : 'ok'});
     });
 };

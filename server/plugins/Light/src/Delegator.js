@@ -1,4 +1,5 @@
 var Telnet = require("./Connection");
+var Transformer = require('./Transformer');
 
 var Delegator = function(Core){
 	var e = require('./Driver');
@@ -10,7 +11,8 @@ var Delegator = function(Core){
 	};
 
 	this.getAllStatus = function(){
-		return Driver.mapPoints();
+		var transformedPointsValues = Transformer.transform(Driver.mapPoints());
+		return transformedPointsValues;
 	};
 
 	this.createNewNode = function(nodeObject){

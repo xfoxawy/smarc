@@ -1,5 +1,7 @@
 var Telnet = require('./Connection');
 var EventEmitter = new(require('events').EventEmitter);
+var Transformer = require('./Transformer');
+
 /**
  * Light Plugin Driver
  */
@@ -8,6 +10,7 @@ var Driver = function(Core){
 	var self = this;
 	var model = "light";
 	var db = Core.db;
+	var publisherClient = Core.redis.createClient();
 	// all nodes placeholder
 	this.nodes = [];
 	// all errors placeholder
@@ -61,21 +64,26 @@ var Driver = function(Core){
 		{
 			for(var x = 0; x < self.nodes[y].points.length; x++)
 			{
+					// if not saved in db ,, save it
 					if(!self.nodes[y].points[x].p){
 						self.nodes[y].points[x].p = "p" + Math.floor((Math.random()*100)+(Math.random()*100));
 						saveMappedPoint(self.nodes[y].name , self.nodes[y].points[x])
 					}
 
-					var newMappedPoint = { 
-							p : self.nodes[y].points[x].p , 
-							i : self.nodes[y].points[x].i ,
-							s : self.nodes[y].points[x].s,
-							r : self.nodes[y].points[x].r,
-							node_name : self.nodes[y].name , 
-							node_status : self.nodes[y].connected, 
-							node_ip : self.nodes[y].ip
-						};
-					self.mappedPoints.push(newMappedPoint);
+					// push if connected
+					if(self.nodes[y].connected){
+						var newMappedPoint = { 
+								p : self.nodes[y].points[x].p , 
+								i : self.nodes[y].points[x].i ,
+								s : self.nodes[y].points[x].s,
+								r : self.nodes[y].points[x].r,
+								node_name : self.nodes[y].name , 
+								node_status : self.nodes[y].connected, 
+								node_ip : self.nodes[y].ip
+							};
+						
+						self.mappedPoints.push(newMappedPoint);
+					}
 			}
 		}
 		return self.mappedPoints;
@@ -136,6 +144,26 @@ var Driver = function(Core){
 		return false;
 	};
 
+	/**
+	 * Updates Point's Status in DB
+	 * @param  {string} nodeName node's name in db
+	 * @param  {INT} pointID  [description]
+	 */
+	function updatePointStatusDB(nodeName, pointID , pointStatus)
+	{
+		db.collection(model).update({name : nodeName, points : {$elemMatch: { i : pointID } } }, { $set : { "points.$.s" : pointStatus} }, function(err){
+			if(err) throw err;
+		});
+	}
+
+	/**
+	 * publish a json statuses of all points to redis server
+	 */
+	function publishPointsStatusUpdates()
+	{
+		publisherClient.publish('updates',JSON.stringify(Transformer.transform(mapPoints())));
+	}
+
 	// find point object in node
 	function findPointInNode(node ,pointId){
 		for(var i = 0; i < node.points.length; i++)
@@ -183,20 +211,25 @@ var Driver = function(Core){
 			var newstatus = (Number(data.split(',')[1]) == 0) ? false : true;
 			var point = findPointInNode(node,pointId);
 			point.s = newstatus;
+			updatePointStatusDB(node.name , point.i , newstatus);
+			publishPointsStatusUpdates();
+			console.log("the status has been updated for " + pointId + " with status " + newstatus);
 		}
 		else if(/(I)*(\d*\d,[0-1]){1}-/.test(data)){
 			// remove I and split on - delimiter
 			var all = data.substring(1).trim().split('-');
-			// iterate and update the points statuses 			
+			// iterate and update the points statuses in memory and db			
 			for(var i = 0; i < all.length; i++){
 				if(all[i])
 				{
 					var pointId = all[i].split(',')[0];
 					var newstatus = (Number(all[i].split(',')[1]) == 0) ? false : true;
 					var point = findPointInNode(node,pointId);
+					updatePointStatusDB(node.name , point , newstatus);
 					point.s = newstatus;
 				}
 			}
+			publishPointsStatusUpdates();
 		}
 	};
 
@@ -243,6 +276,18 @@ var Driver = function(Core){
 		}	
 	};
 
+	this.turnOn = function(point)
+	{
+		var order = 'O' + point.i + ',1';
+		self.exec(point.node_ip, order);
+	};
+
+	this.turnOff =  function(point)
+	{
+		var order = 'O' + point.i + ',0';
+		self.exec(point.node_ip, order);
+	};
+
 	this.toggle = function(pointNumber){
 		var pointNumber = pointNumber || '';
 		mapPoints();
@@ -251,11 +296,15 @@ var Driver = function(Core){
 		if(point.node_status === true)
 		{
 			if(point.s === false)
-				return self.exec(point.node_ip , 'O'+point.i+',1');
-			else if(point.s === true)
-				return self.exec(point.node_ip , 'O'+point.i+',0');
-			else
+			{
+				self.turnOn(point);
+			}
+			else if(point.s === true){
+				self.turnOff(point);
+			}
+			else{
 				throw "unknown point status , point number:-> " + pointNumber + " node ip:-> " + point.node_ip ;
+			}
 
 		}
 		else if(point.node_status === false){
@@ -268,7 +317,7 @@ var Driver = function(Core){
 			throw "type of input must be an object";
 		else if(!node.ip || !node.name || !node.points.length)
 			throw "invalid properties of such a node";
-		else if(findNodeByIp(node.ip))
+		else if(!findNodeByIp(node.ip))
 			throw "node ip exists already";
 		else
 			saveNode(node);

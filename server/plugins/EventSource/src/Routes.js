@@ -1,8 +1,4 @@
-var redis           = require("redis"),
-    publisherClient = redis.createClient();
-
 module.exports = function(Core){
-
 
     /**
      * { item_description }
@@ -41,7 +37,7 @@ module.exports = function(Core){
         /**
          * recieve Updates from Redis
          */
-        var subscriber = redis.createClient();
+        var subscriber = Core.redis.createClient();
         subscriber.subscribe("updates");
 
         /**
