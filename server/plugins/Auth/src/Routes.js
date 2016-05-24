@@ -44,7 +44,10 @@ module.exports = function(Core){
                     jwtHandler.save(newToken);
                     
                     // send token to browser
-                    return res.status(200).json(newToken);
+                    return res.status(200).json({
+                        'token': newToken,
+                        'roles': dbuser.roles
+                    });
                 });
             });
         });

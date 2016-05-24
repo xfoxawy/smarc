@@ -19,7 +19,9 @@ smarc.controller('rootController', [
         };
         if (typeof EventSource !== "undefined") {
             // Yes! Server-sent events support!
-            var source = new EventSource("http://"+ config().serverIp +":"+ config().serverPort +"/notification");
+            var ip = ( config().serverIp ) ? config().serverIp : '192.168.1.1';
+            var port = ( config().serverPort ) ? config().serverPort : '1234';
+            var source = new EventSource("http://"+ ip +":"+ port +"/notification");
 
             source.onmessage = function(e) {
                 // update UI

@@ -3,7 +3,12 @@ var redis           = require("redis"),
 
 module.exports = function(Core){
 
+
+    /**
+     * { item_description }
+     */
     Core.app.get('/test-notification/:e', function(req, res){
+        // whatever data we want to send as update to the client
         var json = {
             'p177': { 's': false, 'r': '1' },
             'p178': { 's': false, 'r': '2' },
@@ -16,14 +21,18 @@ module.exports = function(Core){
             'p185': { 's': false, 'r': '3' },
             'p186': { 's': true,  'r': '3' },
         };
+
+        // convert data to string then publish it to Redis Server
         publisherClient.publish( 'updates', JSON.stringify(json) );
+
+        // end the response to return to the browser
         res.end();
     });
 
     Core.app.get('/notification', function(req,res){
 
         res.writeHead(200, {"Content-Type":"text/event-stream", "Cache-Control":"no-cache", "Connection":"keep-alive"});
-        res.write("retry: 10000\n");
+        res.write("retry: 99999\n");
 
         /**
          * Now we need something to make this function send notification to clients and keep update

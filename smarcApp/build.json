@@ -1,11 +1,11 @@
 {
     "android": {
         "debug": {
-            "keystore": "",
-            "storePassword": "android",
-            "alias": "mykey1",
-            "password" : "password",
-            "keystoreType": ""
+            "keystore": "hemaKey.jks",
+            "storePassword": "123456",
+            "alias": "hemaKeyAlias",
+            "password" : "123456789",
+            "keystoreType": "jks"
         },
         "release": {
             "keystore": "hemaKey.jks",
