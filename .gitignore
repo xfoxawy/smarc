@@ -9,3 +9,5 @@ Smarc.sublime-project
 SOURCE
 *.log
 server/plugins/Light/src/output.json
+
+server/plugins/Auth/src/savedJwt

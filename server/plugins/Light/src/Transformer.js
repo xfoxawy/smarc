@@ -1,6 +1,6 @@
 var Transformer =  function(){
 
-	this.transform = function(data)
+	this.transformPoints = function(data)
 	{
 		var value= {}; value.points = {};
 		for(var i = 0; i < data.length; i++)
@@ -15,6 +15,16 @@ var Transformer =  function(){
 						};
 		}
 		return value.points;
+	};
+
+	this.transformRooms = function(data){
+		var value = {};
+
+		for(var i =0; i < data.length; i++)
+		{
+			value[data[i]._id] = data[i].name;
+		}
+		return value;
 	};
 };
 

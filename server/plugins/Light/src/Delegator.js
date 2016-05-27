@@ -11,7 +11,7 @@ var Delegator = function(Core){
 	};
 
 	this.getAllStatus = function(){
-		var transformedPointsValues = Transformer.transform(Driver.mapPoints());
+		var transformedPointsValues = Transformer.transformPoints(Driver.mapPoints());
 		return transformedPointsValues;
 	};
 
@@ -24,7 +24,7 @@ var Delegator = function(Core){
 	};
 
 	this.getRooms =  function(){
-		return Driver.getRooms();
+		return Transformer.transformRooms(Driver.getRooms());
 	};
 };
 

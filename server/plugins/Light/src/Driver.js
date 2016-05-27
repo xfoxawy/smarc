@@ -161,7 +161,7 @@ var Driver = function(Core){
 	 */
 	function publishPointsStatusUpdates()
 	{
-		publisherClient.publish('updates',JSON.stringify(Transformer.transform(mapPoints())));
+		publisherClient.publish('updates',JSON.stringify(Transformer.transformPoints(mapPoints())));
 	}
 
 	// find point object in node
@@ -205,6 +205,7 @@ var Driver = function(Core){
 
 	function updateNodePointsStatus(ip, data){
 		var node = findNodeByIp(ip);
+		console.log("this ip " + ip  + " sent data : " + data);
 		if(/(^I\d,\d$)/igm.test(data))
 		{
 			var pointId = data.slice(1,2);
@@ -270,6 +271,7 @@ var Driver = function(Core){
 		if(node.connected)
 		{
 			node.socket.write(order + '\r\n');
+			console.log("this order has been sent : " + order + '\r\n');
 		}
 		else{
 			console.log(node.ip + " is disconnected");
