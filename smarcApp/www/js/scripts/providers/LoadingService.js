@@ -75,6 +75,5 @@ smarc.service('Loading', [
                 console.log('Failed');
             });
         };
-
     }
 ]);

@@ -88,7 +88,18 @@ smarc.config([
             templateUrl: "views/login.html",
             controller: "signController"
         })
-
+        .when('/users', {
+            templateUrl: "views/users/index.html",
+            controller: "usersIndexController"
+        })
+        .when('/users/create', {
+            templateUrl: "views/users/create.html",
+            controller: "usersCreateController"
+        })
+        .when('/users/:id/edit', {
+            templateUrl: "views/users/edit.html",
+            controller: "usersEditController"
+        })
         .otherwise('/home');
     }
 ]);

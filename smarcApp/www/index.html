@@ -36,7 +36,7 @@
                     </md-button>
 
                     <h2>
-                        <span>Smarc App</span>
+                        <span>{{ title }}</span>
                     </h2>
                     <span flex></span>
                     <md-menu md-position-mode="target-right target" >
@@ -70,11 +70,14 @@
                 </md-toolbar>
                 <md-content layout-padding>
                     <md-list>
+                        <md-list-item href="#users" ng-click="closeSidebar('mainSidebar')">
+                            <p> Users </p>
+                        </md-list-item>
                         <md-list-item href="#home" ng-click="closeSidebar('mainSidebar')">
                             <p> All Points </p>
                         </md-list-item>
-                        <md-list-item ng-repeat="room in rooms" href="#room/{{ room.id }}" ng-click="closeSidebar('mainSidebar')">
-                            <p> {{ room.name }} </p>
+                        <md-list-item ng-repeat="(id, name) in rooms" href="#room/{{ id }}" ng-click="closeSidebar('mainSidebar')">
+                            <p> {{ name }} </p>
                         </md-list-item>
                     </md-list>
                 </md-content>
@@ -103,6 +106,9 @@
         <script src="js/scripts/controllers/rootController.js"></script>
         <script src="js/scripts/controllers/roomController.js"></script>
         <script src="js/scripts/controllers/homeController.js"></script>
+        <script src="js/scripts/controllers/usersIndexController.js"></script>
+        <script src="js/scripts/controllers/usersCreateController.js"></script>
+        <script src="js/scripts/controllers/usersEditController.js"></script>
         <script src="js/scripts/controllers/signController.js"></script>
         <script src="js/scripts/controllers/optionsController.js"></script>
         <script src="js/scripts/controllers/firstStartController.js"></script>
@@ -111,6 +117,7 @@
         <!-- Providers -->
         <script src="js/scripts/providers/AuthFactory.js"></script>
         <script src="js/scripts/providers/LightFactory.js"></script>
+        <script src="js/scripts/providers/UserFactory.js"></script>
         <script src="js/scripts/providers/ServerFactory.js"></script>
         <script src="js/scripts/providers/LoadingService.js"></script>
         <script src="js/scripts/providers/ConnectionService.js"></script>

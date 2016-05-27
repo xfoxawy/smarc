@@ -1,0 +1,33 @@
+<div class="page options-container">
+    <md-card class="md-padding">
+    
+        <h3>details</h3>
+        <div layout="column">
+            <md-input-container flex="100">
+                <label>User Name</label>
+                <input ng-model="user.name">
+            </md-input-container>
+            <md-input-container flex="100">
+                <label>Password</label>
+                <input type="password" ng-model="user.password">
+            </md-input-container>
+            <md-input-container flex="100">
+                <label>Repeat Password</label>
+                <input type="password" ng-model="user.repeat">
+            </md-input-container>
+        </div>
+
+        <h3>select user roles</h3>
+        <div layout="column">
+            <md-checkbox ng-repeat="role in roles" ng-model="selectedRoles[role]" aria-label="{{ role }}">
+                {{ role }}
+            </md-checkbox>
+        </div>
+
+        <div layout="row" layout-align="center">
+            <md-button type="button" flex class="md-primary md-raised" ng-click="store()">save</md-button>
+            <md-button type="button" flex class="md-primary md-raised" ng-click="reset()">reset</md-button>
+        </div>
+
+    </md-card>
+</div>

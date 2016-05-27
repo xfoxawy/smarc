@@ -29,9 +29,11 @@ smarc.controller('signController', [
 
                 // else if status == 200 then redirect to ->
                 if (data.status === 200) {
-
                     // save token
-                    window.localStorage.setItem('auth', data.data);
+                    window.localStorage.setItem('auth', data.data.token);
+
+                    // save roles
+                    window.localStorage.setItem('roles', data.data.roles);
 
                     // redirect user to home page
                     $location.path('/home');
