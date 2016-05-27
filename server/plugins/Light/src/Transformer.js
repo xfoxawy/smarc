@@ -2,7 +2,8 @@ var Transformer =  function(){
 
 	this.transform = function(data)
 	{
-		var value= {}; value.points = {};
+		var value = {};
+		value.points = {};
 		for(var i = 0; i < data.length; i++)
 		{
 			value.points[data[i].p] = {

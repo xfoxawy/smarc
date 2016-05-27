@@ -3,6 +3,7 @@ smarc.controller('roomController', [
     '$scope',
     '$routeParams',
     function($rootScope, $scope, $routeParams){
+        $rootScope.title = "Room " + $rootScope.rooms[$routeParams.id];
         $scope.id = $routeParams.id;
         // function filter(obj, id) {
         //     var result = {}, key;

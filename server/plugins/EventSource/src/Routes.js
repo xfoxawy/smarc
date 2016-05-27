@@ -19,6 +19,7 @@ module.exports = function(Core){
         };
 
         // convert data to string then publish it to Redis Server
+        var publisherClient = Core.redis.createClient();
         publisherClient.publish( 'updates', JSON.stringify(json) );
 
         // end the response to return to the browser
@@ -28,7 +29,7 @@ module.exports = function(Core){
     Core.app.get('/notification', function(req,res){
 
         res.writeHead(200, {"Content-Type":"text/event-stream", "Cache-Control":"no-cache", "Connection":"keep-alive"});
-        res.write("retry: 99999\n");
+        res.write("retry: 2\n");
 
         /**
          * Now we need something to make this function send notification to clients and keep update

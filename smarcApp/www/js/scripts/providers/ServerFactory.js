@@ -40,11 +40,11 @@ smarc.factory('Server', [
                                     'p185': { 's': false, 'r': '3' },
                                     'p186': { 's': true,  'r': '3' },
                                 },
-                                rooms: [
-                                    { id: "1", name: "room One" },
-                                    { id: "2", name: "room Two" },
-                                    { id: "3", name: "room Three" },
-                                ]
+                                rooms: {
+                                    "1" : "room One",
+                                    "2" : "room Two",
+                                    "3" : "room Three",
+                                }
                             }
                         };
                         resolve(data);

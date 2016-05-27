@@ -13,6 +13,7 @@ smarc.controller('rootController', [
         $scope.currentPage = '';
         $rootScope.rooms   = {};
         $rootScope.points  = [];
+        $rootScope.title   = 'Home';
 
         function config(){
             return ( window.localStorage.getItem('options') ) ? JSON.parse( window.localStorage.getItem('options') ) : {};
@@ -24,8 +25,6 @@ smarc.controller('rootController', [
             var source = new EventSource("http://"+ ip +":"+ port +"/notification");
 
             source.onmessage = function(e) {
-                // update UI
-                console.log(JSON.parse(e.data));
                 // $rootScope.rooms  = data.rooms;
                 $rootScope.points = JSON.parse(e.data);
 
@@ -50,6 +49,7 @@ smarc.controller('rootController', [
             Auth.logout(function(data){
                 // delete token from local storage
                 window.localStorage.removeItem('auth');
+                window.localStorage.removeItem('roles');
 
                 // make sure sidebar is closed
                 $scope.closeSidebar('mainSidebar');

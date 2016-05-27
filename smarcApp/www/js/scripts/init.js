@@ -1,4 +1,4 @@
-window.env = "development";
+window.env = "production";
 
 if (env == "development") {
     angular.element(document).ready(function() {
