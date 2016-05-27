@@ -12,7 +12,7 @@ var Connection = function(){
 		});
 
 		// set connection params
-		socket.setEncoding('utf8');
+		socket.setEncoding('ascii');
 		socket.setKeepAlive('enable');
 		socket.setNoDelay(true);
 		// handle on connect
@@ -25,22 +25,23 @@ var Connection = function(){
 		// handle on data
 		var str = ''; // empty string to hold up coming data from socket
 		socket.on('data', function(data){
-			if(!/\r|\n|\r\n/gm.test(data)){
+			if(!/(\n)/.test(data))
+			{
+				str += data 
+			}
+			else if(/(\n)/.test(data))
+			{
 				str += data;
-			}
-			else if(/\r|\n|\r\n/gm.test(data) && str.length !==0)
-			{
+				str = str.trim();
 				self.notify('data', {address, str});
-				str = ''; // empty the stream string
-			}
-			else
-			{
-				str = data;
-				self.notify('data',{address,str :data});
+
 				str = '';
 			}
 		});
 		
+		socket.on('drain', function(e){
+			console.log("the controller has been drained " + e);
+		});
 		// handle on connection timeout
 		socket.on('timeout', function(){
 			console.log(address +" socket has been timeouted");
