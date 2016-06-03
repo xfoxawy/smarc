@@ -16,12 +16,6 @@ smarc.controller('optionsController', [
 
             // show success message.
             $mdToast.showSimple("Options Saved!!")
-            // $mdToast.show(
-            //     $mdToast.simple()
-            //         .textContent('Options Saved!!')
-            //         .position('top left')
-            //         .hideDelay(3000)
-            // );
         };
 
     }

@@ -53,7 +53,6 @@ smarc.service('Loading', [
                 self.show('trying to connect to the server', function completeShowing(){
                     // connection to server
                     Server.connectToServer().then(function(data){
-                        console.log(data);
                         self.hide();
                         if ( Auth.isLogin() ) {
                             // get all points and rooms

@@ -4,15 +4,15 @@ smarc.controller('usersCreateController', [
     'User',
     '$mdToast',
     '$location',
-    function($scope, $rootScope, User, $mdToast, $location){
+    'roles',
+    function($scope, $rootScope, User, $mdToast, $location, roles){
         $rootScope.title = "Create New User";
 
-        $scope.user = {};
+        $scope.user          = {};
         $scope.selectedRoles = {};
-        $scope.roles = [
-            'add_users',
-            'delete_users',
-        ];
+        $scope.roles         = roles;
+
+
         $scope.store = function(){
             // check name
             if (!$scope.user.name) {

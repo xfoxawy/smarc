@@ -14,42 +14,64 @@ smarc.controller('rootController', [
         $rootScope.rooms   = {};
         $rootScope.points  = [];
         $rootScope.title   = 'Home';
+        $scope.originatorEv;
 
         function config(){
             return ( window.localStorage.getItem('options') ) ? JSON.parse( window.localStorage.getItem('options') ) : {};
         };
+
+        $scope.userObject = function(){
+            return ( window.localStorage.getItem('user') ) ? JSON.parse( window.localStorage.getItem('user') ) : {};
+        };
+
         if (typeof EventSource !== "undefined") {
-            // Yes! Server-sent events support!
-            var ip = ( config().serverIp ) ? config().serverIp : '192.168.1.1';
-            var port = ( config().serverPort ) ? config().serverPort : '1234';
-            var source = new EventSource("http://"+ ip +":"+ port +"/notification");
+            var ip             = ( config().serverIp ) ? config().serverIp : '192.168.1.1',
+                port           = ( config().serverPort ) ? config().serverPort : '1234',
+                time           = 3 * 1000, // 3 seconds
+                keepaliveTimer = null;
 
-            source.onmessage = function(e) {
-                // $rootScope.rooms  = data.rooms;
-                $rootScope.points = JSON.parse(e.data);
+            function connect(){
+                var source = new EventSource("http://"+ ip +":"+ port +"/notification");
+                source.onerror = function(e) {
+                    if (source.readyState == 2) {
+                        console.log('re connecting ...');
+                        if(keepaliveTimer != null)clearTimeout(keepaliveTimer);
+                        keepaliveTimer = setTimeout(connect, time);
+                    }
+                };
+                source.addEventListener('message', function(e){
+                    // $rootScope.rooms  = data.rooms;
+                    $rootScope.points = JSON.parse(e.data);
 
-                // after updating UI, confirm the changes by ...
-                $rootScope.$apply();
-            };
+                    // after updating UI, confirm the changes by ...
+                    $rootScope.$apply();
+                },false);
+            }
+            connect();
         } else {
             // Sorry! No server-sent events support..
             alert('SSE not supported by browser.');
         }
 
-        
         $scope.$on('$locationChangeStart', function(event) {
             $scope.currentPage = $location.path().substr(1);
         });
+
+        $scope.openMenu = function($mdOpenMenu, ev){
+            $scope.originatorEv = ev;
+            $mdOpenMenu(ev);
+        };
         
         $scope.back = function(){
             history.back();
         };
         
         $scope.logout = function(){
+            $scope.originatorEv = null;
             Auth.logout(function(data){
                 // delete token from local storage
                 window.localStorage.removeItem('auth');
-                window.localStorage.removeItem('roles');
+                window.localStorage.removeItem('user');
 
                 // make sure sidebar is closed
                 $scope.closeSidebar('mainSidebar');
@@ -127,6 +149,15 @@ smarc.controller('rootController', [
                     Loading.noInternetConnectionEx();
                 });
             });
+        };
+
+        $scope.exit = function(){
+            if (env == "production") {
+                navigator.app.exitApp();
+            }
+            if (env == "development") {
+                console.log('closing app');
+            }
         };
     }
 ]);

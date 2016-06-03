@@ -100,6 +100,10 @@ smarc.config([
             templateUrl: "views/users/edit.html",
             controller: "usersEditController"
         })
+        .when('/profile', {
+            templateUrl: "views/users/profile.html",
+            controller: "profileController"
+        })
         .otherwise('/home');
     }
 ]);

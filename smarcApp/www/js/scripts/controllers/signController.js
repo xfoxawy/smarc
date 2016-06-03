@@ -32,8 +32,8 @@ smarc.controller('signController', [
                     // save token
                     window.localStorage.setItem('auth', data.data.token);
 
-                    // save roles
-                    window.localStorage.setItem('roles', data.data.roles);
+                    // save user object
+                    window.localStorage.setItem('user', JSON.stringify(data.data.user) );
 
                     // redirect user to home page
                     $location.path('/home');

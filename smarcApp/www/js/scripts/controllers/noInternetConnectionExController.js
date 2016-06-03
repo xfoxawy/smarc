@@ -1,9 +1,8 @@
 smarc.controller('noInternetConnectionExController', [
     '$scope',
-    '$mdDialog',
     'Loading',
     'Connection',
-    function($scope, $mdDialog, Loading, Connection) {
+    function($scope, Loading, Connection) {
         $scope.close = function(){
             if (env == "production") {
                 navigator.app.exitApp();

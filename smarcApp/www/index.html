@@ -2,26 +2,11 @@
 <html>
     <head>
         <meta charset="utf-8" />
-        
         <meta http-equiv="Content-Security-Policy" content="default-src *;font-src 'self' data:; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; media-src *">
-
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
-
         <title>Smarc</title>
-
         <link rel="stylesheet" type="text/css" href="js/libs/angular-material/angular-material.min.css" />
         <link rel="stylesheet" type="text/css" href="css/style.css" />
-
-        <!-- Create Fallback CSS file for android earlier than 4.3 -->
-        <script type="text/javascript">
-            // var head  = document.getElementsByTagName('head')[0];
-            // var link  = document.createElement('link');
-            // link.rel  = 'stylesheet';
-            // link.type = 'text/css';
-            // link.href = 'css/fallback.css';
-            // link.media = 'all';
-            // head.appendChild(link);
-        </script>
     </head>
     <body ng-controller="rootController" ng-app-ready="appReady()">
         <div id="appContainer" md-swipe-right="openSidebar('mainSidebar')">
@@ -39,13 +24,20 @@
                         <span>{{ title }}</span>
                     </h2>
                     <span flex></span>
-                    <md-menu md-position-mode="target-right target" >
-                        <md-button aria-label="Open demo menu" class="md-icon-button" ng-click="$mdOpenMenu($event)">
-                            <md-icon class="smarc-more_vert"></md-icon>
+                    <md-menu md-position-mode="target-right target">
+                        <md-button aria-label="Open demo menu" class="md-icon-button" ng-click="openMenu($mdOpenMenu, $event)">
+                            <md-icon md-menu-origin class="smarc-more_vert"></md-icon>
                         </md-button>
                         <md-menu-content width="4" >
                             <md-menu-item>
-                                <md-button href="#options">
+                                <md-button href="#profile" ng-click="originatorEv = null;">
+                                    <div layout="row">
+                                        <p flex>My Profile</p>
+                                    </div>
+                                </md-button>
+                            </md-menu-item>
+                            <md-menu-item>
+                                <md-button href="#options" ng-click="originatorEv = null;">
                                     <div layout="row">
                                         <p flex>Options</p>
                                     </div>
@@ -70,7 +62,7 @@
                 </md-toolbar>
                 <md-content layout-padding>
                     <md-list>
-                        <md-list-item href="#users" ng-click="closeSidebar('mainSidebar')">
+                        <md-list-item ng-if="userObject()['roles'].indexOf('add_users') != -1" href="#users" ng-click="closeSidebar('mainSidebar')">
                             <p> Users </p>
                         </md-list-item>
                         <md-list-item href="#home" ng-click="closeSidebar('mainSidebar')">
@@ -78,6 +70,9 @@
                         </md-list-item>
                         <md-list-item ng-repeat="(id, name) in rooms" href="#room/{{ id }}" ng-click="closeSidebar('mainSidebar')">
                             <p> {{ name }} </p>
+                        </md-list-item>
+                        <md-list-item ng-click="exit()">
+                            <p> Exit !! </p>
                         </md-list-item>
                     </md-list>
                 </md-content>
@@ -102,6 +97,9 @@
         <script src="js/scripts/app.js"></script>
         <script src="js/scripts/config.js"></script>
 
+        <!-- Values -->
+        <script src="js/scripts/values/rolesValue.js"></script>
+
         <!-- Controllers -->
         <script src="js/scripts/controllers/rootController.js"></script>
         <script src="js/scripts/controllers/roomController.js"></script>
@@ -113,6 +111,7 @@
         <script src="js/scripts/controllers/optionsController.js"></script>
         <script src="js/scripts/controllers/firstStartController.js"></script>
         <script src="js/scripts/controllers/noInternetConnectionExController.js"></script>
+        <script src="js/scripts/controllers/profileController.js"></script>
 
         <!-- Providers -->
         <script src="js/scripts/providers/AuthFactory.js"></script>
@@ -121,6 +120,7 @@
         <script src="js/scripts/providers/ServerFactory.js"></script>
         <script src="js/scripts/providers/LoadingService.js"></script>
         <script src="js/scripts/providers/ConnectionService.js"></script>
+        <script src="js/scripts/providers/userMethodsService.js"></script>
 
         <!-- Directives -->
         <script src="js/scripts/directives/ngAppReady.js"></script>

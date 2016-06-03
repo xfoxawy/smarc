@@ -5,24 +5,24 @@ smarc.controller('usersEditController', [
     '$routeParams',
     '$location',
     '$mdToast',
-    function($scope, User, $rootScope, $routeParams, $location, $mdToast){
+    'userMethods',
+    'roles',
+    function($scope, User, $rootScope, $routeParams, $location, $mdToast, userMethods, roles){
 
         $scope.user = {};
         $scope.selectedRoles = {};
-        $scope.roles = [
-            'add_users',
-            'delete_users',
-        ];
+        $scope.roles = roles;
 
-        User.find($routeParams.id).then(function(user){
+
+        User.find( $routeParams.id ).then(function(user){
             $rootScope.title = "User " + user.data[0].name;
             transformPreRoles(user.data[0].roles);
             delete user.data[0].roles;
             $scope.user = user.data[0];
         });
 
-        $scope.delete = function(id){
-            User.delete(id).then(function(){
+        $scope.delete = function(){
+            User.delete($routeParams.id).then(function(){
                 $location.path("/users");
                 $mdToast.showSimple("User Deleted!!")
             });
@@ -31,26 +31,25 @@ smarc.controller('usersEditController', [
         $scope.update = function(){
             // check name
             if (!$scope.user.name) {
-                showNameError();
+                userMethods.showNameError();
                 return;
             }
 
             // check password
             if ($scope.user.password == '' || $scope.user.password != $scope.user.repeat) {
-                showPasswordError();
+                userMethods.showPasswordError();
                 return;
             }
 
             // modify roles to send to DB.
-            $scope.user.roles = transformRoles();
-            console.log($scope.selectedRoles);
-            console.log($scope.user);
+            $scope.user.roles = userMethods.transformRoles($scope.selectedRoles);
+
             // store new user.
-            // delete $scope.user.repeat;
-            // User.update($routeParams.id, $scope.user).then(function(){
-            //     $location.path("/users");
-            //     $mdToast.showSimple("User Added!!")
-            // });
+            delete $scope.user.repeat;
+            User.update($routeParams.id, $scope.user).then(function(){
+                $location.path("/users");
+                $mdToast.showSimple("User Added!!")
+            });
         };
 
         function transformPreRoles(roles){
@@ -60,24 +59,5 @@ smarc.controller('usersEditController', [
                 }
             }
         };
-
-        function showNameError(){
-            $mdToast.showSimple("Please Add User Name!!")
-        };
-        
-        function showPasswordError(){
-            $mdToast.showSimple("Password didn't match!!");
-        };
-
-        function transformRoles(){
-            var roles = [];
-            for ( key in $scope.selectedRoles ) {
-                if ($scope.selectedRoles[key] == true) {
-                    roles.push(key);
-                }
-            }
-            return roles;
-        };
-
     }
 ]);

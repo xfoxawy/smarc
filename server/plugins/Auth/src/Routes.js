@@ -38,6 +38,9 @@ module.exports = function(Core){
                     if (!result) return res.status(403).end();
                
                     // Password Good
+                    // delete it
+                    delete dbuser.password;
+
                     // create new token.
                     var newToken = jwt.sign( dbuser._id, Config.secret );
                     
@@ -47,7 +50,7 @@ module.exports = function(Core){
                     // send token to browser
                     return res.status(200).json({
                         'token': newToken,
-                        'roles': dbuser.roles
+                        'user': dbuser
                     });
                 });
             });

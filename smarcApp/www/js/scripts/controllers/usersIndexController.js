@@ -5,10 +5,16 @@ smarc.controller('usersIndexController', [
     '$rootScope',
     '$mdToast',
     function($location, $scope, User, $rootScope, $mdToast){
-        $rootScope.title = 'Users';
-        $scope.users = [];
+        $rootScope.title  = 'Users';
+        $scope.users      = [];
+        $scope.userObject = ( window.localStorage.getItem('user') ) ? JSON.parse( window.localStorage.getItem('user') ) : {};
+
         User.all().then(function(users){
-            $scope.users = users.data;
+            for (var i = 0; i < users.data.length; i++) {
+                if( users.data[i]._id != $scope.userObject._id) {
+                    $scope.users.push(users.data[i]);
+                }
+            }
         });
 
         $scope.edit = function(id){

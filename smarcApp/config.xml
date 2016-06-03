@@ -42,7 +42,7 @@
         <splash src="www/img/android/splash/port/XHDPI.png" density="port-xhdpi"/>
 
         <!-- Splash Screen preferences -->
-        <preference name="AutoHideSplashScreen" value="true" />
+        <preference name="AutoHideSplashScreen" value="false" />
         <preference name="SplashScreenDelay" value="10000" />
         <preference name="SplashMaintainAspectRatio" value="true" />    
     </platform>
