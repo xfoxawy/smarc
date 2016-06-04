@@ -10,7 +10,7 @@ var path = require("path");
  */
 var Config = {
     env: "development",
-    pluginsDir: path.resolve() + "/plugins/",
+    pluginsDir: __dirname + '/../plugins/',
     secret: "randomstringtousedinencryption",
     jwtStorage: "file", // or cache
     db: {
