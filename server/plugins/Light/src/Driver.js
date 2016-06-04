@@ -11,6 +11,9 @@ var Driver = function(Core){
 	var model = "light";
 	var db = Core.db;
 	var publisherClient = Core.redis.createClient();
+	var reconnectionInterval = 200; // reconnection to dead nodes interval
+	var maxTries = 10 ; // reconnection to dead nodes max tries
+	
 	// all nodes placeholder
 	this.nodes = [];
 	// all errors placeholder
@@ -19,7 +22,11 @@ var Driver = function(Core){
 	this.mappedPoints = [];
 	// hold all rooms in array
 	this.rooms = [];
-	// connect
+	// holds all dead nodes
+	this.deadNodes = [];
+
+
+	// connect ready nodes in db
 	(function connectNodes(){
 			// load nodes from database
 			loadNodes(function(nodes){
@@ -33,6 +40,33 @@ var Driver = function(Core){
 				self.rooms = rooms;
 			})
 	}());
+
+	// interval to check if there any dead nodes and try to reconnect to them
+	setInterval(reConnect, reconnectionInterval);
+
+	// responsible of reconnection for dead nodes 
+	function reConnect()
+	{
+		if(self.deadNodes.length)
+		{
+			self.deadNodes.forEach(function(node){
+				if(node.tries < maxTries){
+					Telnet.connect(node.ip, node.port);
+					node.tries++;
+				}
+			});
+		}     
+	}
+
+	function pushInDeadNodes(node)
+	{
+		for (var i = 0; i < self.deadNodes.length; i++) {
+			if(self.deadNodes[i].ip == node.ip)
+				return true;
+		}
+		node.tries = 0;
+		self.deadNodes.push(node);
+	}
 
 	// function load nodes from db
 	function loadNodes(cb){
@@ -190,6 +224,7 @@ var Driver = function(Core){
 		var node = findNodeByIp(ip);
 		node.connected = false;
 		delete node.socket;
+		pushInDeadNodes(node);
 		EventEmitter.emit("light/disconnect/"+ip);
 		return true;
 	};
@@ -198,6 +233,7 @@ var Driver = function(Core){
 		var node = findNodeByIp(ip);
 		node.connected = false;
 		self.errors.push({ip , error});
+		pushInDeadNodes(node);
 		EventEmitter.emit("light/error/"+ip);
 		console.log('this ' + ip + " has some connection issues : " + error);
 		return true;
@@ -205,7 +241,6 @@ var Driver = function(Core){
 
 	function updateNodePointsStatus(ip, data){
 		var node = findNodeByIp(ip);
-		console.log("this ip " + ip  + " sent data : " + data);
 		if(/(^I\d,\d$)/igm.test(data))
 		{
 			var pointId = data.slice(1,2);
