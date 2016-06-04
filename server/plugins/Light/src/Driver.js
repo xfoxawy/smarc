@@ -49,8 +49,23 @@ var Driver = function(Core){
 	{
 		if(self.deadNodes.length)
 		{
-			console.log("there is some dead nodes overe here");
+			self.deadNodes.forEach(function(node){
+				if(node.tries < maxTries){
+					Telnet.connect(node.ip, node.port);
+					node.tries++;
+				}
+			});
+		}     
+	}
+
+	function pushInDeadNodes(node)
+	{
+		for (var i = 0; i < self.deadNodes.length; i++) {
+			if(self.deadNodes[i].ip == node.ip)
+				return true;
 		}
+		node.tries = 0;
+		self.deadNodes.push(node);
 	}
 
 	// function load nodes from db
@@ -209,6 +224,7 @@ var Driver = function(Core){
 		var node = findNodeByIp(ip);
 		node.connected = false;
 		delete node.socket;
+		pushInDeadNodes(node);
 		EventEmitter.emit("light/disconnect/"+ip);
 		return true;
 	};
@@ -217,6 +233,7 @@ var Driver = function(Core){
 		var node = findNodeByIp(ip);
 		node.connected = false;
 		self.errors.push({ip , error});
+		pushInDeadNodes(node);
 		EventEmitter.emit("light/error/"+ip);
 		console.log('this ' + ip + " has some connection issues : " + error);
 		return true;
@@ -224,7 +241,6 @@ var Driver = function(Core){
 
 	function updateNodePointsStatus(ip, data){
 		var node = findNodeByIp(ip);
-		console.log("this ip " + ip  + " sent data : " + data);
 		if(/(^I\d,\d$)/igm.test(data))
 		{
 			var pointId = data.slice(1,2);
