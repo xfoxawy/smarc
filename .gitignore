@@ -11,3 +11,5 @@ SOURCE
 server/plugins/Light/src/output.json
 
 server/plugins/Auth/src/savedJwt
+
+server/plugins/Auth/src/savedJWT
