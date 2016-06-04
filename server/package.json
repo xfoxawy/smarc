@@ -31,9 +31,7 @@
     "mongodb": "2.*",
     "nodemon": "^1.9.1",
     "redis": "^2.6.0-2",
-    "socket.io": "1.*",
-    "telnet-client": "0.*",
-    "hook-writable-stream" : "0.1.0"
+    "socket.io": "1.*"
   },
   "devDependencies": {
     "morgan": "1.*",
