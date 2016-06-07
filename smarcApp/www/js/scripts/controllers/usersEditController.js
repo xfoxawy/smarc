@@ -46,6 +46,7 @@ smarc.controller('usersEditController', [
 
             // store new user.
             delete $scope.user.repeat;
+            
             User.update($routeParams.id, $scope.user).then(function(){
                 $location.path("/users");
                 $mdToast.showSimple("User Added!!")

@@ -94,12 +94,7 @@ smarc.controller('rootController', [
             if ($scope.currentPage != 'login') $mdSidenav(id).close();
         };
 
-        $scope.openRoom = function(id){
-            // show just room points;
-        };
-
         $scope.toggle = function(id){
-            console.log(id);
             Light.toggle(id).then(function(response){
                 $rootScope.points[id] = response;
             }, function(){});
