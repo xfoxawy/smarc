@@ -241,7 +241,7 @@ var Driver = function(Core){
 
 	function updateNodePointsStatus(ip, data){
 		var node = findNodeByIp(ip);
-		if(/(^I\d,\d$)/igm.test(data))
+		if(/(^I\d+,\d$)/igm.test(data))
 		{
 			var pointId = data.slice(1,2);
 			var newstatus = (Number(data.split(',')[1]) == 0) ? false : true;
