@@ -2,3 +2,11 @@ node_modules
 server/node_modules
 smarc.sublime-project
 smarc.sublime-workspace
+
+server/core/log.txt
+
+server/plugins/Auth/src/savedJWT
+
+Smarc.sublime-project
+
+Smarc.sublime-workspace
