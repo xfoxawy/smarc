@@ -10,7 +10,11 @@ var path = require("path");
  */
 var Config = {
     env: "development",
-    pluginsDir: path.resolve() + "/plugins/",
+    log: true,
+    logType : 'db', // or file
+    logFile : __dirname + '/log.txt',
+    logDBModel : 'logs',
+    pluginsDir: __dirname + '/../plugins/',
     secret: "randomstringtousedinencryption",
     jwtStorage: "file", // or cache
     db: {

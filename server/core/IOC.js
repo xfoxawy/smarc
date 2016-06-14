@@ -6,7 +6,7 @@ var fs     = require("fs");
 
 var IOC = function(){
     
-    var CorePlugins = ['Auth', 'EventSource'];
+    var CorePlugins = ['Auth', 'EventSource','Logger'];
     
     this.loadPlugins = function(Core){
         IOC = this;

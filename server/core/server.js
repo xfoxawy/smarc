@@ -6,6 +6,7 @@ var bodyParser  = require("body-parser");
 var Core        = {};
     Core.app    = express();
 var Config      = require("./Config");
+    Core.Config = Config;
 var IOC         = require("./IOC");
 var redis       = require("redis");
     Core.redis  = redis;
