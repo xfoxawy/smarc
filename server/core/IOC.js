@@ -6,13 +6,27 @@ var fs     = require("fs");
 
 var IOC = function(){
 
+    var CorePlugins = ['Auth', 'EventSource','Logger'];
+    
     this.loadPlugins = function(Core){
-        // console.log(Config.pluginsDir);
+        IOC = this;
         fs.readdir(Config.pluginsDir, function(err, files){
-            files.forEach(function(file, index){
-                var plugin = require(Config.pluginsDir + file);
-                plugin.register(Core);
+            if(err) throw err;
+            // to remove .DS_STore
+            if(files[0] == '.DS_Store') files.splice(0,1);
+            files.forEach(function(item, index){
+                if (CorePlugins.indexOf(item) == -1) CorePlugins.push(item);
             });
+            IOC.load(Core, CorePlugins);
+        });
+    };
+
+    this.load = function(Core, paths){
+        if (typeof paths == 'string') paths = [paths];
+
+        paths.forEach(function(pluginPath) {
+            var plugin = require(Config.pluginsDir + pluginPath);
+            plugin.register(Core);
         });
     };
 };

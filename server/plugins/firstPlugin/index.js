@@ -28,8 +28,7 @@ var firstPlugin = function(){
         /**
          * load Routes
          */
-        Routes(Core.app);
-
+        Routes(Core);
         /**
          * load Cmd commands
          */

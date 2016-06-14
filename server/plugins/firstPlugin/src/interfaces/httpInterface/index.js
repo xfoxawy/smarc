@@ -12,22 +12,27 @@
 // sockets init
 // implement routes against the actions of compnent controllers
 
-module.exports = function(app){
-    // app.get('/light/turnOn/1', function(req, res){
+module.exports = function(Core){
+    // Core.app.get('/light/turnOn/1', function(req, res){
     // 	core.light(1,turnon, callback(status){
-    // 		if(status) res.json("ok");
-    // 		else res.json("error");
-    // 	});
+    //         if(status) {
+    //             Core.io.emit('incomeReq', "i'm a socket data");
+    //             res.json("ok");
+    //         } else { 
+    //             res.json("error");
+    //         }
+    //     });
     // });
-    app.get('/test1', function(req, res){
-        return res.json({
-            message: "test page loaded !!"
-        });
+    Core.app.get('/test1', function(req, res){
+        return res.json("test1");
     });
 
-    app.get('/test2', function(req, res){
+    Core.app.get('/test2', function(req, res){
+        Core.io.emit('incomeReq', {
+            data: "i'm a socket data"
+        });
         return res.json({
-            message2: "test page 2 loaded successfully !!"
+            message: "request success!!"
         });
     });
 };

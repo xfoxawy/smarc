@@ -1,0 +1,14 @@
+<div class="page home-container">
+    <div layout layout-wrap>
+        <div class="card-container" ng-repeat="(name, point) in points" flex="50" layout="column">
+            <div class="card" ng-click="toggle(name)">
+                <div class="icon">
+                    <img ng-if="!point.s" src="img/light-off.png" alt="light off">
+                    <img ng-if="point.s" src="img/light-on.png" alt="light on">
+                    <!-- <i ng-class="{'smarc-light-on': point.s, 'smarc-light-off': !point.s}"></i> -->
+                </div>
+                <div class="name">{{ name }}</div>
+            </div>
+        </div>
+    </div>
+</div>
