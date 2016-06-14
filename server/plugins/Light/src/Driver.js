@@ -11,8 +11,8 @@ var Driver = function(Core){
 	var model = "light";
 	var db = Core.db;
 	var publisherClient = Core.redis.createClient();
-	var reconnectionInterval = 200; // reconnection to dead nodes interval
-	var maxTries = 10 ; // reconnection to dead nodes max tries
+	var reconnectionInterval = 5000; // reconnection to dead nodes interval
+	var maxTries = 25 ; // reconnection to dead nodes max tries
 	
 	// all nodes placeholder
 	this.nodes = [];
@@ -243,7 +243,7 @@ var Driver = function(Core){
 		var node = findNodeByIp(ip);
 		if(/(^I\d+,\d$)/igm.test(data))
 		{
-			var pointId = data.slice(1,2);
+			var pointId = data.slice(1,-2);
 			var newstatus = (Number(data.split(',')[1]) == 0) ? false : true;
 			var point = findPointInNode(node,pointId);
 			point.s = newstatus;
