@@ -1,8 +1,13 @@
 smarc.config([
+    '$compileProvider',
     '$routeProvider',
     '$httpProvider',
     '$mdThemingProvider',
-    function($routeProvider, $httpProvider, $mdThemingProvider){
+    function($compileProvider, $routeProvider, $httpProvider, $mdThemingProvider){
+        
+        // disable debug in angular to increase performance
+        $compileProvider.debugInfoEnabled(false);
+
         // Extend the red theme with a few different colors
         var smarcPallete = $mdThemingProvider.extendPalette('indigo', {
             // '50': 'ffebee',
@@ -75,6 +80,10 @@ smarc.config([
         .when('/home', {
             templateUrl: "views/home.html",
             controller: "homeController"
+        })
+        .when('/all', {
+            templateUrl: "views/all.html",
+            controller: "allController"
         })
         .when('/options', {
             templateUrl: "views/options.html",

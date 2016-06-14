@@ -66,6 +66,9 @@
                             <p> Users </p>
                         </md-list-item>
                         <md-list-item href="#home" ng-click="closeSidebar('mainSidebar')">
+                            <p> Home </p>
+                        </md-list-item>
+                        <md-list-item href="#all" ng-click="closeSidebar('mainSidebar')">
                             <p> All Points </p>
                         </md-list-item>
                         <md-list-item ng-repeat="(id, name) in rooms" href="#room/{{ id }}" ng-click="closeSidebar('mainSidebar')">
@@ -112,6 +115,7 @@
         <script src="js/scripts/controllers/firstStartController.js"></script>
         <script src="js/scripts/controllers/noInternetConnectionExController.js"></script>
         <script src="js/scripts/controllers/profileController.js"></script>
+        <script src="js/scripts/controllers/allController.js"></script>
 
         <!-- Providers -->
         <script src="js/scripts/providers/AuthFactory.js"></script>
@@ -121,6 +125,7 @@
         <script src="js/scripts/providers/LoadingService.js"></script>
         <script src="js/scripts/providers/ConnectionService.js"></script>
         <script src="js/scripts/providers/userMethodsService.js"></script>
+        <script src="js/scripts/providers/QueueService.js"></script>
 
         <!-- Directives -->
         <script src="js/scripts/directives/ngAppReady.js"></script>
