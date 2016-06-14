@@ -4,7 +4,8 @@ smarc.controller('profileController', [
     '$mdToast',
     'User',
     'userMethods',
-    function($rootScope, $scope, $mdToast, User, userMethods){
+    '$location',
+    function($rootScope, $scope, $mdToast, User, userMethods, $location){
         $rootScope.title     = "My Profile";
         $scope.user          = ( window.localStorage.getItem('user') ) ? JSON.parse( window.localStorage.getItem('user') ) : {};
         $scope.selectedRoles = {};
@@ -29,7 +30,7 @@ smarc.controller('profileController', [
                 delete $scope.user.password;
 
                 window.localStorage.setItem('user', JSON.stringify($scope.user) );
-
+                $location.path('/users');
                 $mdToast.showSimple("User Updated!!");
             });
         };

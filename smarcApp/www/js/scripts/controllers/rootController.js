@@ -8,8 +8,8 @@ smarc.controller('rootController', [
     'Loading',
     'Connection',
     'Server',
-    'Light',
-    function($rootScope, $scope, $http, $location, $mdSidenav, Auth, Loading, Connection, Server, Light){
+    'Queue',
+    function($rootScope, $scope, $http, $location, $mdSidenav, Auth, Loading, Connection, Server, Queue){
         $scope.currentPage = '';
         $rootScope.rooms   = {};
         $rootScope.points  = [];
@@ -33,19 +33,19 @@ smarc.controller('rootController', [
             function connect(){
                 var source = new EventSource("http://"+ ip +":"+ port +"/notification");
                 source.onerror = function(e) {
-                    if (source.readyState == 2) {
+                    // if (e.target.readyState == 1) {
                         console.log('re connecting ...');
                         if(keepaliveTimer != null)clearTimeout(keepaliveTimer);
                         keepaliveTimer = setTimeout(connect, time);
-                    }
+                    // }
                 };
-                source.addEventListener('message', function(e){
+                source.onmessage = function(e){
                     // $rootScope.rooms  = data.rooms;
                     $rootScope.points = JSON.parse(e.data);
 
                     // after updating UI, confirm the changes by ...
                     $rootScope.$apply();
-                },false);
+                };
             }
             connect();
         } else {
@@ -94,15 +94,23 @@ smarc.controller('rootController', [
             if ($scope.currentPage != 'login') $mdSidenav(id).close();
         };
 
-        $scope.openRoom = function(id){
-            // show just room points;
-        };
-
         $scope.toggle = function(id){
-            console.log(id);
-            Light.toggle(id).then(function(response){
-                $rootScope.points[id] = response;
-            }, function(){});
+            // Light.toggle(id).then(function(response){
+            //     $rootScope.points[id] = response;
+            // }, function(){});
+            var options = {
+                'model': 'Light',
+                'method': 'toggle',
+                'data': id,
+                'success': function(data){
+                    $rootScope.points[id] = data;
+                },
+                'error': function(e){
+                    console.log(e);
+                }
+            };
+            // start dequeuing items
+            Queue.enqueue(options);
         };
 
         $scope.appReady = function(){

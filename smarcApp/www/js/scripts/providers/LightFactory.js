@@ -15,11 +15,13 @@ smarc.factory('Light', [
                 }
                 if (env == "development") {
                     return $q(function(resolve, reject) {
-                        var data = {
-                            's': true,
-                            'r': 1,
-                        };
-                        resolve(data);
+                        setTimeout(function(){
+                            var data = {
+                                's': true,
+                                'r': 1,
+                            };
+                            resolve(data);
+                        }, 2000);
                     });
                 }
             },

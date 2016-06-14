@@ -26,6 +26,10 @@ md-tabs-wrapper {
     bottom: 0;
     left: 0;
     right: 0;
+    overflow: auto;
+}
+.points-margin {
+    margin: 0 40px;
 }
 .login-form {
     display: -ms-flexbox;
@@ -81,6 +85,7 @@ md-tabs-wrapper {
     height: 130px;
     /*background: #eee;*/
     outline: none;
+    text-decoration: none;
 }
 .card-container .card .icon {
     text-align: center;
@@ -88,12 +93,12 @@ md-tabs-wrapper {
     padding: 5px 0;
 }
 .card-container .card .icon img {
-    width: 50px;
+    height: 80px;
 }
 .card-container .card .name {
     text-align: center;
     height: 40px;
     line-height: 40px;
     color: #fff;
-    background: rgba(0, 0, 0, 0.1);
+    /*background: rgba(0, 0, 0, 0.1);*/
 }
