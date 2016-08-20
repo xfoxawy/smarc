@@ -11,17 +11,11 @@ smarc.service('Connection', [
 
         this.check = function(content) {
             return $q(function(resolve, reject) {
-                var networkState = navigator.connection.type;
                 if (env == "production") {
-                    if (networkState == 'unknown' || networkState == 'none') {
-                        reject();
-                    } else {
-                        resolve();
-                    }
+                    if (navigator.connection.type == Connection.NONE) reject();
+                    else resolve();
                 }
-                if (env == "development") {
-                    resolve();
-                }
+                if (env == "development") resolve();
             });
         };
     }

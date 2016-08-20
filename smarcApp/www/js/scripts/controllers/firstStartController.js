@@ -16,12 +16,8 @@ smarc.controller('firstStartController', [
         };
 
         $scope.closeApp = function(){
-            if (env == "production") {
-                navigator.app.exitApp();
-            }
-            if (env == "development") {
-                console.log("closing");
-            }
+            if (env == "production") navigator.app.exitApp();
+            if (env == "development") console.log("closing");
         };
 
     }

@@ -23,27 +23,17 @@
     <!-- for Android ONLY -->
     <platform name="android">
         <allow-intent href="market:*" />
-        <!-- Icons -->
-        <icon src="www/img/android/icons/LDPI.png"  width="36" height="36" density="ldpi" />
-        <icon src="www/img/android/icons/MDPI.png"  width="48" height="48" density="mdpi" />
-        <icon src="www/img/android/icons/HDPI.png"  width="72" height="72" density="hdpi" />
-        <icon src="www/img/android/icons/XHDPI.png" width="96" height="96" density="xhdpi" />
-
-        <!-- Splash Screen landscape -->
-        <splash src="www/img/android/splash/land/LDPI.png"  density="land-ldpi"/>
-        <splash src="www/img/android/splash/land/MDPI.png"  density="land-mdpi"/>
-        <splash src="www/img/android/splash/land/HDPI.png"  density="land-hdpi"/>
-        <splash src="www/img/android/splash/land/XHDPI.png" density="land-xhdpi"/>
-
-        <!-- Splash Screen portrait -->
-        <splash src="www/img/android/splash/port/LDPI.png"  density="port-ldpi"/>
-        <splash src="www/img/android/splash/port/MDPI.png"  density="port-mdpi"/>
-        <splash src="www/img/android/splash/port/HDPI.png"  density="port-hdpi"/>
-        <splash src="www/img/android/splash/port/XHDPI.png" density="port-xhdpi"/>
-
-        <!-- Splash Screen preferences -->
-        <preference name="AutoHideSplashScreen" value="false" />
-        <preference name="SplashScreenDelay" value="10000" />
-        <preference name="SplashMaintainAspectRatio" value="true" />    
+        <preference name="SplashMaintainAspectRatio" value="true" />
+        <preference name="SplashShowOnlyFirstTime" value="false" />
     </platform>
+
+    <platform name="ios">
+        <allow-intent href="itms:*" />
+        <allow-intent href="itms-apps:*" />
+        <preference name="FadeSplashScreen" value="true" />
+        <preference name="ShowSplashScreenSpinner" value="false" />
+    </platform>
+    
+    <preference name="AutoHideSplashScreen" value="true" />
+    <preference name="SplashScreenDelay" value="10000" />
 </widget>

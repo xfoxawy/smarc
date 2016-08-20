@@ -11,8 +11,10 @@ var Driver = function(Core){
 	var model = "light";
 	var db = Core.db;
 	var publisherClient = Core.redis.createClient();
+	
 	// all nodes placeholder
 	this.nodes = [];
+
 	// all errors placeholder
 	this.errors = [];
 	// hold all points mapped to their original 

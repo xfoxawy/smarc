@@ -1,4 +1,4 @@
-window.env = "production";
+window.env = "development";
 
 if (env == "development") {
     angular.element(document).ready(function() {
@@ -27,26 +27,27 @@ var app = {
     // offline Event Hamdler
     // fires whene the app goes offline
     onDeviceOffline: function(){
-        if (env == "production") {
-            navigator.app.exitApp();
-        }
-        if (env == "development") {
-            console.log('no Internet Connection .. closing app ....');
-        }
+        if (env == "production") navigator.app.exitApp();
+        if (env == "development") console.log('no Internet Connection .. closing app ....');
     },
 
     // online Event Hamdler
     // fires whene the app back to online
     onDeviceOnline: function(){
-        console.log('the app back to online .. restore functionality...');
+        if (env == "production") location.reload();
+        if (env == "development") console.log('the app back to online.. restore functionality...');
     },
 
     onResume: function(){
-        angular.bootstrap(document, ['Smarc']);
+        if (env == "production") location.reload();
+        if (env == "development") console.log('the app resumed...');
     },
 
-    onPause: function(){},
-    
+    onPause: function(){
+        if (env == "production") navigator.app.exitApp();
+        if (env == "development") console.log('no Internet Connection .. closing app ....');
+    },
+
     // deviceready Event Handler
     //
     // The scope of 'this' is the event.

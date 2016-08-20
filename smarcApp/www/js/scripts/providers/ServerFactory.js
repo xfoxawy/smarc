@@ -1,21 +1,25 @@
 smarc.factory('Server', [
     '$http',
     '$q',
-    function($http, $q){
+    'Config',
+    function($http, $q, Config){
 
         function config(){
-            return ( window.localStorage.getItem('options') ) ? JSON.parse( window.localStorage.getItem('options') ) : {};
+            // get connection info from local storage
+            if ( window.localStorage.getItem('options') ) {
+                return JSON.parse( window.localStorage.getItem('options') );
+            } else {
+                // if not then get it from configValue.js
+                window.localStorage.setItem('options') = Config;
+                return config();
+            }
         };
         return {
             connectToServer: function(){
                 if (env == 'production') {
                     return $http.get('http://'+ config().serverIp +':'+ config().serverPort +'/checkConnection');
                 }
-                if (env == 'development') {
-                    return $q(function(resolve, reject) {
-                        resolve();
-                    });
-                }
+                if (env == 'development') return $q(function(resolve, reject) { resolve(); });
             },
             getStatus: function(){
                 if (env == "production") {

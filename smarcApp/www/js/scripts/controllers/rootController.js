@@ -115,43 +115,33 @@ smarc.controller('rootController', [
 
         $scope.appReady = function(){
             // hide splash screen;
-            if (env == "production") {
-                navigator.splashscreen.hide();
-            }
+            if (env == "production") navigator.splashscreen.hide();
 
             // show loading page
             Loading.show('check internet connection', function(){
 
                 // check internet connection
                 Connection.check().then(function success(){
-                    // check first startup
                     Loading.hide();
-                    Loading.show('checking first Startup', function completeShowing(){
-                        if ( Loading.isFirstStartup() ) {
-                            Loading.hide();
-
-                            // show config page
-                            Loading.configPage();
-                        } else {
-                            Loading.hide();
-                            Server.connectToServer().then(function(data){
-                                // check Auth
-                                if ( Auth.isLogin() ) {
-                                    // get all points and rooms
-                                    Server.getStatus().then(function(response){
-                                        $rootScope.rooms  = response.data.rooms;
-                                        $rootScope.points = response.data.points;
-                                    }, function(response){
-                                        console.log(response);
-                                    });
-                                } else {
-                                    $location.path("/login");
-                                };
-                            }, function(){
-                                Loading.configPage();
+                    
+                    // try to connect with server
+                    Server.connectToServer().then(function(data){
+                        // check Auth
+                        if ( Auth.isLogin() ) {
+                            // get all points and rooms
+                            Server.getStatus().then(function(response){
+                                $rootScope.rooms  = response.data.rooms;
+                                $rootScope.points = response.data.points;
+                            }, function(response){
+                                console.log(response);
                             });
-                        }
+                        } else {
+                            $location.path("/login");
+                        };
+                    }, function(){
+                        Loading.configPage();
                     });
+                
                 }, function fail(){
                     Loading.hide();
                     Loading.noInternetConnectionEx();
