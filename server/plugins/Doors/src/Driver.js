@@ -3,17 +3,16 @@ var EventEmitter = new(require('events').EventEmitter);
 var Transformer = require('./Transformer');
 
 /**
- * Light Plugin Driver
+ * Doors Plugin Driver
  */
 
 var Driver = function(Core){
 	var self = this;
-	var model = "light";
+	var model = "doors";
 	var db = Core.db;
-	var publisherClient = Core.redis.createClient();
+	// var publisherClient = Core.redis.createClient();
 	var reconnectionInterval = 5000; // reconnection to dead nodes interval
 	var maxTries = 25 ; // reconnection to dead nodes max tries
-	
 	// all nodes placeholder
 	this.nodes = [];
 	// all errors placeholder
@@ -35,10 +34,6 @@ var Driver = function(Core){
 					Telnet.connect(nodes[i].ip, nodes[i].port);
 				}
 			});
-			// load rooms from database
-			loadRooms(function(rooms){
-				self.rooms = rooms;
-			})
 	}());
 
 	// interval to check if there any dead nodes and try to reconnect to them
@@ -81,15 +76,6 @@ var Driver = function(Core){
 		});
 	};
 
-	// load rooms instaces from database
-	function loadRooms (cb){
-		db.collection('rooms').find().toArray(function(err, docs){
-			if(err) throw err;
-			else if(docs.length){
-				cb(docs);
-			}
-		});
-	}
 	//once nodes loaded we can map them to be able to be used 
 	function mapPoints(){
 		
@@ -110,7 +96,7 @@ var Driver = function(Core){
 								p : self.nodes[y].points[x].p , 
 								i : self.nodes[y].points[x].i ,
 								s : self.nodes[y].points[x].s,
-								r : self.nodes[y].points[x].r,
+								d : self.nodes[y].points[x].delay,
 								node_name : self.nodes[y].name , 
 								node_status : self.nodes[y].connected, 
 								node_ip : self.nodes[y].ip
@@ -250,7 +236,7 @@ var Driver = function(Core){
 			var point = findPointInNode(node,pointId);
 			point.s = newstatus;
 			updatePointStatusDB(node.name , point.i , newstatus);
-			publishPointsStatusUpdates();
+			// publishPointsStatusUpdates();
 			console.log("the status has been updated for " + pointId + " with status " + newstatus);
 		}
 		else if(/(I)*(\d*\d,[0-1]){1}-/.test(data)){
@@ -267,7 +253,7 @@ var Driver = function(Core){
 					point.s = newstatus;
 				}
 			}
-			publishPointsStatusUpdates();
+			// publishPointsStatusUpdates();
 		}
 	};
 
@@ -327,22 +313,29 @@ var Driver = function(Core){
 		self.exec(point.node_ip, order);
 	};
 
-	this.toggle = function(pointNumber){
+	this.openDoor = function(point)
+	{
+		var delay = Number(point.d);
+		
+		this.turnOn(point);
+		
+		console.log("opening Door Point Number :: " + point.p)
+
+		setTimeout(function(){
+			
+			self.turnOff(point);
+			
+			console.log("closing Door Point Number :: " + point.p)
+
+		}, delay);
+	}
+
+	this.open = function(pointNumber){
 		var pointNumber = pointNumber || '';
 		var point = findPointInMappedPoints(pointNumber);
 		if(point.node_status === true)
 		{
-			if(point.s === false)
-			{
-				self.turnOn(point);
-			}
-			else if(point.s === true){
-				self.turnOff(point);
-			}
-			else{
-				throw "unknown point status , point number:-> " + pointNumber + " node ip:-> " + point.node_ip ;
-			}
-
+			self.openDoor(point);
 		}
 		else if(point.node_status === false){
 			console.log("its not connected");
@@ -365,9 +358,6 @@ var Driver = function(Core){
 		destoryNode(nodeIp);
 	};
 
-	this.getRooms = function(){
-		return this.rooms;
-	};
 	this.mapPoints = mapPoints;
 };
 

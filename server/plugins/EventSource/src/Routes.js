@@ -1,31 +1,10 @@
 module.exports = function(Core){
 
     /**
-     * { item_description }
+     * Notifications SSE source
+     * @return {JSON} 
      */
-    Core.app.get('/test-notification/:e', function(req, res){
-        // whatever data we want to send as update to the client
-        var json = {
-            'p177': { 's': false, 'r': '1' },
-            'p178': { 's': false, 'r': '2' },
-            'p179': { 's': true,  'r': '3' },
-            'p180': { 's': true,  'r': '2' },
-            'p181': { 's': false, 'r': '3' },
-            'p182': { 's': true,  'r': '1' },
-            'p183': { 's': false, 'r': '2' },
-            'p184': { 's': false, 'r': '1' },
-            'p185': { 's': false, 'r': '3' },
-            'p186': { 's': true,  'r': '3' },
-        };
-
-        // convert data to string then publish it to Redis Server
-        var publisherClient = Core.redis.createClient();
-        publisherClient.publish( 'updates', JSON.stringify(json) );
-
-        // end the response to return to the browser
-        res.end();
-    });
-
+    
     Core.app.get('/notification', function(req,res){
 
         res.writeHead(200, {"Content-Type":"text/event-stream", "Cache-Control":"no-cache", "Connection":"keep-alive"});

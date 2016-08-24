@@ -1,5 +1,4 @@
 var net = require('net');
-
 /**
  * Telnet Connection Manager for lighting system
  */
@@ -7,37 +6,57 @@ var Connection = function(){
 	var self = this;
 	this.drivers = [];
 
-	this.connect = function(ip,port,cb){
-		var socket = net.connect({ip,port}, function(){
-			//console.log('connecting to ' + ip);
+	this.connect = function(address,port,cb){
+		var socket = net.connect(port, address,function(){
+			console.log('connecting to ' + address);
 		});
+
 		// set connection params
-		socket.setEncoding('utf8');
+		socket.setEncoding('ascii');
 		socket.setKeepAlive('enable');
 		socket.setNoDelay(true);
 		// handle on connect
 		socket.on('connect', function(){
-			//console.log(ip + ' connected');
-			process.emit('light/sockets/'+ip, socket);
-			self.notify('connected',{ip,socket});
-		});
-
-		// handle on data
-		socket.on('data', function(data){
-			//console.log("some data over " + ip);
-			self.notify('data', {ip, data});
+			console.log(address + ' connected');
+			process.emit('light/sockets/'+address, socket);
+			self.notify('connected',{address,socket});
 		});
 		
+		// handle on data
+		var str = ''; // empty string to hold up coming data from socket
+		socket.on('data', function(data){
+			if(!/(\n)/.test(data))
+			{
+				str += data 
+			}
+			else if(/(\n)/.test(data))
+			{
+				str += data;
+				str = str.trim();
+				self.notify('data', {address, str});
+
+				str = '';
+			}
+		});
+		
+		socket.on('drain', function(e){
+			console.log("the controller has been drained " + e);
+		});
 		// handle on connection timeout
 		socket.on('timeout', function(){
-			//console.log(ip +" socket has been timeouted");
-			self.notify('timout',{ip})
+			console.log(address +" socket has been timeouted");
+			self.notify('timeout',{address})
 		});
 		
 		// handle on connection timeout
 		socket.on('end', function(){
-			//console.log(ip +" socket has been closed");
-			self.notify('end', {ip});
+			console.log(address +" socket has been closed");
+			self.notify('end', {address});
+		});
+
+		// handle connection error
+		socket.on('error', function(error){
+			self.notify('error',{address,error});
 		});
 	};
 
@@ -50,7 +69,7 @@ Connection.prototype.subscribe = function(driver){
 	this.drivers.push(driver);		
 };
 
-Connection.prototype.remove = function(driver){
+Connection.prototype.unsubscribe = function(driver){
 	for(var i = 0; i < this.drivers.length; i ++)
 	{
 		if(this.drivers[i] === driver)
