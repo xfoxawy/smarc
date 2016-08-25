@@ -77,7 +77,14 @@ smarc.factory('Server', [
                     return $q(function(resolve, reject) {
                         var data = {
                             data: {
-
+                                "gate1": {
+                                    s : false,
+                                    i : "",
+                                    d : "",
+                                    node_name : "",
+                                    node_status : "",
+                                    node_ip : ""
+                                }
                             }
                         };
                         resolve(data);

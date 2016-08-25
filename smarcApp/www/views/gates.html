@@ -1,12 +1,13 @@
-<div class="page home-container">
+<div class="page room-container">
     <div layout layout-wrap class="points-margin">
-        <div class="card-container" ng-repeat="(id, name) in rooms" flex="50" layout="column">
-            <a class="card" href="#room/{{ id }}">
+        <div class="card-container" ng-repeat="(name, point) in gates" flex="50" layout="column">
+            <div class="card" ng-click="open(name)">
                 <div class="icon">
-                    <img src="img/room.png" alt="room">
+                    <img ng-if="!point.s" src="img/gate-closed.png" alt="gate closed">
+                    <img ng-if="point.s" src="img/gate-opened.png" alt="gate opened">
                 </div>
-                <div class="name">{{ name }}</div>
-            </a>
+                <div class="name">{{ node_name }}</div>
+            </div>
         </div>
     </div>
 </div>

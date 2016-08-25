@@ -13,6 +13,7 @@ smarc.controller('rootController', [
         $scope.currentPage = '';
         $rootScope.rooms   = {};
         $rootScope.points  = [];
+        $rootScope.gates   = [];
         $rootScope.title   = 'Home';
         $scope.originatorEv;
 
@@ -90,27 +91,9 @@ smarc.controller('rootController', [
         $scope.openSidebar = function(id){
             if ($scope.currentPage != 'login') $mdSidenav(id).open();
         };
+
         $scope.closeSidebar = function(id){
             if ($scope.currentPage != 'login') $mdSidenav(id).close();
-        };
-
-        $scope.toggle = function(id){
-            // Light.toggle(id).then(function(response){
-            //     $rootScope.points[id] = response;
-            // }, function(){});
-            var options = {
-                'model': 'Light',
-                'method': 'toggle',
-                'data': id,
-                'success': function(data){
-                    $rootScope.points[id] = data;
-                },
-                'error': function(e){
-                    console.log(e);
-                }
-            };
-            // start dequeuing items
-            Queue.enqueue(options);
         };
 
         $scope.appReady = function(){
