@@ -81,6 +81,14 @@ smarc.config([
             templateUrl: "views/home.html",
             controller: "homeController"
         })
+        .when('/lights', {
+            templateUrl: "views/lights.html",
+            controller: "lightsController"
+        })
+        .when('/gates', {
+            templateUrl: "views/gates.html",
+            controller: "gatesController"
+        })
         .when('/all', {
             templateUrl: "views/all.html",
             controller: "allController"

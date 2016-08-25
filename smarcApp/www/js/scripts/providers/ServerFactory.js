@@ -65,6 +65,25 @@ smarc.factory('Server', [
                     });
                 }
             },
+
+            getGates: function(){
+                if (env == "production") {
+                    return $http({
+                        "method": "GET",
+                        "url": "http://" + config().serverIp + ":" + config().serverPort + "/doors/points"
+                    });
+                }
+                if (env == "development") {
+                    return $q(function(resolve, reject) {
+                        var data = {
+                            data: {
+
+                            }
+                        };
+                        resolve(data);
+                    });
+                }
+            },
         }
     }
 ]);

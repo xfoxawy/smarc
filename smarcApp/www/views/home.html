@@ -1,12 +1,23 @@
 <div class="page home-container">
     <div layout layout-wrap class="points-margin">
-        <div class="card-container" ng-repeat="(id, name) in rooms" flex="50" layout="column">
-            <a class="card" href="#room/{{ id }}">
+        
+        <div class="card-container" flex="50" layout="column">
+            <div class="card" ng-click="goTo('/lights')">
                 <div class="icon">
-                    <img src="img/room.png" alt="room">
+                    <img src="img/light-on.png" alt="lights">
                 </div>
-                <div class="name">{{ name }}</div>
-            </a>
+                <div class="name">Lights</div>
+            </div>
         </div>
+
+        <div class="card-container" flex="50" layout="column">
+            <div class="card" ng-click="goTo('/gates')">
+                <div class="icon">
+                    <img src="img/gate.png" alt="gates">
+                </div>
+                <div class="name">Gates</div>
+            </div>
+        </div>
+
     </div>
 </div>
