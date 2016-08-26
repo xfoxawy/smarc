@@ -1,4 +1,5 @@
-window.env = "development";
+// window.env = "development";
+window.env = "production";
 
 if (env == "development") {
     angular.element(document).ready(function() {
@@ -34,12 +35,12 @@ var app = {
     // online Event Hamdler
     // fires whene the app back to online
     onDeviceOnline: function(){
-        if (env == "production") location.reload();
+        // if (env == "production") location.reload();
         if (env == "development") console.log('the app back to online.. restore functionality...');
     },
 
     onResume: function(){
-        if (env == "production") location.reload();
+        // if (env == "production") location.reload();
         if (env == "development") console.log('the app resumed...');
     },
 

@@ -24,6 +24,39 @@ smarc.controller('rootController', [
         $scope.userObject = function(){
             return ( window.localStorage.getItem('user') ) ? JSON.parse( window.localStorage.getItem('user') ) : {};
         };
+        
+        // get all gates
+        Server.getGates().then(function(response){
+            $rootScope.gates  = response.data;
+        }, function(e){
+            console.log(e);
+        });
+
+        // get all points and rooms
+        Server.getStatus().then(function(response){
+            $rootScope.rooms  = response.data.rooms;
+            $rootScope.points = response.data.points;
+        }, function(response){
+            console.log(response);
+        });
+
+        $scope.toggle = function(id){
+            var options = {
+                'model': 'Light',
+                'method': 'toggle',
+                'data': id,
+                'success': function(data){
+                    console.log(data);
+                    $rootScope.points[id] = data;
+                },
+                'error': function(e){
+                    console.log(e);
+                }
+            };
+            // start dequeuing items
+            Queue.enqueue(options);
+        };
+
 
         if (typeof EventSource !== "undefined") {
             var ip             = ( config().serverIp ) ? config().serverIp : '192.168.1.1',

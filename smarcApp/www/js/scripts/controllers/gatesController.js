@@ -5,13 +5,6 @@ smarc.controller('gatesController', [
     'Gate',
     function($rootScope, $scope, Server, Gate){
         $rootScope.title = "Gates";
-        
-        // get all gates
-        Server.getGates().then(function(response){
-            $rootScope.gates  = response.data;
-        }, function(e){
-            console.log(e);
-        });
 
         $scope.open = function(id){
             Gate.open(id).then(function(data){
