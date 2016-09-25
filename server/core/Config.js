@@ -26,7 +26,16 @@ var Config = {
         'options': {
             'db': 'admin'
         }
-    }
+    },
+    filesystem : [
+        {
+            default : true,
+            driver : 'localstorage',
+            settings : {
+                directory : __dirname + '/../../localstorage'
+            }
+        }
+    ],
 };
 
 module.exports = Config;

@@ -13,5 +13,6 @@ Smarc.sublime-project
 server/plugins/Light/src/output.json
 server/plugins/Auth/src/savedJwt
 server/plugins/Auth/src/savedJWT
-
 server/core/log.txt
+localstorage/*
+.DS_Store

@@ -14,7 +14,7 @@ var Light = function(){
      * @return {void}
      */
     this.register = function(Core){
-        
+            
         /**
          * load Routes
          */
