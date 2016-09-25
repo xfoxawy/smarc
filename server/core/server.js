@@ -12,7 +12,7 @@ var redis       = require("redis");
     Core.redis  = redis;
 var path        = require("path");
 var MongoClient = require('mongodb').MongoClient;
-var crossOriginEnable = require('./Middlewares/crossOriginEnableMiddleware');
+// var crossOriginEnable = require('./Middlewares/crossOriginEnableMiddleware');
 
 /**
  * setup Database Connection
@@ -41,7 +41,7 @@ function(db){
      * middlewares for express
      * @description [crossOriginEnable] for anable cross origin to allow server recive reqs from other domains
      */
-    Core.app.use(crossOriginEnable);
+    // Core.app.use(crossOriginEnable);
     Core.app.use(express.static('./'));
     Core.app.use(bodyParser.urlencoded({ extended: false }));
     Core.app.use(bodyParser.json({limit : '1mb'}));

@@ -1,6 +1,4 @@
-var Config = {
+module.exports = {
     secret: "randomstringtousedinencryption",
-    jwtStorage: "file", // or cache
+    jwtStorage: "file"
 };
-
-module.exports = Config;

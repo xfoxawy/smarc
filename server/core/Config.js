@@ -15,8 +15,6 @@ var Config = {
     logFile : __dirname + '/log.txt',
     logDBModel : 'logs',
     pluginsDir: __dirname + '/../plugins/',
-    secret: "randomstringtousedinencryption",
-    jwtStorage: "file", // or cache
     db: {
         'host': '127.0.0.1',
         'port': 27017,
