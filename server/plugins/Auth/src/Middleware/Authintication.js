@@ -1,31 +1,28 @@
 'use strict';
 
-var jwtHandler  = require('../jwtHandler');
-var jwt         = require('jsonwebtoken');
-var Config      = require('../Config');
+var jwt    = require('jsonwebtoken');
+var Config = require('../Config');
 
 /**
  * Creates Authticated User Object with the required data
- * @param  confi{Http Request}    req   
- * @param  {Http Response}   res    
- * @param  {function}        next           
- * @return                          [Call Next Route]
+ * @param  {Http Request}  req   
+ * @param  {Http Response} res    
+ * @param  {function}      next           
+ * @return                      [Call Next Route]
  */
 module.exports = function(req, res, next){
 
-    var token = req.body.auth || null;
-
-    // if ( !jwtHandler.check(token) ) return res.status(401).json('Unauthorized');
-    console.log(token);
-    // if (token) {
-    //     var secret = Config.secret;
-    //     try {
-    //         var id = jwt.verify(token, secret);
-    //     } catch(err) {
-    //         return res.status(406).send("invalid token " + err);
-    //     }
-    //     next();
-    // } else {
-    //     return res.status(401).end();
-    // }
-}
+    /**
+     * check if token is valid
+     * @param  {String}   token       [the token from the client]
+     * @param  {String}   secret      [the secret key to campare token with]
+     * @param  {String}   err         [if the token not valid return this err]
+     * @param  {AnyThing} decodedData [the data that token containes]
+     * @return {Function}             [call the next route]
+     */
+    jwt.verify(req.headers.authorization, Config.secret, function(err, decodedData){
+        if (err) return res.status(401).send("invalid token " + err).end();
+        req.user = decodedData;
+        next();
+    });
+};
