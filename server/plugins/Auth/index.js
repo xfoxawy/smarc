@@ -15,6 +15,16 @@ var Auth = function(){
      */
     this.register = function(Core){
         /**
+         * Setup SocketIO namespace
+         */
+        Core.users_socket = Core.io.of('/users').on('connection', function(socket){
+            console.log('Device Connected on First Plugin');
+            socket.on('disconnect', function(){
+                console.log('Disconnected Device From First Plugin');
+            });
+        });
+
+        /**
          * load Routes
          */
         Routes(Core);

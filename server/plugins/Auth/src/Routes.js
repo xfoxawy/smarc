@@ -106,8 +106,6 @@ module.exports = function(Core){
             });
         } else {
             // save user in DB
-            console.log(req.body.name);
-            console.log(req.body.roles);
             Core.db.collection('users').update({_id: new ObjectID(req.params.id)}, {
                 $set: {
                     name: req.body.name,
@@ -134,6 +132,7 @@ module.exports = function(Core){
     Core.app.get('/users', function(req, res){
         Core.db.collection('users').find({}, {password: 0}).toArray(function(err, docs) {
             if (err) throw err;
+            Core.users_socket.emit('message', 'get all users.');
             return res.json(docs);
         });
     });

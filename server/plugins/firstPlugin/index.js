@@ -19,7 +19,17 @@ var firstPlugin = function(){
      * @return {void}
      */
     this.register = function(Core){
-        
+        // /**
+        //  * Setup SocketIO namespace
+        //  */
+        // Core.fp = Core.io.of('/first_plugin');
+        // Core.fp.on('connection', function(socket){
+        //     console.log('Device Connected on First Plugin');
+        //     socket.on('disconnect', function(){
+        //         console.log('Disconnected Device From First Plugin');
+        //     });
+        // });
+
         /**
          * load Config
          */

@@ -5,6 +5,8 @@ var express     = require("express");
 var bodyParser  = require("body-parser");
 var Core        = {};
     Core.app    = express();
+var server      = require('http').Server(Core.app);
+    Core.io     = require('socket.io')(server);
 var Config      = require("./Config");
     Core.Config = Config;
 var IOC         = require("./IOC");
@@ -12,7 +14,7 @@ var redis       = require("redis");
     Core.redis  = redis;
 var path        = require("path");
 var MongoClient = require('mongodb').MongoClient;
-// var crossOriginEnable = require('./Middlewares/crossOriginEnableMiddleware');
+var crossOriginEnable = require('./Middlewares/crossOriginEnableMiddleware');
 
 /**
  * setup Database Connection
@@ -56,6 +58,6 @@ function(err){
     throw err;
 });
 
-Core.app.listen(3050, function(){
+server.listen(3050, function(){
     console.log('listening on *:3050');
 });

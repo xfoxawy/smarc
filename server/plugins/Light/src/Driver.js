@@ -13,7 +13,7 @@ var Driver = function(Core){
 	var publisherClient = Core.redis.createClient();
 	var reconnectionInterval = 5000; // reconnection to dead nodes interval
 	var maxTries = 25 ; // reconnection to dead nodes max tries
-	
+
 	// all nodes placeholder
 	this.nodes = [];
 	// all errors placeholder
