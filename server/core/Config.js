@@ -9,6 +9,8 @@ var path = require("path");
  * @return {Object} [all options as object]
  */
 var Config = {
+    server: "127.0.0.1",
+    port: 3050,
     env: "development",
     log: true,
     logType : 'db', // or file

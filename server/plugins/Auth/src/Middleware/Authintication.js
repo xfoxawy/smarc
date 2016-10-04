@@ -20,9 +20,10 @@ module.exports = function(req, res, next){
      * @param  {AnyThing} decodedData [the data that token containes]
      * @return {Function}             [call the next route]
      */
-    jwt.verify(req.headers.authorization, Config.secret, function(err, decodedData){
-        if (err) return res.status(401).send("invalid token " + err).end();
-        req.user = decodedData;
-        next();
-    });
+    next();
+    // jwt.verify(req.headers.authorization, Config.secret, function(err, decodedData){
+    //     if (err) return res.status(401).send("invalid token " + err).end();
+    //     req.user = decodedData;
+    //     next();
+    // });
 };

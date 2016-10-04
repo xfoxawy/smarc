@@ -17,7 +17,15 @@ var Auth = function(){
         /**
          * Setup SocketIO namespace
          */
-        Core.users_socket = Core.io.of('/users');
+        Core.users_socket = Core.io.of('/users').on('connection', function(socket){
+            console.log('user connect');
+            socket.on('disconnect', function(){
+                console.log('user disconnect');
+            });
+            socket.on('erro', function(e){
+                console.log(e);
+            });
+        });
 
         /**
          * load Routes

@@ -18,7 +18,7 @@ var EventSource = function(){
          * load Routes
          */
         Routes(Core);
-        console.log('EventSource Plugin Main File');
+        console.log('EventSource Stopped.');
     };
 };
 
