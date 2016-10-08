@@ -3,35 +3,65 @@ var ffmpeg = require('fluent-ffmpeg');
 
 var Driver = function(Core){
     var cams      = {};
-    var deadCams  = {};
+    var deadCams  = [];
+    var model     = "security";
+    var interval  = 60 * 1000; // check dead cams every 1 minute
 
     init();
     function init(){
         // load cams from DB
-        var rowCams = getCamsFromDB();
+        getCamsFromDB(function(rowCams){
+            // try to connect with them
+            for(var i = 0; i < rowCams.length; i++){
+                if( checkCam( rowCams[i] ) ){
+                    createCamObj(rowCams[i].ip);
+                } else {
+                    // store dead cams
+                    storeDeadCam(rowCams[i].ip);
+                }
+            };
+        });
 
-        // try to connect with them
-        for(var i = 0; i < rowCams.length; i++){
-            checkCam(cams[i]);
-        };
-        // store dead cams
-        // try to connect every 60 sec
+        // try to connect every interval sec
+        setInterval(function(){
+            tryToConnect();
+        }, interval);
     };
 
-    function getCamsFromDB(){
-        return [];
+    function tryToConnect(){
+        for (var i = 0; i < deadCams.length; i++) {
+            if(checkCam(deadCams[i])){
+                createCamObj(deadCams[i]);
+
+                // remove the cam from dead cams
+                deadCams.splice(i, 1);
+            }
+        }
+    };
+
+    function storeDeadCam(ip){
+        if( deadCams.indexOf(ip) == -1 )
+            deadCams.push(ip);
+    };
+
+    function getCamsFromDB(cb){
+        Core.db.collection(model).find().toArray(function(err, docs){
+            if(err) throw err;
+            return cb(docs);
+        });
     };
 
     /**
      * check if cam is connected to network
-     * @param  {String} cam [ip of the cam]
+     * @param  {String} ip [ip of the cam]
      * @return {Boolean}
      */
-    function checkCam(cam){};
+    function checkCam(camObj){
+        return true;
+    };
 
     function isCamValid(ip){
-        var arr = Object.keys(deadCams);
-        return arr.indexOf(ip) == -1;
+        return (ip in cams)
     };
 
     /**
@@ -40,16 +70,32 @@ var Driver = function(Core){
      * @return {Empty}     [void]
      */
     function closeStream(ip){
-        /**
-         * SIGKILL - Default signal, Kill the proccess [error event will emit]
-         * SIGSTOP - suspend proccess
-         * SIGCONT - resume proccess
-         */
-        // cams[ip].ffmpeg.kill is not a function !!!!!!
-        cams[ip].ffmpeg.kill('SIGKILL');
+        exec('ps aux | grep ffmpeg', (error, stdout, stderr) => {
+            if (error) throw error;
+            // ibrahimsaqr      67341  24.8  0.3  2520944  29240 s001  S+    6:10PM   0:01.36 /Users/ibrahimsaqr/Development/ffmpeg/ffmpeg -i http://192.168.1.3:8008 -b:v 800k -r 25 -filter:v scale=w=640:h=480 -f mpeg1video pipe:1,
+            
+            // find the command
+            var command = stdout.split('\n').filter(function(element, index){
+                if ( element.search(ip) > -1 ) return true;
+                return false;
+            });
 
-        // remove cam empty object from global cams
-        delete cams[ip];
+            // search in it and get the PID
+            var res = command[0].match("([0-9]+)");
+            if (res) {
+                // kill it
+                exec('kill -9 ' + res[0], (error, stdout, stderr) => {
+                    if (error) throw error;
+                    console.log(stdout);
+                    console.log(stderr);
+                });
+            } else {
+                console.log('no resault');
+            }
+
+        });
+        // reset Cam Obj
+        cams[ip].ffmpeg = {};
     };
 
     /**
@@ -72,62 +118,69 @@ var Driver = function(Core){
         }
     };
 
-    this.stream = function(data, socket, Core){
-        // data = { ip: "", size: "" };
-        var data = data || {};
-
+    this.stream = function(ip, socket){
         // check if this cam id is valid
-        isCamValid(data.ip);
+        if (isCamValid(ip)) {
+            
+            // check if the cam is opend before
+            if (isCamOpened(ip)) {
+                registerUserIntoCam(ip, socket);
 
-        // check if the cam is opend before
-        // if not start the proccess
-        if (cams[data.ip]){
-            // check if the socket is first connect
-            if ( Object.keys(cams[data.ip].users).indexOf(socket.id) == -1 )
-                // connect it
-                cams[data.ip].users[socket.id] = socket;
-        } else {
-            cams[data.ip] = {};
-            cams[data.ip].users = {};
-            cams[data.ip].users[socket.id] = socket;
-            try {
-                cams[data.ip].ffmpeg = startFFMPEG(data);
-            } catch(err){
-                closeStream(data.ip);
+            // if not start the proccess
+            } else {
+                startNewStream(ip);
+                registerUserIntoCam(ip, socket)
             }
+
+        } else {
+
+        }
+    };
+
+    function isCamOpened(ip){
+        return typeof cams[ip].ffmpeg.on == 'function';
+    };
+
+    function registerUserIntoCam(ip, socket){
+        if (!cams[ip].users[socket.id])
+            cams[ip].users[socket.id] = socket;
+    };
+
+    function createCamObj(ip){
+        cams[ip] = {
+            users: {},
+            ffmpeg: {}
         };
-
-        sendStream(data.ip);
     };
 
-    function sendStream(ip){
-        // new method, send the last user, which will be the new one
-        cams[ip].ffmpeg.on('data', function(chunk) {
-            var keys    = Object.keys(cams[ip].users),
-                lastkey = keys[keys.length - 1];
-
-            if (cams[ip].users[lastkey])
-                cams[ip].users[lastkey].emit('stream', chunk);
-        });
-
-        // old method to send stream to all users, loop in all users and send
-        // cams[ip].ffmpeg.on('data', function(chunk) {
-        //     for (id in cams[ip].users) {
-        //         cams[ip].users[id].emit('stream', chunk);
-        //     }
-        // });
+    function startNewStream(ip){
+        try {
+            cams[ip].ffmpeg = startFFMPEG(ip);
+        } catch(err){
+            closeStream(ip);
+        }
     };
 
-    function startFFMPEG(data){
-        console.log('startFFMPEG');
-        return ffmpeg('http://192.168.1.' + data.ip + ':8008')
+    function startFFMPEG(ip){
+        /**
+         * the sorting of methods is important
+         * espcialy pipe() and on(data), we Must call pipe() then on(data)
+         */
+        var command = ffmpeg('http://' + ip + ':8008')
             .format('mpeg1video')
-            .size(data.size)
+            .size('640x480')
             .videoBitrate('800k')
             .fps(25)
             .on('error', function(err) {
                 console.log('An error occurred: ' + err.message);
-            }).pipe();
+            })
+            .pipe()
+            .on('data', function(chunk) {
+                for (userId in cams[ip].users) {
+                    cams[ip].users[userId].emit('stream', chunk);
+                }
+            });
+        return command;
     };
 };
 module.exports = Driver;
