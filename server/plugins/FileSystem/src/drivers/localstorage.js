@@ -9,22 +9,40 @@ var localstorage = function(settings)
 	var self = this;
 	var _ = {}; // private methods and props
 	this.files = [];
+	this.dirs = [];
 	var rootDirectory = settings.directory;
+	this.fstree = {};
 
 	// read root directory
 	// read all  files in that directory and its subdirectories
 	// improve this 
-	// self.files = (function(rootDir){
-	// 	var filesArray = [];
-	// 	dir.files(rootDir, function(err,files){
-	// 		if(err) throw err;
-	// 		files.forEach(function(filepath){
-	// 			var name = filepath.split('/')[filepath.split('/').length - 1];
-	// 			filesArray[name] = filepath;
-	// 		});
-	// 	});
-	// 	return filesArray;
-	// })(rootDirectory);
+	(function scanroot(){
+		var rootpath = rootDirectory.split('/');
+		var rootdir = rootpath[rootpath.length -1];
+		fstree[rootdir] = {};
+		dir.paths(rootDirectory, function(err , paths){
+					
+					paths.dirs.forEach(function(path){
+						var path = path.split('/');
+						var pathstack = path.slice(path.indexOf(rootdir) +1, path.length);
+						// create the folders tree
+						console.dir(pathstack);
+					});
+
+					paths.files.forEach(function(file, index){
+						var path = file.split('/');
+						var relativepath = (path.slice(path.indexOf(rootdir) , path.length));
+						// console.dir(relativepath);
+					});
+
+
+					// self.files.push(paths.files);
+					// self.dirs.push(path.dirs);
+
+
+		});
+		
+	}());
 
 
 	// watch directory changes and updates files list
@@ -40,7 +58,13 @@ var localstorage = function(settings)
 
 		get : function(filepath, cb)
 		{
-			console.dir(arguments);
+			// console.dir(self.files);
+			// dir.paths(rootDirectory, function(err , paths){
+			// 	return cb(paths);
+			// });
+			// fs.readFile(filepath, function(err, data){
+			// 	return cb(err, data);
+			// });
 		},
 
 		put : function(fileObjects, cb)
@@ -129,9 +153,16 @@ var localstorage = function(settings)
 		 * @param  {[type]} directory [description]
 		 * @return {[type]}           [description]
 		 */
-		files : function(cb, directory)
+		files : function(directory, cb)
 		{
-			var dir = directory || '';
+			var directory = directory || '';
+			console.log(directory);
+			visit = rootDirectory + '/' + directory;
+
+
+			dir.files(visit, function(err, files){
+				return cb(err, files);
+			});	
 
 		},
 
@@ -139,20 +170,23 @@ var localstorage = function(settings)
 		 * [allFiles description]
 		 * @return {[type]} [description]
 		 */
-		allFiles : function()
+		allFiles : function(cb)
 		{
-
+			dir.files(rootDirectory, function(err, files){
+				if(err) throw err;
+				return cb(files);
+			})
 		},
 
 		/**
 		 * [directories description]
-		 * @param  {[type]} ptah        [description]
-		 * @param  {[type]} recersively [description]
-		 * @return {[type]}             [description]
 		 */
-		directories : function(ptah, recersively)
+		directories : function(cb)
 		{
-
+			dir.subdirs(rootDirectory, function(err, subdirs){
+				if(err) throw err;
+				return cb(subdirs);
+			});
 		},
 
 		/**

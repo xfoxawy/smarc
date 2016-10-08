@@ -52,9 +52,9 @@ var FileSystem = function(Core)
 
 };
 
-FileSystem.prototype.get = function(filepath)
+FileSystem.prototype.get = function(filepath, cb)
 {
-	return this.defaultDriver;
+	return this.defaultDriver.get(filepath, cb);
 };
 
 FileSystem.prototype.put = function(fileObjects)
@@ -87,19 +87,19 @@ FileSystem.prototype.rename = function(filepath, newName)
 
 };
 
-FileSystem.prototype.files = function(directory)
+FileSystem.prototype.files = function(directory, cb)
 {
-
+	return this.defaultDriver.files(directory, cb);
 };
 
-FileSystem.prototype.allFiles = function()
+FileSystem.prototype.allFiles = function(cb)
 {
-
+	this.defaultDriver.allFiles(cb);
 };
 
-FileSystem.prototype.directories = function(ptah, recersively)
+FileSystem.prototype.directories = function(cb)
 {
-
+	this.defaultDriver.directories(cb);
 };
 
 FileSystem.prototype.deleteDirectory = function(path)
