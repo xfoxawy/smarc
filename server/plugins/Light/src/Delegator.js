@@ -1,11 +1,13 @@
-var Telnet = require("./Connection");
 var Transformer = require('./Transformer');
+var Config      = require('./Config');
 
 var Delegator = function(Core){
-	var e = require('./Driver');
+	var e = require('./drivers/'+ Config.driver +'Driver');
+
 	var Driver = new e(Core);
-	Telnet.subscribe(Driver);
-	
+
+	if( Config.driver == "telnet" ) require("./Connection").subscribe(Driver);
+
 	this.toggle = function(pointNumber){
 		Driver.toggle(pointNumber);
 	};
@@ -23,8 +25,12 @@ var Delegator = function(Core){
 		Driver.deleteNode(nodeIp);
 	};
 
-	this.getRooms =  function(){
+	this.getRooms = function(){
 		return Transformer.transformRooms(Driver.getRooms());
+	};
+
+	this.scene = function(names){
+		Driver.scene(names);
 	};
 };
 

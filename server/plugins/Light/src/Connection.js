@@ -66,7 +66,7 @@ var Connection = function(){
 };
 
 Connection.prototype.subscribe = function(driver){
-	this.drivers.push(driver);		
+	this.drivers.push(driver);
 };
 
 Connection.prototype.unsubscribe = function(driver){
@@ -83,7 +83,6 @@ Connection.prototype.unsubscribe = function(driver){
 Connection.prototype.notify = function()
 {
 	var args = Array.prototype.slice.call(arguments,0);
-
 	for(var i =0; i < this.drivers.length; i++)
 	{
 		this.drivers[i].update.apply(null, args);

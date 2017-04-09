@@ -24,6 +24,11 @@ module.exports = function(Core){
         res.status(200).json(rooms);
     });
 
+    Core.app.post('/light/scene', function(req,res){
+        Delegator.scene(req.body);
+        res.status(200).json("OK");
+    });
+
     Core.app.get('/checkConnection', function(req,res){
         res.status(200).json({msg : 'ok'});
     });
