@@ -351,13 +351,14 @@ var telnetDriver = function(Core){
 
     this.scene = function(rowCommand){
         // rowCommand = {
-        //     "pointName": "status"
+        //     point2: true,
+        //     point5: false
         // }
         mapPoints();
 
         // for each point in rowCommand check the current status for this point
         // if the status in rowCommand same as the real status ignore the point
-        // if NOT same then change the status
+        // if NOT then change the status
         for( var pointName in rowCommand ){
             var point = findPointInMappedPoints( pointName );
             if(point.node_status === true)
