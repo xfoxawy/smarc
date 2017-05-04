@@ -5,14 +5,13 @@ var express     = require("express");
 var bodyParser  = require("body-parser");
 var Core        = {};
     Core.app    = express();
+var server      = require('http').Server(Core.app);
+    Core.io     = require('socket.io')(server);
 var Config      = require("./Config");
     Core.Config = Config;
 var IOC         = require("./IOC");
-var redis       = require("redis");
-    Core.redis  = redis;
 var path        = require("path");
 var MongoClient = require('mongodb').MongoClient;
-var crossOriginEnable = require('./Middlewares/crossOriginEnableMiddleware');
 
 /**
  * setup Database Connection
@@ -41,7 +40,6 @@ function(db){
      * middlewares for express
      * @description [crossOriginEnable] for anable cross origin to allow server recive reqs from other domains
      */
-    Core.app.use(crossOriginEnable);
     Core.app.use(express.static('./'));
     Core.app.use(bodyParser.urlencoded({ extended: false }));
     Core.app.use(bodyParser.json({limit : '1mb'}));
@@ -56,6 +54,6 @@ function(err){
     throw err;
 });
 
-Core.app.listen(3050, function(){
+server.listen(3050, function(){
     console.log('listening on *:3050');
 });

@@ -10,7 +10,7 @@ var telnetDriver = function(Core){
     var self = this;
     var model = "light";
     var db = Core.db;
-    var publisherClient = Core.redis.createClient();
+    var io = Core.lightIO;
     var reconnectionInterval = 200; // reconnection to dead nodes interval
     var maxTries = 10 ; // reconnection to dead nodes max tries
     
@@ -195,7 +195,8 @@ var telnetDriver = function(Core){
      */
     function publishPointsStatusUpdates()
     {
-        publisherClient.publish('updates',JSON.stringify(Transformer.transformPoints(mapPoints())));
+        // use socketID to publish Events
+        io.emit( 'lights', JSON.stringify( Transformer.transformPoints( mapPoints() ) ) );
     }
 
     // find point object in node

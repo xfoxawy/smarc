@@ -22,15 +22,15 @@
   },
   "homepage": "https://github.com/xfoxawy/smarc#readme",
   "dependencies": {
-    "async": "^1.5.0",
-    "bcryptjs": "^2.3.0",
+    "async": "2.3.*",
+    "bcryptjs": "2.4.*",
     "body-parser": "1.*",
     "express": "4.*",
-    "jsonwebtoken": "^5.7.0",
+    "jsonwebtoken": "7.*",
     "minimist": "1.2.*",
     "mongodb": "2.*",
-    "nodemon": "^1.9.1",
-    "redis": "^2.6.0-2",
+    "nodemon": "1.11.*",
+    "redis": "2.7.*",
     "socket.io": "1.*"
   },
   "devDependencies": {
