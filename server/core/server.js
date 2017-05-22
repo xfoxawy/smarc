@@ -45,6 +45,14 @@ function(db){
     Core.app.use(bodyParser.json({limit : '1mb'}));
 
     /**
+     * this Route is just for check if the mobile app can comunicate with the server
+     * @retun {JSON} msg OK.
+     */
+    Core.app.get('/check_connection', function(req,res){
+        res.status(200).json({msg : 'ok'});
+    });
+
+    /**
      * load Plugins from IOC container
      */
     IOC.loadPlugins(Core);

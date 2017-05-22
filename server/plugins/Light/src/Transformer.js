@@ -6,9 +6,9 @@ var Transformer =  function(){
 		value.points = {};
 		for(var i = 0; i < data.length; i++)
 		{
-			value.points[data[i].p] = {
+			value.points[data[i].i] = {
 								s : data[i].s,
-								i : data[i].i,
+								p : data[i].p,
 								r : data[i].r,
 								node_name : data[i].node_name,
 								node_status : data[i].node_status,
