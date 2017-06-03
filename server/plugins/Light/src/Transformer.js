@@ -2,20 +2,23 @@ var Transformer =  function(){
 
 	this.transformPoints = function(data)
 	{
-		var value = {};
-		value.points = {};
+		var points = {};
 		for(var i = 0; i < data.length; i++)
 		{
-			value.points[data[i].i] = {
-								s : data[i].s,
-								p : data[i].p,
-								r : data[i].r,
-								node_name : data[i].node_name,
-								node_status : data[i].node_status,
-								node_ip : data[i].node_ip
-						};
+			points[data[i].i] = this.transformPoint( data[i] );
 		}
-		return value.points;
+		return points;
+	};
+
+	this.transformPoint = function(point){
+		return {
+			s : point.s,
+			p : point.p,
+			r : point.r,
+			node_name : point.node_name,
+			node_status : point.node_status,
+			node_ip : point.node_ip
+		};
 	};
 
 	this.transformRooms = function(data){

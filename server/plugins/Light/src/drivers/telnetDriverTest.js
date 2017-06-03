@@ -13,7 +13,7 @@ var telnetDriver = function(Core){
     var io = Core.lightIO;
     var reconnectionInterval = 200; // reconnection to dead nodes interval
     var maxTries = 10 ; // reconnection to dead nodes max tries
-    
+
     // all nodes placeholder
     this.nodes = [];
     // all errors placeholder
@@ -24,7 +24,6 @@ var telnetDriver = function(Core){
     this.rooms = [];
     // holds all dead nodes
     this.deadNodes = [];
-
 
     // connect ready nodes in db
     (function connectNodes(){
@@ -193,8 +192,10 @@ var telnetDriver = function(Core){
      */
     function publishPointsStatusUpdates()
     {
-        // use socketID to publish Events
-        io.emit( 'lights', JSON.stringify( Transformer.transformPoints( mapPoints() ) ) );
+        setTimeout(() => {
+            // use socketID to publish Events
+            io.emit( 'lights', JSON.stringify( Transformer.transformPoints( mapPoints() ) ) );
+        }, 2000);
     }
 
     // find point object in node
