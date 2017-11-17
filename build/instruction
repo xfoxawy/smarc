@@ -1,2 +1,2 @@
-// give root permissions to configstore
+    // give root permissions to configstore
 sudo chown -R username /Users/username/.config/configstore/

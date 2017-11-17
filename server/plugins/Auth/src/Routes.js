@@ -32,6 +32,7 @@ module.exports = function(Core){
                 var dbuser = docs[0];
 
                 // check password.
+                console.log(Bcrypt.hashSync("123"));
                 Bcrypt.compare(user.password, dbuser.password, function(err, result) {
 
                     // Password Incorrect

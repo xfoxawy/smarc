@@ -2,7 +2,7 @@ var Transformer = require('./Transformer');
 var Config      = require('./Config');
 
 var Delegator = function(Core){
-	var e = require('./drivers/'+ Config.driver +'Driver');
+	var e = require('./drivers/'+ Config.driver +'DriverTest');
 
 	var Driver = new e(Core);
 

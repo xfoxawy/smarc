@@ -5,6 +5,7 @@ var Transformer = require('../Transformer');
 /**
  * Light Plugin Telnet Driver
  */
+
 var telnetDriver = function(Core){
     var self = this;
     var model = "light";
@@ -12,7 +13,7 @@ var telnetDriver = function(Core){
     var io = Core.lightIO;
     var reconnectionInterval = 200; // reconnection to dead nodes interval
     var maxTries = 10 ; // reconnection to dead nodes max tries
-
+    
     // all nodes placeholder
     this.nodes = [];
     // all errors placeholder
@@ -23,6 +24,7 @@ var telnetDriver = function(Core){
     this.rooms = [];
     // holds all dead nodes
     this.deadNodes = [];
+
 
     // connect ready nodes in db
     (function connectNodes(){
@@ -58,7 +60,7 @@ var telnetDriver = function(Core){
     };
 
     // load rooms instaces from database
-    function loadRooms(cb){
+    function loadRooms (cb){
         db.collection('rooms').find().toArray(function(err, docs){
             if(err) throw err;
             else if(docs.length){
@@ -68,29 +70,32 @@ var telnetDriver = function(Core){
     }
     //once nodes loaded we can map them to be able to be used 
     function mapPoints(){
+        
         self.mappedPoints = [];
         for (var y = 0; y < self.nodes.length ; y++) 
         {
             for(var x = 0; x < self.nodes[y].points.length; x++)
             {
-                // if not saved in db ,, save it
-                if(!self.nodes[y].points[x].p){
-                    self.nodes[y].points[x].p = "p" + Math.floor((Math.random()*100)+(Math.random()*100));
-                    saveMappedPoint(self.nodes[y].name , self.nodes[y].points[x])
-                }
+                    // if not saved in db ,, save it
+                    if(!self.nodes[y].points[x].p){
+                        self.nodes[y].points[x].p = "p" + Math.floor((Math.random()*100)+(Math.random()*100));
+                        saveMappedPoint(self.nodes[y].name , self.nodes[y].points[x])
+                    }
 
-                // push if connected
-                var newMappedPoint = { 
-                    p : self.nodes[y].points[x].p,
-                    i : self.nodes[y].points[x].i,
-                    s : self.nodes[y].points[x].s,
-                    r : self.nodes[y].points[x].r,
-                    node_name : self.nodes[y].name,
-                    node_status : true,
-                    node_ip : self.nodes[y].ip
-                };
-
-                self.mappedPoints.push(newMappedPoint);
+                    // push if connected
+                    if(self.nodes[y].connected){
+                        var newMappedPoint = { 
+                                p : self.nodes[y].points[x].p , 
+                                i : self.nodes[y].points[x].i ,
+                                s : self.nodes[y].points[x].s,
+                                r : self.nodes[y].points[x].r,
+                                node_name : self.nodes[y].name , 
+                                node_status : self.nodes[y].connected, 
+                                node_ip : self.nodes[y].ip
+                            };
+                        
+                        self.mappedPoints.push(newMappedPoint);
+                    }
             }
         }
         return self.mappedPoints;
@@ -168,10 +173,8 @@ var telnetDriver = function(Core){
      */
     function publishPointsStatusUpdates()
     {
-        setTimeout(() => {
-            // use socketID to publish Events
-            io.emit( 'lights', JSON.stringify( Transformer.transformPoints( mapPoints() ) ) );
-        }, 100);
+        // use socketID to publish Events
+        io.emit( 'lights', JSON.stringify( Transformer.transformPoints( mapPoints() ) ) );
     }
 
     // find point object in node
@@ -205,7 +208,7 @@ var telnetDriver = function(Core){
         return true;
     };
 
-function setNodeStatusError(ip, error){
+    function setNodeStatusError(ip, error){
         var node = findNodeByIp(ip);
         node.connected = false;
         self.errors.push({ip , error});
@@ -217,7 +220,6 @@ function setNodeStatusError(ip, error){
 
     function updateNodePointsStatus(ip, data){
         var node = findNodeByIp(ip);
-        console.dir(node, {depth: 4});
         if(/(^I\d+,\d$)/igm.test(data))
         {
             var pointId = data.slice(1, -2);
@@ -292,17 +294,21 @@ function setNodeStatusError(ip, error){
 
     this.turnOn = function(point)
     {
-        updateNodePointsStatus(Core.app.get('globalIp'), "I"+ point.i +",1");
+        var order = 'O' + point.i + ',1';
+        self.exec(point.node_ip, order);
     };
 
     this.turnOff =  function(point)
     {
-        updateNodePointsStatus(Core.app.get('globalIp'), "I"+ point.i +",0");
+        var order = 'O' + point.i + ',0';
+        self.exec(point.node_ip, order);
     };
 
     this.toggle = function(pointNumber){
         var pointNumber = pointNumber || '';
+
         mapPoints();
+
         var point = findPointInMappedPoints(pointNumber);
 
         if(point.node_status === true)

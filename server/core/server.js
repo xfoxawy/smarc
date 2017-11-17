@@ -55,6 +55,7 @@ function(db){
     /**
      * load Plugins from IOC container
      */
+    Core.app.set('globalIp', '127.0.0.1');
     IOC.loadPlugins(Core);
 },
 // connect failed with database
