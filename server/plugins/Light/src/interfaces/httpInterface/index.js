@@ -19,6 +19,7 @@ module.exports = function(Core){
         return res.status(200).json("ok");
     });
 
+    // Daprecated
     Core.app.get('/light/rooms', function(req,res){
         var rooms = Delegator.getRooms();
         res.status(200).json(rooms);
