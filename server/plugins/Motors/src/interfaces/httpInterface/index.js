@@ -6,12 +6,6 @@ module.exports = function(Core){
     Core.app.get('/motors', function(req, res){
         var motors = Delegator.motors();
 
-        // var motors = {
-        //      motorID: {
-        //          "data1": "value1",
-        //          "data2": "value2"
-        //      }
-        // }
         return res.status(200).json(motors);
 
     });
@@ -19,8 +13,9 @@ module.exports = function(Core){
     Core.app.post('/motors/:id', function(req,res){
         var status = req.body.status; // up, down
 
-        // Delegator.up()
-        // Delegator.down()
+        // Delegator.up(id)
+        // Delegator.down(id)
+        // Delegator.stop(id)
         Delegator[status](req.params.id);
 
         // any feedback will be throw SocketIO

@@ -6,12 +6,6 @@ module.exports = function(Core){
     Core.app.get('/access_controls', function(req, res){
         var access_controls = Delegator.access_controls();
 
-        // var access_controls = {
-        //      accessControlID: {
-        //          "data1": "value1",
-        //          "data2": "value2"
-        //      }
-        // }
         return res.status(200).json(access_controls);
     });
 

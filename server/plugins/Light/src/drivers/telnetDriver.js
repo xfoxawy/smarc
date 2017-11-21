@@ -5,13 +5,12 @@ var Transformer = require('../Transformer');
 /**
  * Light Plugin Telnet Driver
  */
-
 var telnetDriver = function(Core){
     var self = this;
     var model = "light";
     var db = Core.db;
     var io = Core.lightIO;
-    var reconnectionInterval = 200; // reconnection to dead nodes interval
+    var reconnectionInterval = 2000; // reconnection to dead nodes interval
     var maxTries = 10 ; // reconnection to dead nodes max tries
     
     // all nodes placeholder

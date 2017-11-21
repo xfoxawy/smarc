@@ -10,7 +10,7 @@ var Delegator = function(Core){
 
     // get all heat sensors
 	this.heats = function(){
-		return Driver.heats();
+		return Driver.mapPoints();
 	};
 };
 

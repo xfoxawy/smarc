@@ -17,8 +17,12 @@ var Delegator = function(Core){
 		Driver.down(id);
 	};
 
+	this.stop = function(id){
+		Driver.stop(id);
+	};
+
 	this.motors = function(){
-		return Driver.motors();
+		return Driver.mapPoints();
 	};
 };
 

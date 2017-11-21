@@ -8,7 +8,7 @@ var Transformer = require('../Transformer');
 
 var telnetDriver = function(Core){
     var self = this;
-    var model = "light";
+    var model = "motors";
     var db = Core.db;
     var io = Core.lightIO;
     var reconnectionInterval = 200; // reconnection to dead nodes interval
@@ -83,19 +83,17 @@ var telnetDriver = function(Core){
                     }
 
                     // push if connected
-                    if(self.nodes[y].connected){
-                        var newMappedPoint = { 
-                                p : self.nodes[y].points[x].p , 
-                                i : self.nodes[y].points[x].i ,
-                                s : self.nodes[y].points[x].s,
-                                r : self.nodes[y].points[x].r,
-                                node_name : self.nodes[y].name , 
-                                node_status : self.nodes[y].connected, 
-                                node_ip : self.nodes[y].ip
-                            };
-                        
-                        self.mappedPoints.push(newMappedPoint);
-                    }
+                    var newMappedPoint = { 
+                            p : self.nodes[y].points[x].p , 
+                            i : self.nodes[y].points[x].i ,
+                            s : self.nodes[y].points[x].s,
+                            r : self.nodes[y].points[x].r,
+                            node_name : self.nodes[y].name , 
+                            node_status : self.nodes[y].connected, 
+                            node_ip : self.nodes[y].ip
+                        };
+                    
+                    self.mappedPoints.push(newMappedPoint);
             }
         }
         return self.mappedPoints;

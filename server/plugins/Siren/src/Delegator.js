@@ -13,7 +13,7 @@ var Delegator = function(Core){
 	};
 
 	this.sirens = function(){
-		return Driver.sirens();
+		return Driver.mapPoints();
 	};
 };
 

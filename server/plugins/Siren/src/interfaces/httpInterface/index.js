@@ -6,12 +6,6 @@ module.exports = function(Core){
     Core.app.get('/sirens', function(req, res){
         var sirens = Delegator.sirens();
 
-        // var sirens = {
-        //      sirenID: {
-        //          "data1": "value1",
-        //          "data2": "value2"
-        //      }
-        // }
         return res.status(200).json(sirens);
     });
 

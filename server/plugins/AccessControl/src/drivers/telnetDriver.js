@@ -3,25 +3,21 @@ var EventEmitter = new(require('events').EventEmitter);
 var Transformer = require('../Transformer');
 
 /**
- * Light Plugin Telnet Driver
+ * AccessControl Plugin Telnet Driver
  */
-
 var telnetDriver = function(Core){
     var self = this;
-    var model = "light";
+    var model = "access_control";
     var db = Core.db;
     var io = Core.lightIO;
-    var reconnectionInterval = 200; // reconnection to dead nodes interval
+    var reconnectionInterval = 2000; // reconnection to dead nodes interval
     var maxTries = 10 ; // reconnection to dead nodes max tries
-    
     // all nodes placeholder
     this.nodes = [];
     // all errors placeholder
     this.errors = [];
     // hold all points mapped to their original 
     this.mappedPoints = [];
-    // hold all rooms in array
-    this.rooms = [];
     // holds all dead nodes
     this.deadNodes = [];
 
@@ -35,10 +31,6 @@ var telnetDriver = function(Core){
                     Telnet.connect(nodes[i].ip, nodes[i].port);
                 }
             });
-            // load rooms from database
-            loadRooms(function(rooms){
-                self.rooms = rooms;
-            })
     }());
 
     // interval to check if there any dead nodes and try to reconnect to them
@@ -81,15 +73,6 @@ var telnetDriver = function(Core){
         });
     };
 
-    // load rooms instaces from database
-    function loadRooms (cb){
-        db.collection('rooms').find().toArray(function(err, docs){
-            if(err) throw err;
-            else if(docs.length){
-                cb(docs);
-            }
-        });
-    }
     //once nodes loaded we can map them to be able to be used 
     function mapPoints(){
         
@@ -326,57 +309,22 @@ var telnetDriver = function(Core){
         self.exec(point.node_ip, order);
     };
 
-    this.toggle = function(pointNumber){
-        var pointNumber = pointNumber || '';
+    this.openAccess = function(point)
+    {
+        var delay = Number(point.d);
+        
+        this.turnOn(point);
+        
+        console.log("opening AccessControl Point Number :: " + point.p);
 
-        mapPoints();
+        setTimeout(function(){
+            
+            self.turnOff(point);
+            
+            console.log("closing AccessControl Point Number :: " + point.p);
 
-        var point = findPointInMappedPoints(pointNumber);
-
-        if(point.node_status === true)
-        {
-            if(point.s === false)
-            {
-                self.turnOn(point);
-            }
-            else if(point.s === true){
-                self.turnOff(point);
-            }
-            else {
-                throw "unknown point status , point number:-> " + pointNumber + " node ip:-> " + point.node_ip ;
-            }
-        }
-        else if(point.node_status === false){
-            console.log("its not connected");
-        }
-    };
-
-    this.scene = function(rowCommand){
-        mapPoints();
-
-        // for each point in rowCommand check the current status for this point
-        // if the status in rowCommand same as the real status ignore the point
-        // if NOT then change the status
-        for( var pointName in rowCommand ){
-            var point = findPointInMappedPoints( pointName );
-            if(point.node_status === true)
-            {
-                if( point.s != rowCommand[pointName] && point.s === false )
-                {
-                    self.turnOn(point);
-                }
-                else if( point.s != rowCommand[pointName] && point.s === true ){
-                    self.turnOff(point);
-                }
-                else if( point.s != rowCommand[pointName] ) {
-                    throw "unknown point status , point number:-> " + pointName + " node ip:-> " + point.node_ip ;
-                }
-            }
-            else if(point.node_status === false){
-                console.log("its not connected");
-            }
-        }
-    };
+        }, delay);
+    }
 
     this.createNewNode = function(node){
         if(!node === null && typeof node !== 'object'  || node === undefined )
@@ -394,9 +342,22 @@ var telnetDriver = function(Core){
         destoryNode(nodeIp);
     };
 
-    this.getRooms = function(){
+    this.access_controls = function(){
         return this.rooms;
     };
+
+    this.open = function(pointNumber){
+        var pointNumber = pointNumber || '';
+        var point = findPointInMappedPoints(pointNumber);
+        if(point.node_status === true)
+        {
+            self.openAccess(point);
+        }
+        else if(point.node_status === false){
+            console.log("its not connected");
+        }
+    };
+
     this.mapPoints = mapPoints;
 };
 

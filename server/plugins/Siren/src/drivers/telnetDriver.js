@@ -8,7 +8,7 @@ var Transformer = require('../Transformer');
 
 var telnetDriver = function(Core){
     var self = this;
-    var model = "light";
+    var model = "sirens";
     var db = Core.db;
     var io = Core.lightIO;
     var reconnectionInterval = 200; // reconnection to dead nodes interval
