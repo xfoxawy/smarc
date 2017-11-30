@@ -12,12 +12,13 @@ var Transformer =  function(){
 
 	this.transformPoint = function(point){
 		return {
-			s : point.s,
-			p : point.p,
-			r : point.r,
-			node_name : point.node_name,
-			node_status : point.node_status,
-			node_ip : point.node_ip
+			i:           point.i,
+			s:           point.s,
+			p:           point.p,
+			r:           point.r,
+			node_name:   point.node_name,
+			node_status: point.node_status,
+			node_ip:     point.node_ip
 		};
 	};
 

@@ -89,7 +89,7 @@ var telnetDriver = function(Core){
             }
         });
     }
-    //once nodes loaded we can map them to be able to be used 
+    //once nodes loaded we can map them to be able to be used
     function mapPoints(){
         
         self.mappedPoints = [];
@@ -396,6 +396,17 @@ var telnetDriver = function(Core){
     this.getRooms = function(){
         return this.rooms;
     };
+
+
+    this.roomPoints = function(id){
+        if (!self.mappedPoints.length) {
+            self.mapPoints();
+        }
+        return self.mappedPoints.filter(function(point){
+            return point.r === id;
+        });
+    };
+
     this.mapPoints = mapPoints;
 };
 

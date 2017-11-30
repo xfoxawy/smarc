@@ -9,12 +9,26 @@ var path = require("path");
  * @return {Object} [all options as object]
  */
 var Config = {
-    env: "development",
+    env: "development", // production
     log: true,
     logType : 'db', // or file
     logFile : __dirname + '/log.txt',
     logDBModel : 'logs',
     pluginsDir: __dirname + '/../plugins/',
+    // plugins just defined the order of loading, any unsorted plugins will load in alphabit order
+    plugins: [
+        'Auth',
+        'Logger',
+        'Light',
+        'AccessControl',
+        'Doors',
+        'HeatSensors',
+        'MotionSensors',
+        'SmokeSensors',
+        'Motors',
+        'Siren',
+        'Rooms'
+    ],
     secret: "randomstringtousedinencryption",
     jwtStorage: "file", // or cache
     db: {

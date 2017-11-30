@@ -12,6 +12,4 @@ module.exports = function(Core){
     Core.motionSensorIO.on('disconnect', function(socket){
         console.log('motionSensor leaved');
     });
-
-    // Core.motionSensorIO.emit('hi', 'everyone!');
 };

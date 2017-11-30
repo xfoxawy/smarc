@@ -386,6 +386,17 @@ var httpDriver = function(Core){
     this.getRooms = function(){
         return this.rooms;
     };
+
+
+    this.roomPoints = function(id){
+        if (!self.mappedPoints.length) {
+            self.mapPoints();
+        }
+        return self.mappedPoints.filter(function(point){
+            return point.r === id;
+        });
+    };
+
     this.mapPoints = mapPoints;
 };
 

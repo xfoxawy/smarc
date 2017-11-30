@@ -20,7 +20,6 @@ var MotionSensor = function(){
          * load socketIO for MotionSensors
          */
         IO(Core);
-
         /**
          * load Routes
          */

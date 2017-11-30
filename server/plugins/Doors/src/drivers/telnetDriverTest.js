@@ -56,32 +56,30 @@ var Driver = function(Core){
 
 	//once nodes loaded we can map them to be able to be used 
 	function mapPoints(){
-		
 		self.mappedPoints = [];
 		for (var y = 0; y < self.nodes.length ; y++) 
 		{
 			for(var x = 0; x < self.nodes[y].points.length; x++)
 			{
-					// if not saved in db ,, save it
-					if(!self.nodes[y].points[x].p){
-						self.nodes[y].points[x].p = "p" + Math.floor((Math.random()*100)+(Math.random()*100));
-						saveMappedPoint(self.nodes[y].name , self.nodes[y].points[x])
-					}
+				// if not saved in db ,, save it
+				if(!self.nodes[y].points[x].p){
+					self.nodes[y].points[x].p = "p" + Math.floor((Math.random()*100)+(Math.random()*100));
+					saveMappedPoint(self.nodes[y].name , self.nodes[y].points[x])
+				}
 
-					// push if connected
-					if(self.nodes[y].connected){
-						var newMappedPoint = { 
-								p : self.nodes[y].points[x].p , 
-								i : self.nodes[y].points[x].i ,
-								s : self.nodes[y].points[x].s,
-								d : self.nodes[y].points[x].delay,
-								node_name : self.nodes[y].name , 
-								node_status : self.nodes[y].connected, 
-								node_ip : self.nodes[y].ip
-							};
-						
-						self.mappedPoints.push(newMappedPoint);
-					}
+				// push if connected
+				var newMappedPoint = { 
+						p : self.nodes[y].points[x].p , 
+						i : self.nodes[y].points[x].i ,
+						s : self.nodes[y].points[x].s,
+						r : self.nodes[y].points[x].r,
+						d : self.nodes[y].points[x].delay,
+						node_name : self.nodes[y].name , 
+						node_status : self.nodes[y].connected, 
+						node_ip : self.nodes[y].ip
+					};
+				
+				self.mappedPoints.push(newMappedPoint);
 			}
 		}
 		return self.mappedPoints;
@@ -329,12 +327,20 @@ var Driver = function(Core){
 			throw "node ip exists already";
 		else
 			saveNode(node);
-
 	};
 
 	this.deleteNode = function(nodeIp){
 		destoryNode(nodeIp);
 	};
+
+    this.roomPoints = function(id){
+        if (!self.mappedPoints.length) {
+            self.mapPoints();
+        }
+        return self.mappedPoints.filter(function(point){
+            return point.r === id;
+        });
+    };
 
 	this.mapPoints = mapPoints;
 };

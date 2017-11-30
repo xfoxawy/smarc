@@ -19,7 +19,7 @@ var Rooms = function(){
         /**
          * load socketIO for Rooms
          */
-        IO(Core);
+        // IO(Core);
 
         /**
          * load Routes

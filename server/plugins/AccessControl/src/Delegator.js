@@ -1,19 +1,27 @@
-var Transformer = require('./Transformer');
-var Config      = require('./Config');
+var Transformer  = require('./Transformer');
+var Config       = require('./Config');
+var globalConfig = require('../../../core/Config');
 
 var Delegator = function(Core){
-	var e = require('./drivers/'+ Config.driver +'DriverTest');
-	var Driver = new e(Core);
+    var driverPath = (globalConfig.env === 'development') ? './drivers/'+ Config.driver +'DriverTest' : './drivers/'+ Config.driver +'Driver';
+	var e          = require(driverPath);
+	var Driver     = new e(Core);
 
-	if( Config.driver == "telnet" ) require("./Connection").subscribe(Driver);
+	if( Config.driver === "telnet" ) require("./Connection").subscribe(Driver);
 
 	this.open = function(id){
 		Driver.open(id);
 	};
 
 	this.access_controls = function(){
-		return Driver.mapPoints();
+        var mapPoints = Transformer.transformPoints(Driver.mapPoints(id));
+        return mapPoints;
 	};
+
+    this.getRoomPoints = function(id){
+        var roomPoints = Transformer.transformPoints(Driver.roomPoints(id));
+        return roomPoints;
+    };
 };
 
 module.exports = Delegator;

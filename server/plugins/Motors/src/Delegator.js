@@ -22,8 +22,14 @@ var Delegator = function(Core){
 	};
 
 	this.motors = function(){
-		return Driver.mapPoints();
+        var mapPoints = Transformer.transformPoints(Driver.mapPoints());
+        return mapPoints;
 	};
+
+    this.getRoomPoints = function(id){
+        var roomPoints = Transformer.transformPoints(Driver.roomPoints(id));
+        return roomPoints;
+    };
 };
 
 module.exports = Delegator;

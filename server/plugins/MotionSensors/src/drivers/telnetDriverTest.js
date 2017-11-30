@@ -10,7 +10,7 @@ var telnetDriver = function(Core){
     var self = this;
     var model = "motions";
     var db = Core.db;
-    var io = Core.lightIO;
+    var io = Core.motionSensorIO;
     var reconnectionInterval = 200; // reconnection to dead nodes interval
     var maxTries = 10 ; // reconnection to dead nodes max tries
     
@@ -25,7 +25,6 @@ var telnetDriver = function(Core){
     // holds all dead nodes
     this.deadNodes = [];
 
-
     // connect ready nodes in db
     (function connectNodes(){
             // load nodes from database
@@ -35,7 +34,8 @@ var telnetDriver = function(Core){
                 self.rooms = rooms;
             })
     }());
-    
+    publishPointsStatusUpdates();
+
     function pushInDeadNodes(node)
     {
         for (var i = 0; i < self.deadNodes.length; i++) {
@@ -169,10 +169,17 @@ var telnetDriver = function(Core){
     /**
      * publish a json statuses of all points to redis server
      */
-    function publishPointsStatusUpdates()
-    {
+    function publishPointsStatusUpdates() {
+        var status = true;
         // use socketID to publish Events
-        io.emit( 'lights', JSON.stringify( Transformer.transformPoints( mapPoints() ) ) );
+        setInterval(function(){
+            status = !status;
+            io.emit('motion', {
+                type: 'motion',
+                status: status
+            });
+            // io.emit(JSON.stringify(Transformer.transformPoints(mapPoints())));
+        }, 3000);
     }
 
     // find point object in node
@@ -372,6 +379,15 @@ var telnetDriver = function(Core){
 
     this.getRooms = function(){
         return this.rooms;
+    };
+    
+    this.roomPoints = function(id){
+        if (!self.mappedPoints.length) {
+            self.mapPoints();
+        }
+        return self.mappedPoints.filter(function(point){
+            return point.r === id;
+        });
     };
     this.mapPoints = mapPoints;
 };

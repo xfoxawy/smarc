@@ -1,10 +1,10 @@
-var delegator = require("./../../Delegator");
+var Delegator = require("./../../Delegator");
 
 module.exports = function(Core){
-    var Delegator = new delegator(Core);
+    Delegator.instance.init(Core);
 
     Core.app.get('/heats', function(req, res){
-        var heats = Delegator.heats();
+        var heats = Delegator.instance.heats();
 
         return res.status(200).json(heats);
     });

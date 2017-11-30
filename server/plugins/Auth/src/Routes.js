@@ -10,9 +10,10 @@ module.exports = function(Core){
     Core.app.post('/auth/token', function(req,res){
         // retrive data.
         var user = {
-            username: req.body.username || '',
+            username: req.body.name     || '',
             password: req.body.password || ''
         };
+
         // validate object
         methods = {
             username: ['required'],
@@ -22,7 +23,7 @@ module.exports = function(Core){
             if (errs) return res.status(403).end();
 
             // search for user in DB.
-            Core.db.collection('users').find({name: user.username}).toArray(function(err, docs) {
+            Core.db.collection('users').find({username: user.username}).toArray(function(err, docs) {
                 if (err) throw err;
 
                 // User Not Found
@@ -75,7 +76,11 @@ module.exports = function(Core){
             req.body.password = hash;
 
             // save user in DB
-            Core.db.collection('users').insertOne(req.body, function(err, doc){
+            Core.db.collection('users').insertOne({
+                username: req.body.name,
+                password: req.body.password,
+                roles: req.body.roles
+            }, function(err, doc){
                 if (err) throw err;
 
                 // return

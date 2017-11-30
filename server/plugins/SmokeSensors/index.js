@@ -20,7 +20,6 @@ var SmokeSensor = function(){
          * load socketIO for SmokeSensors
          */
         IO(Core);
-
         /**
          * load Routes
          */

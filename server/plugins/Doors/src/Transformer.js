@@ -1,23 +1,35 @@
 var Transformer =  function(){
 
-	this.transformPoints = function(data)
-	{
-		var value = {};
-		value.doors = {};
-		for(var i = 0; i < data.length; i++)
-		{
-			value.doors[data[i].p] = {
-								s : data[i].s,
-								i : data[i].i,
-								d : data[i].d,
-								node_name : data[i].node_name,
-								node_status : data[i].node_status,
-								node_ip : data[i].node_ip
-						};
-		}
-		return value.doors;
-	};
+    this.transformPoints = function(data)
+    {
+        var points = {};
+        for(var i = 0; i < data.length; i++)
+        {
+            points[data[i].i] = this.transformPoint( data[i] );
+        }
+        return points;
+    };
 
+    this.transformPoint = function(point){
+        return {
+            s : point.s,
+            p : point.p,
+            r : point.r,
+            node_name : point.node_name,
+            node_status : point.node_status,
+            node_ip : point.node_ip
+        };
+    };
+
+    this.transformRooms = function(data){
+        var value = {};
+
+        for(var i =0; i < data.length; i++)
+        {
+            value[data[i]._id] = data[i].name;
+        }
+        return value;
+    };
 };
 
 module.exports = new Transformer;

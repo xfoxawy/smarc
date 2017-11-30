@@ -1,12 +1,71 @@
 var ObjectID   = require('mongodb').ObjectID;
+var Transformer = require('../../Transformer');
+var LightsDelegatorModel        = require('../../../../Light/src/Delegator');
+var DoorsDelegatorModel         = require('../../../../Doors/src/Delegator');
+var HeatsDelegator              = require('../../../../HeatSensors/src/Delegator');
+var MotorsDelegatorModel        = require('../../../../Motors/src/Delegator');
+var SmokesDelegator             = require('../../../../SmokeSensors/src/Delegator');
+var AccessControlDelegatorModel = require('../../../../AccessControl/src/Delegator');
+var MotionsDelegator            = require('../../../../MotionSensors/src/Delegator');
 
 module.exports = function(Core){
+    var LightsDelegator        = new LightsDelegatorModel(Core);
+    var DoorsDelegator         = new DoorsDelegatorModel(Core);
+    var MotorsDelegator        = new MotorsDelegatorModel(Core);
+    HeatsDelegator.instance.init(Core);
+    SmokesDelegator.instance.init(Core);
+    MotionsDelegator.instance.init(Core);
+    var AccessControlDelegator = new AccessControlDelegatorModel(Core);
+
+    // get light for a room
+    Core.app.get('/rooms/:id/light', function(req,res){
+        var points = LightsDelegator.getRoomPoints(req.params.id);
+        return res.status(200).json(points);
+    });
+
+    // get doors for a room
+    Core.app.get('/rooms/:id/doors', function(req,res){
+        var points = DoorsDelegator.getRoomPoints(req.params.id);
+        return res.status(200).json(points);
+    });
+
+    // get heats for a room
+    Core.app.get('/rooms/:id/heats', function(req,res){
+        var points = HeatsDelegator.instance.getRoomPoints(req.params.id);
+        return res.status(200).json(points);
+    });
+
+    // get motors for a room
+    Core.app.get('/rooms/:id/motors', function(req,res){
+        var points = MotorsDelegator.getRoomPoints(req.params.id);
+        return res.status(200).json(points);
+    });
+
+    // get smokes for a room
+    Core.app.get('/rooms/:id/smokes', function(req,res){
+        var points = SmokesDelegator.instance.getRoomPoints(req.params.id);
+        return res.status(200).json(points);
+    });
+
+    // get access_control for a room
+    Core.app.get('/rooms/:id/access_control', function(req,res){
+        var points = AccessControlDelegator.getRoomPoints(req.params.id);
+        return res.status(200).json(points);
+    });
+
+    // get motions for a room
+    Core.app.get('/rooms/:id/motions', function(req,res){
+        var points = MotionsDelegator.instance.getRoomPoints(req.params.id);
+        return res.status(200).json(points);
+    });
+
     // list all rooms
     Core.app.get('/rooms', function(req,res){
         Core.db.collection('rooms').find({}).toArray(function(err, docs) {
             if (err) throw err;
 
-            return res.json(docs);
+            var rooms = Transformer.transformRooms(docs);
+            return res.json(rooms);
         });
     });
 

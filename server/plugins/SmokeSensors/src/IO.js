@@ -12,6 +12,4 @@ module.exports = function(Core){
     Core.smokeSensorIO.on('disconnect', function(socket){
         console.log('smokeSensor leaved');
     });
-
-    // Core.smokeSensorIO.emit('hi', 'everyone!');
 };

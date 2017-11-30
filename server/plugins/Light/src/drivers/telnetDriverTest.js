@@ -17,7 +17,7 @@ var telnetDriver = function(Core){
     this.nodes = [];
     // all errors placeholder
     this.errors = [];
-    // hold all points mapped to their original 
+    // hold all points mapped to their original
     this.mappedPoints = [];
     // hold all rooms in array
     this.rooms = [];
@@ -66,21 +66,21 @@ var telnetDriver = function(Core){
             }
         });
     }
-    //once nodes loaded we can map them to be able to be used 
+    //once nodes loaded we can map them to be able to be used
     function mapPoints(){
         self.mappedPoints = [];
-        for (var y = 0; y < self.nodes.length ; y++) 
+        for (var y = 0; y < self.nodes.length ; y++)
         {
             for(var x = 0; x < self.nodes[y].points.length; x++)
             {
-                // if not saved in db ,, save it
+                // if not saved in db, save it
                 if(!self.nodes[y].points[x].p){
                     self.nodes[y].points[x].p = "p" + Math.floor((Math.random()*100)+(Math.random()*100));
                     saveMappedPoint(self.nodes[y].name , self.nodes[y].points[x])
                 }
 
                 // push if connected
-                var newMappedPoint = { 
+                var newMappedPoint = {
                     p : self.nodes[y].points[x].p,
                     i : self.nodes[y].points[x].i,
                     s : self.nodes[y].points[x].s,
@@ -166,11 +166,13 @@ var telnetDriver = function(Core){
     /**
      * publish a json statuses of all points to redis server
      */
-    function publishPointsStatusUpdates()
+    function publishPointsStatusUpdates(point)
     {
         setTimeout(() => {
+            var points = mapPoints();
+            var po = points[point.i - 1];
             // use socketID to publish Events
-            io.emit( 'lights', JSON.stringify( Transformer.transformPoints( mapPoints() ) ) );
+            io.emit( 'lights', JSON.stringify( po ) );
         }, 100);
     }
 
@@ -205,7 +207,7 @@ var telnetDriver = function(Core){
         return true;
     };
 
-function setNodeStatusError(ip, error){
+    function setNodeStatusError(ip, error){
         var node = findNodeByIp(ip);
         node.connected = false;
         self.errors.push({ip , error});
@@ -217,7 +219,6 @@ function setNodeStatusError(ip, error){
 
     function updateNodePointsStatus(ip, data){
         var node = findNodeByIp(ip);
-        console.dir(node, {depth: 4});
         if(/(^I\d+,\d$)/igm.test(data))
         {
             var pointId = data.slice(1, -2);
@@ -225,7 +226,8 @@ function setNodeStatusError(ip, error){
             var point = findPointInNode(node, pointId);
             point.s = newstatus;
             updatePointStatusDB(node.name , point.i , newstatus);
-            publishPointsStatusUpdates();
+            updatePointInNodes(node.name, point.i, newstatus);
+            publishPointsStatusUpdates(point);
             console.log("the status has been updated for " + pointId + " with status " + newstatus);
         }
         else if(/(I)*(\d*\d,[0-1]){1}-/.test(data)){
@@ -238,11 +240,24 @@ function setNodeStatusError(ip, error){
                     var pointId = all[i].split(',')[0];
                     var newstatus = (Number(all[i].split(',')[1]) == 0) ? false : true;
                     var point = findPointInNode(node,pointId);
-                    updatePointStatusDB(node.name , point , newstatus);
                     point.s = newstatus;
+                    updatePointStatusDB(node.name , point , newstatus);
+                    updatePointInNodes(node.name, point.i, newstatus);
+                    publishPointsStatusUpdates(point);
                 }
             }
-            publishPointsStatusUpdates();
+        }
+    };
+
+    function updatePointInNodes(nodeName, pointI, status){
+        var nodesLength = self.nodes.length;
+        for(var x=0; x < nodesLength; x++){
+            var pointsLength = self.nodes[x].points.length;
+            for(var z=0; z < pointsLength; z++) {
+                if (self.nodes[x].points[z].i === pointI) {
+                    self.nodes[x].points[z].s = status;
+                }
+            }
         }
     };
 
@@ -369,6 +384,17 @@ function setNodeStatusError(ip, error){
     this.getRooms = function(){
         return this.rooms;
     };
+
+    this.roomPoints = function(id){
+        if (!self.mappedPoints.length) {
+            self.mapPoints();
+        }
+
+        return self.mappedPoints.filter(function(point){
+            return point.r === id;
+        });
+    };
+
     this.mapPoints = mapPoints;
 };
 

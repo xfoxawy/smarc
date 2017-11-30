@@ -1,9 +1,11 @@
 var Telnet      = require("./Connection");
 var Transformer = require('./Transformer');
 var Config      = require('./Config');
+var globalConfig = require('../../../core/Config');
 
 var Delegator = function(Core){
-    var e = require('./drivers/'+ Config.driver +'DriverTest');
+    var driverPath = (globalConfig.env === 'development') ? './drivers/'+ Config.driver +'DriverTest' : './drivers/'+ Config.driver +'Driver';
+    var e = require(driverPath);
     var Driver = new e(Core);
     Telnet.subscribe(Driver);
 
@@ -14,6 +16,11 @@ var Delegator = function(Core){
     this.getAllStatus = function(){
         var transformedPointsValues = Transformer.transformPoints(Driver.mapPoints());
         return transformedPointsValues;
+    };
+
+    this.getRoomPoints = function(id){
+        var roomPoints = Transformer.transformPoints(Driver.roomPoints(id));
+        return roomPoints;
     };
 };
 

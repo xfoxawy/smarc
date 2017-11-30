@@ -32,6 +32,11 @@ var Delegator = function(Core){
 	this.scene = function(names){
 		Driver.scene(names);
 	};
+
+	this.getRoomPoints = function(id){
+		var roomPoints = Transformer.transformPoints(Driver.roomPoints(id));
+		return roomPoints;
+	};
 };
 
 module.exports = Delegator;
