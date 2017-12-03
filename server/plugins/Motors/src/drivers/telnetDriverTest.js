@@ -290,68 +290,26 @@ var telnetDriver = function(Core){
         }   
     };
 
-    this.turnOn = function(point)
-    {
-        var order = 'O' + point.i + ',1';
-        self.exec(point.node_ip, order);
-    };
 
-    this.turnOff =  function(point)
+    this.stop =  function(point)
     {
+        console.log('stop');
         var order = 'O' + point.i + ',0';
         self.exec(point.node_ip, order);
     };
 
-    this.toggle = function(pointNumber){
-        var pointNumber = pointNumber || '';
-
-        mapPoints();
-
-        var point = findPointInMappedPoints(pointNumber);
-
-        if(point.node_status === true)
-        {
-            if(point.s === false)
-            {
-                self.turnOn(point);
-            }
-            else if(point.s === true){
-                self.turnOff(point);
-            }
-            else {
-                throw "unknown point status , point number:-> " + pointNumber + " node ip:-> " + point.node_ip ;
-            }
-        }
-        else if(point.node_status === false){
-            console.log("its not connected");
-        }
+    this.up = function(point)
+    {
+        console.log('up');
+        var order = 'O' + point.i + ',1';
+        self.exec(point.node_ip, order);
     };
 
-    this.scene = function(rowCommand){
-        mapPoints();
-
-        // for each point in rowCommand check the current status for this point
-        // if the status in rowCommand same as the real status ignore the point
-        // if NOT then change the status
-        for( var pointName in rowCommand ){
-            var point = findPointInMappedPoints( pointName );
-            if(point.node_status === true)
-            {
-                if( point.s != rowCommand[pointName] && point.s === false )
-                {
-                    self.turnOn(point);
-                }
-                else if( point.s != rowCommand[pointName] && point.s === true ){
-                    self.turnOff(point);
-                }
-                else if( point.s != rowCommand[pointName] ) {
-                    throw "unknown point status , point number:-> " + pointName + " node ip:-> " + point.node_ip ;
-                }
-            }
-            else if(point.node_status === false){
-                console.log("its not connected");
-            }
-        }
+    this.down =  function(point)
+    {
+        console.log('down');
+        var order = 'O' + point.i + ',2';
+        self.exec(point.node_ip, order);
     };
 
     this.createNewNode = function(node){
@@ -368,10 +326,6 @@ var telnetDriver = function(Core){
 
     this.deleteNode = function(nodeIp){
         destoryNode(nodeIp);
-    };
-
-    this.getRooms = function(){
-        return this.rooms;
     };
     
     this.roomPoints = function(id){

@@ -10,13 +10,11 @@ module.exports = function(Core){
 
     });
 
-    Core.app.post('/motors/:id', function(req,res){
-        var status = req.body.status; // up, down
-
+    Core.app.get('/motors/:id/:status', function(req,res){
         // Delegator.up(id)
         // Delegator.down(id)
         // Delegator.stop(id)
-        Delegator[status](req.params.id);
+        Delegator[req.params.status](req.params.id);
 
         // any feedback will be throw SocketIO
         // here we just finish the request
