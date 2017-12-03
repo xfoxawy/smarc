@@ -1,4 +1,5 @@
 .DS_Store
+.idea
 node_modules
 server/node_modules
 smarc.sublime-project
