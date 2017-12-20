@@ -1,6 +1,6 @@
-var Telnet = require('../ConnectionMotors');
-var EventEmitter = new(require('events').EventEmitter);
-var Transformer = require('../Transformer');
+var Telnet = require('../Connection');
+var EventEmitter   = new(require('events').EventEmitter);
+var Transformer    = require('../Transformer');
 
 /**
  * Light Plugin Telnet Driver
@@ -8,7 +8,7 @@ var Transformer = require('../Transformer');
 
 var telnetDriver = function(Core){
     var self = this;
-    var model = "motors";
+    var model = "sirens";
     var db = Core.db;
     var io = Core.io;
     var reconnectionInterval = 200; // reconnection to dead nodes interval
@@ -20,20 +20,13 @@ var telnetDriver = function(Core){
     this.errors = [];
     // hold all points mapped to their original 
     this.mappedPoints = [];
-    // hold all rooms in array
-    this.rooms = [];
     // holds all dead nodes
     this.deadNodes = [];
 
-
     // connect ready nodes in db
     (function connectNodes(){
-            // load nodes from database
-            loadNodes(function(nodes){});
-            // load rooms from database
-            loadRooms(function(rooms){
-                self.rooms = rooms;
-            })
+        // load nodes from database
+        loadNodes(function(nodes){});
     }());
 
     function pushInDeadNodes(node)
@@ -59,15 +52,6 @@ var telnetDriver = function(Core){
         });
     };
 
-    // load rooms instaces from database
-    function loadRooms (cb){
-        db.collection('rooms').find().toArray(function(err, docs){
-            if(err) throw err;
-            else if(docs.length){
-                cb(docs);
-            }
-        });
-    }
     //once nodes loaded we can map them to be able to be used 
     function mapPoints(){
         
@@ -76,24 +60,24 @@ var telnetDriver = function(Core){
         {
             for(var x = 0; x < self.nodes[y].points.length; x++)
             {
-                    // if not saved in db ,, save it
-                    if(!self.nodes[y].points[x].p){
-                        self.nodes[y].points[x].p = "p" + Math.floor((Math.random()*100)+(Math.random()*100));
-                        saveMappedPoint(self.nodes[y].name , self.nodes[y].points[x])
-                    }
+                // if not saved in db ,, save it
+                if(!self.nodes[y].points[x].p){
+                    self.nodes[y].points[x].p = "p" + Math.floor((Math.random()*100)+(Math.random()*100));
+                    saveMappedPoint(self.nodes[y].name , self.nodes[y].points[x])
+                }
 
-                    // push if connected
-                    var newMappedPoint = { 
-                            p : self.nodes[y].points[x].p , 
-                            i : self.nodes[y].points[x].i ,
-                            s : self.nodes[y].points[x].s,
-                            r : self.nodes[y].points[x].r,
-                            node_name : self.nodes[y].name , 
-                            node_status : self.nodes[y].connected, 
-                            node_ip : self.nodes[y].ip
-                        };
-                    
-                    self.mappedPoints.push(newMappedPoint);
+                // push if connected
+                var newMappedPoint = { 
+                        p : self.nodes[y].points[x].p , 
+                        i : self.nodes[y].points[x].i ,
+                        s : self.nodes[y].points[x].s,
+                        r : self.nodes[y].points[x].r,
+                        node_name : self.nodes[y].name , 
+                        node_status : self.nodes[y].connected, 
+                        node_ip : self.nodes[y].ip
+                    };
+                
+                self.mappedPoints.push(newMappedPoint);
             }
         }
         return self.mappedPoints;
@@ -169,15 +153,39 @@ var telnetDriver = function(Core){
     /**
      * publish a json statuses of all points to redis server
      */
-    function publishPointsStatusUpdates()
+    publishPointsStatusUpdates();
+    function publishPointsStatusUpdates(point)
     {
-        // use socketID to publish Events
         setTimeout(function(){
             var data = {
-                type: 'motor',
-                data: 'status'
+                type: 'siren',
+                data: 'status',
+                point: point
             };
-            io.emit( 'stream', data );
+            io.emit('stream', data);
+
+            // The topic name can be optionally prefixed with "/topics/".
+            var topic = "smarc_siren";
+
+            // See the "Defining the message payload" section below for details
+            // on how to define a message payload.
+            var payload = {
+                data: {
+                    message: "Siren {X} fired at {datetime}",
+                }
+            };
+
+            // Send a message to devices subscribed to the provided topic.
+            Core.fcm.messaging().sendToTopic(topic, payload)
+                .then(function(response) {
+                    // See the MessagingTopicResponse reference documentation for the
+                    // contents of response.
+                    console.log("Successfully sent message:", response);
+                })
+                .catch(function(error) {
+                    console.log("Error sending message:", error);
+                });
+            console.log('FCM finished');
         }, 100);
     }
 
@@ -296,25 +304,9 @@ var telnetDriver = function(Core){
         }   
     };
 
-
-    this.stop =  function(point)
+    this.turnOn = function(point)
     {
-        console.log('stop');
-        var order = 'W' + point.i + ',2';
-        self.exec(point.node_ip, order);
-    };
-
-    this.up = function(point)
-    {
-        console.log('up');
-        var order = 'W' + point.i + ',0';
-        self.exec(point.node_ip, order);
-    };
-
-    this.down =  function(point)
-    {
-        console.log('down');
-        var order = 'W' + point.i + ',1';
+        var order = 'O' + point.i + ',1';
         self.exec(point.node_ip, order);
     };
 
@@ -333,15 +325,17 @@ var telnetDriver = function(Core){
     this.deleteNode = function(nodeIp){
         destoryNode(nodeIp);
     };
-    
-    this.roomPoints = function(id){
+
+    this.getPoint = function(id){
         if (!self.mappedPoints.length) {
             self.mapPoints();
         }
+
         return self.mappedPoints.filter(function(point){
-            return point.r === id;
+            return point.i === id;
         });
     };
+
     this.mapPoints = mapPoints;
 };
 

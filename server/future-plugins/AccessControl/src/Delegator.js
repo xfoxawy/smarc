@@ -4,25 +4,17 @@ var globalConfig = require('../../../core/Config');
 
 var Delegator = function(Core){
     var driverPath = (globalConfig.env === 'development') ? './drivers/'+ Config.driver +'DriverTest' : './drivers/'+ Config.driver +'Driver';
-    var e          = require(driverPath);
+	var e          = require(driverPath);
 	var Driver     = new e(Core);
 
-	if( Config.driver == "telnet" ) require("./ConnectionMotors").subscribe(Driver);
+	if( Config.driver === "telnet" ) require("./Connection").subscribe(Driver);
 
-	this.up = function(id){
-		Driver.up(id);
+	this.open = function(id){
+		Driver.open(id);
 	};
 
-	this.down = function(id){
-		Driver.down(id);
-	};
-
-	this.stop = function(id){
-		Driver.stop(id);
-	};
-
-	this.motors = function(){
-        var mapPoints = Transformer.transformPoints(Driver.mapPoints());
+	this.access_controls = function(){
+        var mapPoints = Transformer.transformPoints(Driver.mapPoints(id));
         return mapPoints;
 	};
 
@@ -31,7 +23,7 @@ var Delegator = function(Core){
         return roomPoints;
     };
 
-    Core.plugins.Motors = this;
+    Core.plugins.AccessControls = this;
 };
 
 module.exports = Delegator;

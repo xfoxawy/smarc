@@ -1,12 +1,13 @@
-var Transformer = require('./Transformer');
-var Config      = require('./Config');
+var Transformer  = require('./Transformer');
+var Config       = require('./Config');
+var globalConfig = require('../../../core/Config');
 
 var Delegator = function(Core){
-	var e = require('./drivers/'+ Config.driver +'DriverTest');
+    var driverPath = (globalConfig.env === 'development') ? './drivers/'+ Config.driver +'DriverTest' : './drivers/'+ Config.driver +'Driver';
+	var e          = require(driverPath);
+	var Driver     = new e(Core);
 
-	var Driver = new e(Core);
-
-	if( Config.driver == "telnet" ) require("./Connection").subscribe(Driver);
+	if( Config.driver == "telnet" ) require("./ConnectionLight").subscribe(Driver);
 
 	this.toggle = function(pointNumber){
 		Driver.toggle(pointNumber);
@@ -25,9 +26,10 @@ var Delegator = function(Core){
 		Driver.deleteNode(nodeIp);
 	};
 
-	this.getRooms = function(){
-		return Transformer.transformRooms(Driver.getRooms());
-	};
+	// deprecated, will remove in the future
+    this.getRooms = function(){
+        return Transformer.transformRooms(Driver.getRooms());
+    };
 
 	this.scene = function(names){
 		Driver.scene(names);
@@ -37,6 +39,8 @@ var Delegator = function(Core){
 		var roomPoints = Transformer.transformPoints(Driver.roomPoints(id));
 		return roomPoints;
 	};
+
+    Core.plugins.Light = this;
 };
 
 module.exports = Delegator;

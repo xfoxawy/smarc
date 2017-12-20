@@ -9,7 +9,7 @@ var path = require("path");
  * @return {Object} [all options as object]
  */
 var Config = {
-    env: "development", // production
+    env: "production", // production, development
     log: true,
     logType : 'db', // or file
     logFile : __dirname + '/log.txt',
@@ -20,14 +20,15 @@ var Config = {
         'Auth',
         'Logger',
         'Light',
-        'AccessControl',
-        'Doors',
-        'HeatSensors',
-        'MotionSensors',
-        'SmokeSensors',
+        // 'AccessControl',
+        // 'Doors',
+        // 'HeatSensors',
+        // 'MotionSensors',
+        // 'SmokeSensors',
         'Motors',
-        'Siren',
-        'Rooms'
+        // 'Siren',
+        'Rooms',
+        'Scenes'
     ],
     secret: "randomstringtousedinencryption",
     jwtStorage: "file", // or cache

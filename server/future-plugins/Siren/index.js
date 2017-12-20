@@ -1,19 +1,19 @@
-/**
- * require modules
- */
+var Config = require('./src/Config');
 var Routes = require("./src/interfaces/httpInterface");
 
 /**
- * Rooms Container
+ * Siren Container
  */
-var Rooms = function(){
+var Siren = function(){
 
     /**
-     * must defined this Func to add your plugin to Smarc
+     * must defined this Func to add you plugin to Smarc
      * @param  {Object} Core [main system Core]
      * @return {void}
      */
     this.register = function(Core){
+        // var e = require('./src/drivers/' + Config.driver + 'DriverTest');
+        // new e(Core);
 
         /**
          * load Routes
@@ -22,4 +22,4 @@ var Rooms = function(){
     };
 };
 
-module.exports = new Rooms;
+module.exports = new Siren;

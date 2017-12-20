@@ -26,6 +26,7 @@
     "bcryptjs": "2.4.*",
     "body-parser": "1.*",
     "express": "4.*",
+    "firebase-admin": "^5.5.1",
     "jsonwebtoken": "7.*",
     "minimist": "1.2.*",
     "mongodb": "2.*",

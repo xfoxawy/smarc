@@ -10,7 +10,7 @@ module.exports = function(Core){
     });
 
     Core.lightIO.on('disconnect', function(socket){
-        console.log('light leaved');
+        console.log('light left');
     });
 
     // Core.lightIO.emit('hi', 'everyone!');

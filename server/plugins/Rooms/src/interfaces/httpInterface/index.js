@@ -1,63 +1,49 @@
 var ObjectID   = require('mongodb').ObjectID;
 var Transformer = require('../../Transformer');
-var LightsDelegatorModel        = require('../../../../Light/src/Delegator');
-var DoorsDelegatorModel         = require('../../../../Doors/src/Delegator');
-var HeatsDelegator              = require('../../../../HeatSensors/src/Delegator');
-var MotorsDelegatorModel        = require('../../../../Motors/src/Delegator');
-var SmokesDelegator             = require('../../../../SmokeSensors/src/Delegator');
-var AccessControlDelegatorModel = require('../../../../AccessControl/src/Delegator');
-var MotionsDelegator            = require('../../../../MotionSensors/src/Delegator');
 
 module.exports = function(Core){
-    var LightsDelegator        = new LightsDelegatorModel(Core);
-    var DoorsDelegator         = new DoorsDelegatorModel(Core);
-    var MotorsDelegator        = new MotorsDelegatorModel(Core);
-    HeatsDelegator.instance.init(Core);
-    SmokesDelegator.instance.init(Core);
-    MotionsDelegator.instance.init(Core);
-    var AccessControlDelegator = new AccessControlDelegatorModel(Core);
 
     // get light for a room
     Core.app.get('/rooms/:id/light', function(req,res){
-        var points = LightsDelegator.getRoomPoints(req.params.id);
+        var points = Core.plugins.Light.getRoomPoints(req.params.id);
         return res.status(200).json(points);
     });
 
     // get doors for a room
-    Core.app.get('/rooms/:id/doors', function(req,res){
-        var points = DoorsDelegator.getRoomPoints(req.params.id);
-        return res.status(200).json(points);
-    });
+    // Core.app.get('/rooms/:id/doors', function(req,res){
+    //     var points = Core.Door.getRoomPoints(req.params.id);
+    //     return res.status(200).json(points);
+    // });
 
     // get heats for a room
-    Core.app.get('/rooms/:id/heats', function(req,res){
-        var points = HeatsDelegator.instance.getRoomPoints(req.params.id);
-        return res.status(200).json(points);
-    });
+    // Core.app.get('/rooms/:id/heats', function(req,res){
+    //     var points = Core.Heat.getRoomPoints(req.params.id);
+    //     return res.status(200).json(points);
+    // });
 
     // get motors for a room
-    Core.app.get('/rooms/:id/motors', function(req,res){
-        var points = MotorsDelegator.getRoomPoints(req.params.id);
+    Core.app.get('/rooms/:id/motor', function(req,res){
+        var points = Core.plugins.Motors.getRoomPoints(req.params.id);
         return res.status(200).json(points);
     });
 
     // get smokes for a room
-    Core.app.get('/rooms/:id/smokes', function(req,res){
-        var points = SmokesDelegator.instance.getRoomPoints(req.params.id);
-        return res.status(200).json(points);
-    });
+    // Core.app.get('/rooms/:id/smokes', function(req,res){
+    //     var points = Core.Smoke.getRoomPoints(req.params.id);
+    //     return res.status(200).json(points);
+    // });
 
     // get access_control for a room
-    Core.app.get('/rooms/:id/access_control', function(req,res){
-        var points = AccessControlDelegator.getRoomPoints(req.params.id);
-        return res.status(200).json(points);
-    });
+    // Core.app.get('/rooms/:id/access_control', function(req,res){
+    //     var points = Core.AccessControl.getRoomPoints(req.params.id);
+    //     return res.status(200).json(points);
+    // });
 
     // get motions for a room
-    Core.app.get('/rooms/:id/motions', function(req,res){
-        var points = MotionsDelegator.instance.getRoomPoints(req.params.id);
-        return res.status(200).json(points);
-    });
+    // Core.app.get('/rooms/:id/motions', function(req,res){
+    //     var points = Core.Motion.getRoomPoints(req.params.id);
+    //     return res.status(200).json(points);
+    // });
 
     // list all rooms
     Core.app.get('/rooms', function(req,res){
@@ -98,37 +84,37 @@ module.exports = function(Core){
                 room['lights'] = light;
 
                 // get room Doors
-                getDoors(roomId, function(doors){
-                    room['doors'] = doors;
+                // getDoors(roomId, function(doors){
+                    // room['doors'] = doors;
 
                     // get room HeatSensors
-                    getHeatSensors(roomId, function(heats){
-                        room['heats'] = heats;
+                    // getHeatSensors(roomId, function(heats){
+                        // room['heats'] = heats;
 
                         // get room Motors
                         getMotors(roomId, function(motors){
                             room['motors'] = motors;
 
                             // get room SmokeSensors
-                            getSmokeSensors(roomId, function(smokes){
-                                room['smokes'] = smokes;
+                            // getSmokeSensors(roomId, function(smokes){
+                                // room['smokes'] = smokes;
 
                                 // get room AccessControl
-                                getAccessControl(roomId, function(access){
-                                    room['access_control'] = access;
+                                // getAccessControl(roomId, function(access){
+                                    // room['access_control'] = access;
 
                                     // get room MotionSensors
-                                    getMotionSensors(roomId, function(motions){
-                                        room['motions'] = motions;
+                                    // getMotionSensors(roomId, function(motions){
+                                        // room['motions'] = motions;
 
                                         // finaly return all data
                                         return res.status(200).json(room).end();
-                                    });
-                                });
-                            });
+                                    // });
+                                // });
+                            // });
                         });
-                    });
-                });
+                    // });
+                // });
             });
         });
     });

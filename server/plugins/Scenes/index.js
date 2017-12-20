@@ -4,17 +4,15 @@
 var Routes = require("./src/interfaces/httpInterface");
 
 /**
- * Rooms Container
+ * Scene Container
  */
-var Rooms = function(){
-
+var Scene = function(){
     /**
-     * must defined this Func to add your plugin to Smarc
+     * must defined this Func to add you plugin to Smarc
      * @param  {Object} Core [main system Core]
      * @return {void}
      */
     this.register = function(Core){
-
         /**
          * load Routes
          */
@@ -22,4 +20,4 @@ var Rooms = function(){
     };
 };
 
-module.exports = new Rooms;
+module.exports = new Scene;

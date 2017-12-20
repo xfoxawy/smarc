@@ -1,17 +1,19 @@
 /**
  * require modules
  */
-var express     = require("express");
-var bodyParser  = require("body-parser");
-var Core        = {};
-    Core.app    = express();
-var server      = require('http').Server(Core.app);
-    Core.io     = require('socket.io')(server);
-var Config      = require("./Config");
-    Core.Config = Config;
-var IOC         = require("./IOC");
-var path        = require("path");
-var MongoClient = require('mongodb').MongoClient;
+var express        = require("express");
+var bodyParser     = require("body-parser");
+var Core           = {};
+    Core.app       = express();
+var server         = require('http').Server(Core.app);
+    Core.io        = require('socket.io')(server);
+var Config         = require("./Config");
+    Core.Config    = Config;
+var IOC            = require("./IOC");
+var path           = require("path");
+var MongoClient    = require('mongodb').MongoClient;
+var FCMAdmin       = require('firebase-admin');
+var serviceAccount = require("./../smarc-firebase-adminsdk.json");
 
 /**
  * setup Database Connection
@@ -25,16 +27,19 @@ function(db){
      */
     Core.db = db;
 
+    // hold all plugins instances
+    Core.plugins = {};
+
     /**
      * console.log request info.
      * enable fo development
      */
-    if (Config.env == "development") {
+    // if (Config.env == "development") {
         var morgan       = require('morgan');
         var responseTime = require('response-time');
         Core.app.use(morgan('dev'));
         Core.app.use(responseTime());
-    };
+    // };
 
     /**
      * middlewares for express
@@ -56,6 +61,25 @@ function(db){
      * load Plugins from IOC container
      */
     Core.app.set('globalIp', '127.0.0.1');
+
+    // load FCM
+    FCMAdmin.initializeApp({
+        credential: FCMAdmin.credential.cert(serviceAccount),
+        databaseURL: "https://smarc-f116d.firebaseio.com"
+    });
+
+    Core.fcm = FCMAdmin;
+
+    // load SocketIO
+    Core.io.on('connection', function (socket) {
+        console.log('device Connected');
+    });
+
+    Core.io.on('disconnect', function(socket){
+        console.log('device Leaved');
+    });
+
+    // finally load Our Plug
     IOC.loadPlugins(Core);
 },
 // connect failed with database

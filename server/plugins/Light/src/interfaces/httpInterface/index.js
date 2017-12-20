@@ -10,8 +10,7 @@ module.exports = function(Core){
 
     Core.app.get('/light/points', function(req, res){
         var e = Delegator.getAllStatus();
-        var rooms = Delegator.getRooms();
-        return res.status(200).json({'points' : e, 'rooms' : rooms});
+        return res.status(200).json({'points' : e});
     });
 
     Core.app.post('/light/new/', function(req,res){
@@ -25,6 +24,7 @@ module.exports = function(Core){
         res.status(200).json(rooms);
     });
 
+    // Daprecated
     Core.app.post('/light/scene', function(req,res){
         Delegator.scene(req.body);
         res.status(200).json("OK");

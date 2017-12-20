@@ -1,27 +1,23 @@
-var Telnet = require('../ConnectionMotors');
+var Telnet = require('../Connection');
 var EventEmitter = new(require('events').EventEmitter);
 var Transformer = require('../Transformer');
 
 /**
- * Light Plugin Telnet Driver
+ * AccessControl Plugin Telnet Driver
  */
-
 var telnetDriver = function(Core){
     var self = this;
-    var model = "motors";
+    var model = "access_control";
     var db = Core.db;
     var io = Core.io;
-    var reconnectionInterval = 200; // reconnection to dead nodes interval
+    var reconnectionInterval = 2000; // reconnection to dead nodes interval
     var maxTries = 10 ; // reconnection to dead nodes max tries
-    
     // all nodes placeholder
     this.nodes = [];
     // all errors placeholder
     this.errors = [];
     // hold all points mapped to their original 
     this.mappedPoints = [];
-    // hold all rooms in array
-    this.rooms = [];
     // holds all dead nodes
     this.deadNodes = [];
 
@@ -30,10 +26,6 @@ var telnetDriver = function(Core){
     (function connectNodes(){
             // load nodes from database
             loadNodes(function(nodes){});
-            // load rooms from database
-            loadRooms(function(rooms){
-                self.rooms = rooms;
-            })
     }());
 
     function pushInDeadNodes(node)
@@ -48,7 +40,7 @@ var telnetDriver = function(Core){
 
     // function load nodes from db
     function loadNodes(cb){
-        db.collection(model).find().toArray(function(err, docs){
+        db.collection(model).find({}).toArray(function(err, docs){
             if(err) throw err;
             else if(docs.length){
                 docs.forEach(function(doc){
@@ -59,43 +51,38 @@ var telnetDriver = function(Core){
         });
     };
 
-    // load rooms instaces from database
-    function loadRooms (cb){
-        db.collection('rooms').find().toArray(function(err, docs){
-            if(err) throw err;
-            else if(docs.length){
-                cb(docs);
-            }
-        });
-    }
     //once nodes loaded we can map them to be able to be used 
     function mapPoints(){
-        
+        console.log('start mapping');
         self.mappedPoints = [];
         for (var y = 0; y < self.nodes.length ; y++) 
         {
+            console.log('node found');
             for(var x = 0; x < self.nodes[y].points.length; x++)
             {
-                    // if not saved in db ,, save it
-                    if(!self.nodes[y].points[x].p){
-                        self.nodes[y].points[x].p = "p" + Math.floor((Math.random()*100)+(Math.random()*100));
-                        saveMappedPoint(self.nodes[y].name , self.nodes[y].points[x])
-                    }
+                console.log('point found');
+                // if not saved in db ,, save it
+                if(!self.nodes[y].points[x].p){
+                    console.log('point not saved');
+                    self.nodes[y].points[x].p = "p" + Math.floor((Math.random()*100)+(Math.random()*100));
+                    saveMappedPoint(self.nodes[y].name , self.nodes[y].points[x])
+                }
 
-                    // push if connected
-                    var newMappedPoint = { 
-                            p : self.nodes[y].points[x].p , 
-                            i : self.nodes[y].points[x].i ,
-                            s : self.nodes[y].points[x].s,
-                            r : self.nodes[y].points[x].r,
-                            node_name : self.nodes[y].name , 
-                            node_status : self.nodes[y].connected, 
-                            node_ip : self.nodes[y].ip
-                        };
-                    
-                    self.mappedPoints.push(newMappedPoint);
+                // push if connected
+                var newMappedPoint = { 
+                        p : self.nodes[y].points[x].p , 
+                        i : self.nodes[y].points[x].i ,
+                        s : self.nodes[y].points[x].s,
+                        r : self.nodes[y].points[x].r,
+                        node_name : self.nodes[y].name , 
+                        node_status : self.nodes[y].connected, 
+                        node_ip : self.nodes[y].ip
+                    };
+                
+                self.mappedPoints.push(newMappedPoint);
             }
         }
+        console.dir(self.mappedPoints);
         return self.mappedPoints;
     };
 
@@ -172,12 +159,15 @@ var telnetDriver = function(Core){
     function publishPointsStatusUpdates()
     {
         // use socketID to publish Events
-        setTimeout(function(){
+        setTimeout(() => {
+            var points = mapPoints();
+            var po = points[point.i - 1];
             var data = {
-                type: 'motor',
-                data: 'status'
+                type: 'access',
+                data: po
             };
-            io.emit( 'stream', data );
+            // use socketID to publish Events
+            io.emit('stream', data);
         }, 100);
     }
 
@@ -278,6 +268,35 @@ var telnetDriver = function(Core){
         }
     };
 
+    this.turnOn = function(point)
+    {
+        var order = 'O' + point.i + ',1';
+        self.exec(point.node_ip, order);
+    };
+
+    this.turnOff =  function(point)
+    {
+        var order = 'O' + point.i + ',0';
+        self.exec(point.node_ip, order);
+    };
+
+    this.openAccess = function(point)
+    {
+        var delay = Number(point.d);
+        
+        this.turnOn(point);
+        
+        console.log("opening AccessControl Point Number :: " + point.p);
+
+        setTimeout(function(){
+            
+            self.turnOff(point);
+            
+            console.log("closing AccessControl Point Number :: " + point.p);
+
+        }, delay);
+    }
+
     /**
      * [exec description]
      * @param  {[type]} nodeIp [description]
@@ -296,28 +315,6 @@ var telnetDriver = function(Core){
         }   
     };
 
-
-    this.stop =  function(point)
-    {
-        console.log('stop');
-        var order = 'W' + point.i + ',2';
-        self.exec(point.node_ip, order);
-    };
-
-    this.up = function(point)
-    {
-        console.log('up');
-        var order = 'W' + point.i + ',0';
-        self.exec(point.node_ip, order);
-    };
-
-    this.down =  function(point)
-    {
-        console.log('down');
-        var order = 'W' + point.i + ',1';
-        self.exec(point.node_ip, order);
-    };
-
     this.createNewNode = function(node){
         if(!node === null && typeof node !== 'object'  || node === undefined )
             throw "type of input must be an object";
@@ -327,12 +324,28 @@ var telnetDriver = function(Core){
             throw "node ip exists already";
         else
             saveNode(node);
-
     };
 
     this.deleteNode = function(nodeIp){
         destoryNode(nodeIp);
     };
+
+    this.access_controls = function(){
+        return this.rooms;
+    };
+
+    this.open = function(pointNumber){
+        var pointNumber = pointNumber || '';
+        var point = findPointInMappedPoints(pointNumber);
+        if(point.node_status === true)
+        {
+            self.openAccess(point);
+        }
+        else if(point.node_status === false){
+            console.log("its not connected");
+        }
+    };
+
     
     this.roomPoints = function(id){
         if (!self.mappedPoints.length) {
@@ -342,6 +355,7 @@ var telnetDriver = function(Core){
             return point.r === id;
         });
     };
+
     this.mapPoints = mapPoints;
 };
 

@@ -1,4 +1,4 @@
-var Telnet = require('../ConnectionMotors');
+var Telnet = require('../Connection');
 var EventEmitter = new(require('events').EventEmitter);
 var Transformer = require('../Transformer');
 
@@ -8,12 +8,12 @@ var Transformer = require('../Transformer');
 
 var telnetDriver = function(Core){
     var self = this;
-    var model = "motors";
+    var model = "heats";
     var db = Core.db;
     var io = Core.io;
     var reconnectionInterval = 200; // reconnection to dead nodes interval
     var maxTries = 10 ; // reconnection to dead nodes max tries
-    
+
     // all nodes placeholder
     this.nodes = [];
     // all errors placeholder
@@ -25,7 +25,6 @@ var telnetDriver = function(Core){
     // holds all dead nodes
     this.deadNodes = [];
 
-
     // connect ready nodes in db
     (function connectNodes(){
             // load nodes from database
@@ -35,6 +34,7 @@ var telnetDriver = function(Core){
                 self.rooms = rooms;
             })
     }());
+    publishPointsStatusUpdates();
 
     function pushInDeadNodes(node)
     {
@@ -70,30 +70,30 @@ var telnetDriver = function(Core){
     }
     //once nodes loaded we can map them to be able to be used 
     function mapPoints(){
-        
+
         self.mappedPoints = [];
         for (var y = 0; y < self.nodes.length ; y++) 
         {
             for(var x = 0; x < self.nodes[y].points.length; x++)
             {
-                    // if not saved in db ,, save it
-                    if(!self.nodes[y].points[x].p){
-                        self.nodes[y].points[x].p = "p" + Math.floor((Math.random()*100)+(Math.random()*100));
-                        saveMappedPoint(self.nodes[y].name , self.nodes[y].points[x])
-                    }
+                // if not saved in db ,, save it
+                if(!self.nodes[y].points[x].p){
+                    self.nodes[y].points[x].p = "p" + Math.floor((Math.random()*100)+(Math.random()*100));
+                    saveMappedPoint(self.nodes[y].name , self.nodes[y].points[x])
+                }
 
-                    // push if connected
-                    var newMappedPoint = { 
-                            p : self.nodes[y].points[x].p , 
-                            i : self.nodes[y].points[x].i ,
-                            s : self.nodes[y].points[x].s,
-                            r : self.nodes[y].points[x].r,
-                            node_name : self.nodes[y].name , 
-                            node_status : self.nodes[y].connected, 
-                            node_ip : self.nodes[y].ip
-                        };
-                    
-                    self.mappedPoints.push(newMappedPoint);
+                // push if connected
+                var newMappedPoint = { 
+                        p : self.nodes[y].points[x].p , 
+                        i : self.nodes[y].points[x].i ,
+                        s : self.nodes[y].points[x].s,
+                        r : self.nodes[y].points[x].r,
+                        node_name : self.nodes[y].name , 
+                        node_status : self.nodes[y].connected, 
+                        node_ip : self.nodes[y].ip
+                    };
+                
+                self.mappedPoints.push(newMappedPoint);
             }
         }
         return self.mappedPoints;
@@ -169,16 +169,19 @@ var telnetDriver = function(Core){
     /**
      * publish a json statuses of all points to redis server
      */
-    function publishPointsStatusUpdates()
-    {
+    function publishPointsStatusUpdates(point) {
+        var status = true;
         // use socketID to publish Events
-        setTimeout(function(){
+        setInterval(function(){
+            status = !status;
             var data = {
-                type: 'motor',
-                data: 'status'
+                type: 'heat',
+                data: status,
+                point: point,
             };
-            io.emit( 'stream', data );
-        }, 100);
+            // console.dir(data, { depth: 4 });
+            io.emit('stream', data);
+        }, 5000);
     }
 
     // find point object in node
@@ -296,26 +299,68 @@ var telnetDriver = function(Core){
         }   
     };
 
-
-    this.stop =  function(point)
+    this.turnOn = function(point)
     {
-        console.log('stop');
-        var order = 'W' + point.i + ',2';
+        var order = 'O' + point.i + ',1';
         self.exec(point.node_ip, order);
     };
 
-    this.up = function(point)
+    this.turnOff =  function(point)
     {
-        console.log('up');
-        var order = 'W' + point.i + ',0';
+        var order = 'O' + point.i + ',0';
         self.exec(point.node_ip, order);
     };
 
-    this.down =  function(point)
-    {
-        console.log('down');
-        var order = 'W' + point.i + ',1';
-        self.exec(point.node_ip, order);
+    this.toggle = function(pointNumber){
+        var pointNumber = pointNumber || '';
+
+        mapPoints();
+
+        var point = findPointInMappedPoints(pointNumber);
+
+        if(point.node_status === true)
+        {
+            if(point.s === false)
+            {
+                self.turnOn(point);
+            }
+            else if(point.s === true){
+                self.turnOff(point);
+            }
+            else {
+                throw "unknown point status , point number:-> " + pointNumber + " node ip:-> " + point.node_ip ;
+            }
+        }
+        else if(point.node_status === false){
+            console.log("its not connected");
+        }
+    };
+
+    this.scene = function(rowCommand){
+        mapPoints();
+
+        // for each point in rowCommand check the current status for this point
+        // if the status in rowCommand same as the real status ignore the point
+        // if NOT then change the status
+        for( var pointName in rowCommand ){
+            var point = findPointInMappedPoints( pointName );
+            if(point.node_status === true)
+            {
+                if( point.s != rowCommand[pointName] && point.s === false )
+                {
+                    self.turnOn(point);
+                }
+                else if( point.s != rowCommand[pointName] && point.s === true ){
+                    self.turnOff(point);
+                }
+                else if( point.s != rowCommand[pointName] ) {
+                    throw "unknown point status , point number:-> " + pointName + " node ip:-> " + point.node_ip ;
+                }
+            }
+            else if(point.node_status === false){
+                console.log("its not connected");
+            }
+        }
     };
 
     this.createNewNode = function(node){
@@ -333,7 +378,12 @@ var telnetDriver = function(Core){
     this.deleteNode = function(nodeIp){
         destoryNode(nodeIp);
     };
-    
+
+    this.getRooms = function(){
+        return this.rooms;
+    };
+
+
     this.roomPoints = function(id){
         if (!self.mappedPoints.length) {
             self.mapPoints();
@@ -342,6 +392,7 @@ var telnetDriver = function(Core){
             return point.r === id;
         });
     };
+
     this.mapPoints = mapPoints;
 };
 

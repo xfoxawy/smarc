@@ -1,4 +1,4 @@
-var Telnet = require('../Connection');
+var Telnet = require('../ConnectionLight');
 var EventEmitter = new(require('events').EventEmitter);
 var Transformer = require('../Transformer');
 
@@ -9,7 +9,7 @@ var telnetDriver = function(Core){
     var self = this;
     var model = "light";
     var db = Core.db;
-    var io = Core.lightIO;
+    var io = Core.io;
     var reconnectionInterval = 2000; // reconnection to dead nodes interval
     var maxTries = 10 ; // reconnection to dead nodes max tries
     
@@ -24,27 +24,22 @@ var telnetDriver = function(Core){
     // holds all dead nodes
     this.deadNodes = [];
 
-
     // connect ready nodes in db
     (function connectNodes(){
-            // load nodes from database
-            loadNodes(function(nodes){
-                for (var i = 0; i < nodes.length ; i++) 
-                {
-                    Telnet.connect(nodes[i].ip, nodes[i].port);
-                }
-            });
-            // load rooms from database
-            loadRooms(function(rooms){
-                self.rooms = rooms;
-            })
+        // load nodes from database
+        loadNodesLight(function(nodes){
+            for (var i = 0; i < nodes.length ; i++) 
+            {
+                Telnet.connect(nodes[i].ip, nodes[i].port);
+            }
+        });
     }());
 
     // interval to check if there any dead nodes and try to reconnect to them
-    setInterval(reConnect, reconnectionInterval);
+    setInterval(reConnectLight, reconnectionInterval);
 
     // responsible of reconnection for dead nodes 
-    function reConnect()
+    function reConnectLight()
     {
         if(self.deadNodes.length)
         {
@@ -57,7 +52,7 @@ var telnetDriver = function(Core){
         }     
     }
 
-    function pushInDeadNodes(node)
+    function pushInDeadNodesLight(node)
     {
         for (var i = 0; i < self.deadNodes.length; i++) {
             if(self.deadNodes[i].ip == node.ip)
@@ -68,7 +63,7 @@ var telnetDriver = function(Core){
     }
 
     // function load nodes from db
-    function loadNodes(cb){
+    function loadNodesLight(cb){
         db.collection(model).find().toArray(function(err, docs){
             if(err) throw err;
             else if(docs.length){
@@ -80,17 +75,8 @@ var telnetDriver = function(Core){
         });
     };
 
-    // load rooms instaces from database
-    function loadRooms (cb){
-        db.collection('rooms').find().toArray(function(err, docs){
-            if(err) throw err;
-            else if(docs.length){
-                cb(docs);
-            }
-        });
-    }
     //once nodes loaded we can map them to be able to be used
-    function mapPoints(){
+    function mapPointsLight(){
         
         self.mappedPoints = [];
         for (var y = 0; y < self.nodes.length ; y++) 
@@ -182,7 +168,7 @@ var telnetDriver = function(Core){
      * @param  {string} nodeName node's name in db
      * @param  {INT} pointID  [description]
      */
-    function updatePointStatusDB(nodeName, pointID , pointStatus)
+    function updatePointStatusDBLight(nodeName, pointID , pointStatus)
     {
         db.collection(model).update({name : nodeName, points : {$elemMatch: { i : pointID } } }, { $set : { "points.$.s" : pointStatus} }, function(err){
             if(err) throw err;
@@ -192,10 +178,18 @@ var telnetDriver = function(Core){
     /**
      * publish a json statuses of all points to redis server
      */
-    function publishPointsStatusUpdates()
+    function publishPointsStatusUpdatesLight(point)
     {
-        // use socketID to publish Events
-        io.emit( 'lights', JSON.stringify( Transformer.transformPoints( mapPoints() ) ) );
+        setTimeout(() => {
+            var points = mapPointsLight();
+            var po = points[point.i];
+            var data = {
+                type: 'light',
+                data: po
+            };
+            // use socketID to publish Events
+            io.emit('stream', data);
+        }, 100);
     }
 
     // find point object in node
@@ -211,7 +205,7 @@ var telnetDriver = function(Core){
     };
 
     // update node status
-    function setNodeStatusConnected(ip, socket){
+    function setNodeStatusConnectedLight(ip, socket){
         var node = findNodeByIp(ip);
         node.connected = true;
         node.socket = socket;
@@ -220,26 +214,26 @@ var telnetDriver = function(Core){
         return true;
     };
 
-    function setNodeStatusDisconnected(ip){ 
+    function setNodeStatusDisconnectedLight(ip){ 
         var node = findNodeByIp(ip);
         node.connected = false;
         delete node.socket;
-        pushInDeadNodes(node);
+        pushInDeadNodesLight(node);
         EventEmitter.emit("light/disconnect/"+ip);
         return true;
     };
 
-    function setNodeStatusError(ip, error){
+    function setNodeStatusErrorLight(ip, error){
         var node = findNodeByIp(ip);
         node.connected = false;
         self.errors.push({ip , error});
-        pushInDeadNodes(node);
+        pushInDeadNodesLight(node);
         EventEmitter.emit("light/error/"+ip);
         console.log('this ' + ip + " has some connection issues : " + error);
         return true;
     };
 
-    function updateNodePointsStatus(ip, data){
+    function updateNodePointsStatusLight(ip, data){
         var node = findNodeByIp(ip);
         if(/(^I\d+,\d$)/igm.test(data))
         {
@@ -247,8 +241,8 @@ var telnetDriver = function(Core){
             var newstatus = (Number(data.split(',')[1]) == 0) ? false : true;
             var point = findPointInNode(node, pointId);
             point.s = newstatus;
-            updatePointStatusDB(node.name , point.i , newstatus);
-            publishPointsStatusUpdates();
+            updatePointStatusDBLight(node.name , point.i , newstatus);
+            publishPointsStatusUpdatesLight(point);
             console.log("the status has been updated for " + pointId + " with status " + newstatus);
         }
         else if(/(I)*(\d*\d,[0-1]){1}-/.test(data)){
@@ -261,11 +255,11 @@ var telnetDriver = function(Core){
                     var pointId = all[i].split(',')[0];
                     var newstatus = (Number(all[i].split(',')[1]) == 0) ? false : true;
                     var point = findPointInNode(node,pointId);
-                    updatePointStatusDB(node.name , point , newstatus);
+                    updatePointStatusDBLight(node.name , point , newstatus);
                     point.s = newstatus;
+                    publishPointsStatusUpdatesLight(point);
                 }
             }
-            publishPointsStatusUpdates();
         }
     };
 
@@ -275,22 +269,22 @@ var telnetDriver = function(Core){
      * @param  {[type]} args   [description]
      * @return {[type]}        [description]
      */
-    this.update = function(status , args){
+    this.updateLight = function(status , args){
         switch(status){         
             case 'connected': 
-                    setNodeStatusConnected(args.address,args.socket);
+                    setNodeStatusConnectedLight(args.address,args.socket);
                 break;
             case 'end':
-                    setNodeStatusDisconnected(args.address); 
+                    setNodeStatusDisconnectedLight(args.address); 
                 break;
             case 'timeout':
-                    setNodeStatusDisconnected(args.address); 
+                    setNodeStatusDisconnectedLight(args.address); 
                 break;
             case 'error':
-                    setNodeStatusError(args.address, args.error);
+                    setNodeStatusErrorLight(args.address, args.error);
                 break;
             case 'data':
-                    updateNodePointsStatus(args.address, args.str);
+                    updateNodePointsStatusLight(args.address, args.str);
                 break;
         }
     };
@@ -327,11 +321,8 @@ var telnetDriver = function(Core){
 
     this.toggle = function(pointNumber){
         var pointNumber = pointNumber || '';
-
-        mapPoints();
-
+        mapPointsLight();
         var point = findPointInMappedPoints(pointNumber);
-
         if(point.node_status === true)
         {
             if(point.s === false)
@@ -351,8 +342,7 @@ var telnetDriver = function(Core){
     };
 
     this.scene = function(rowCommand){
-        mapPoints();
-
+        mapPointsLight();
         // for each point in rowCommand check the current status for this point
         // if the status in rowCommand same as the real status ignore the point
         // if NOT then change the status
@@ -360,6 +350,7 @@ var telnetDriver = function(Core){
             var point = findPointInMappedPoints( pointName );
             if(point.node_status === true)
             {
+
                 if( point.s != rowCommand[pointName] && point.s === false )
                 {
                     self.turnOn(point);
@@ -400,14 +391,14 @@ var telnetDriver = function(Core){
 
     this.roomPoints = function(id){
         if (!self.mappedPoints.length) {
-            self.mapPoints();
+            mapPointsLight();
         }
         return self.mappedPoints.filter(function(point){
             return point.r === id;
         });
     };
 
-    this.mapPoints = mapPoints;
+    this.mapPoints = mapPointsLight;
 };
 
 module.exports = telnetDriver;

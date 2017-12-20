@@ -2,7 +2,6 @@
  * require modules
  */
 var Routes = require("./src/interfaces/httpInterface");
-var IO     = require("./src/IO");
 
 /**
  * Light Container
@@ -15,12 +14,6 @@ var Light = function(){
      * @return {void}
      */
     this.register = function(Core){
-
-        /**
-         * load socketIO for Lights
-         */
-        IO(Core);
-
         /**
          * load Routes
          */

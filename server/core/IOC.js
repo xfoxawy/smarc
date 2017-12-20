@@ -21,7 +21,6 @@ var IOC = function(){
 
     this.load = function(Core, paths){
         if (typeof paths == 'string') paths = [paths];
-
         paths.forEach(function(pluginPath) {
             var plugin = require(Config.pluginsDir + pluginPath);
             plugin.register(Core);

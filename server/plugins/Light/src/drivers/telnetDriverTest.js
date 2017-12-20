@@ -1,4 +1,4 @@
-var Telnet = require('../Connection');
+var Telnet = require('../ConnectionLight');
 var EventEmitter = new(require('events').EventEmitter);
 var Transformer = require('../Transformer');
 
@@ -9,7 +9,7 @@ var telnetDriver = function(Core){
     var self = this;
     var model = "light";
     var db = Core.db;
-    var io = Core.lightIO;
+    var io = Core.io;
     var reconnectionInterval = 2000; // reconnection to dead nodes interval
     var maxTries = 10 ; // reconnection to dead nodes max tries
 
@@ -26,12 +26,12 @@ var telnetDriver = function(Core){
 
     // connect ready nodes in db
     (function connectNodes(){
-            // load nodes from database
-            loadNodes(function(nodes){});
-            // load rooms from database
-            loadRooms(function(rooms){
-                self.rooms = rooms;
-            })
+        // load nodes from database
+        loadNodes(function(nodes){});
+        // load rooms from database
+        loadRooms(function(rooms){
+            self.rooms = rooms;
+        })
     }());
 
     function pushInDeadNodes(node)
@@ -171,8 +171,12 @@ var telnetDriver = function(Core){
         setTimeout(() => {
             var points = mapPoints();
             var po = points[point.i - 1];
+            var data = {
+                type: 'light',
+                data: po
+            };
             // use socketID to publish Events
-            io.emit( 'lights', JSON.stringify( po ) );
+            io.emit('stream', data);
         }, 100);
     }
 
@@ -339,8 +343,8 @@ var telnetDriver = function(Core){
     };
 
     this.scene = function(rowCommand){
+        console.dir(rowCommand);
         mapPoints();
-
         // for each point in rowCommand check the current status for this point
         // if the status in rowCommand same as the real status ignore the point
         // if NOT then change the status
