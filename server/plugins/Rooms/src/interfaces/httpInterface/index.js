@@ -22,7 +22,7 @@ module.exports = function(Core){
     // });
 
     // get motors for a room
-    Core.app.get('/rooms/:id/motor', function(req,res){
+    Core.app.get('/rooms/:id/motors', function(req,res){
         var points = Core.plugins.Motors.getRoomPoints(req.params.id);
         return res.status(200).json(points);
     });

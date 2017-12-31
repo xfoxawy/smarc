@@ -28,10 +28,6 @@ var telnetDriver = function(Core){
     (function connectNodes(){
         // load nodes from database
         loadNodes(function(nodes){});
-        // load rooms from database
-        loadRooms(function(rooms){
-            self.rooms = rooms;
-        })
     }());
 
     function pushInDeadNodes(node)
@@ -57,15 +53,6 @@ var telnetDriver = function(Core){
         });
     };
 
-    // load rooms instaces from database
-    function loadRooms(cb){
-        db.collection('rooms').find().toArray(function(err, docs){
-            if(err) throw err;
-            else if(docs.length){
-                cb(docs);
-            }
-        });
-    }
     //once nodes loaded we can map them to be able to be used
     function mapPoints(){
         self.mappedPoints = [];
@@ -170,11 +157,12 @@ var telnetDriver = function(Core){
     {
         setTimeout(() => {
             var points = mapPoints();
-            var po = points[point.i - 1];
+            var po = points[point.i];
             var data = {
                 type: 'light',
                 data: po
             };
+
             // use socketID to publish Events
             io.emit('stream', data);
         }, 100);
@@ -198,7 +186,6 @@ var telnetDriver = function(Core){
         node.connected = true;
         node.socket = socket;
         node.socket.write("R\r\n");
-        EventEmitter.emit("light/connected/"+ip);
         return true;
     };
 
@@ -207,7 +194,6 @@ var telnetDriver = function(Core){
         node.connected = false;
         delete node.socket;
         pushInDeadNodes(node);
-        EventEmitter.emit("light/disconnect/"+ip);
         return true;
     };
 
@@ -216,7 +202,6 @@ var telnetDriver = function(Core){
         node.connected = false;
         self.errors.push({ip , error});
         pushInDeadNodes(node);
-        EventEmitter.emit("light/error/"+ip);
         console.log('this ' + ip + " has some connection issues : " + error);
         return true;
     };
@@ -343,7 +328,6 @@ var telnetDriver = function(Core){
     };
 
     this.scene = function(rowCommand){
-        console.dir(rowCommand);
         mapPoints();
         // for each point in rowCommand check the current status for this point
         // if the status in rowCommand same as the real status ignore the point
@@ -378,15 +362,10 @@ var telnetDriver = function(Core){
             throw "node ip exists already";
         else
             saveNode(node);
-
     };
 
     this.deleteNode = function(nodeIp){
         destoryNode(nodeIp);
-    };
-
-    this.getRooms = function(){
-        return this.rooms;
     };
 
     this.roomPoints = function(id){

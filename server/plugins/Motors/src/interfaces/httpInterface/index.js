@@ -4,10 +4,7 @@ module.exports = function(Core){
     var Delegator = new delegator(Core);
 
     Core.app.get('/motors', function(req, res){
-        var motors = Delegator.motors();
-
-        return res.status(200).json(motors);
-
+        return res.status(200).json(Delegator.motors());
     });
 
     Core.app.get('/motors/:id/:status', function(req,res){

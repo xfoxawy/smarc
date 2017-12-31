@@ -60,7 +60,7 @@ function(db){
     /**
      * load Plugins from IOC container
      */
-    Core.app.set('globalIp', '127.0.0.1');
+    Core.app.set('globalIp', '192.168.100.101');
 
     // load FCM
     FCMAdmin.initializeApp({

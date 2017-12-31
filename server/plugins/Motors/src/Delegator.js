@@ -21,6 +21,10 @@ var Delegator = function(Core){
 		Driver.stop(id);
 	};
 
+    this.scene = function(names){
+        Driver.scene(names);
+    };
+
 	this.motors = function(){
         var mapPoints = Transformer.transformPoints(Driver.mapPoints());
         return mapPoints;

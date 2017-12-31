@@ -234,6 +234,7 @@ var telnetDriver = function(Core){
     };
 
     function updateNodePointsStatusLight(ip, data){
+        console.log('light');
         var node = findNodeByIp(ip);
         if(/(^I\d+,\d$)/igm.test(data))
         {

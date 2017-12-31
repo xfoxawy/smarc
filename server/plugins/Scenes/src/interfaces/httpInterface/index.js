@@ -12,10 +12,13 @@ module.exports = function(Core){
         }
 
         // for each Plugin, send to it it's points to run
-        for(var x in points){
-            var model = points[x].charAt(0).toUpperCase() + points[x].slice(1);
-            Core.plugins[model].scene(points[x]);
-        }
+        // for(var x in points){
+        //     var model = x.charAt(0).toUpperCase() + x.slice(1);
+        //     console.dir(Core.plugins);
+        //     // Core.plugins[model].scene(points[x]);
+        // }
+        Core.plugins.Light.scene(points.light);
+        Core.plugins.Motors.scene(points.motor);
 
         return res.status(200).json("OK").end();
     });

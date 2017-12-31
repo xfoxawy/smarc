@@ -9,7 +9,7 @@ var path = require("path");
  * @return {Object} [all options as object]
  */
 var Config = {
-    env: "production", // production, development
+    env: "development", // production, development
     log: true,
     logType : 'db', // or file
     logFile : __dirname + '/log.txt',

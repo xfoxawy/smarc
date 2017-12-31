@@ -310,6 +310,8 @@ var telnetDriver = function(Core){
      * @return {[type]}        [description]
      */
     this.exec = function(nodeIp,order){
+        console.log(nodeIp);
+        console.log(order);
         var node = findNodeByIp(nodeIp);
         if(node.connected)
         {
@@ -381,6 +383,33 @@ var telnetDriver = function(Core){
             self.stop(pointID);
         }, Config.timeout)
 
+    };
+
+    this.scene = function(rowCommand){
+        console.log('start scene');
+        mapPointsMotors();
+
+        // for each point in rowCommand check the current status for this point
+        // if the status in rowCommand same as the real status ignore the point
+        // if NOT then change the status
+        for( var pointName in rowCommand ){
+            var point = findPointInMappedPoints( pointName );
+            if(point.node_status === true)
+            {
+                console.log('point connected');
+                if (rowCommand[pointName] == true) {
+                    console.log('scene UP');
+                    this.up(pointName);
+                }
+                if (rowCommand[pointName] == false) {
+                    console.log('scene DOWN');
+                    this.down(pointName);
+                }
+            }
+            else if(point.node_status === false){
+                console.log("its not connected");
+            }
+        }
     };
 
     this.down =  function(pointID)

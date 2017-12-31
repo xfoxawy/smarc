@@ -82,11 +82,12 @@ ConnectionMotors.prototype.unsubscribe = function(driver){
 
 ConnectionMotors.prototype.notify = function()
 {
-	var args = Array.prototype.slice.call(arguments,0);
-	for(var i =0; i < this.drivers.length; i++)
-	{
-		this.drivers[i].update.apply(null, args);
-	}
+	console.log('ConnectionMotors.js => notify method => line85');
+	// var args = Array.prototype.slice.call(arguments,0);
+	// for(var i =0; i < this.drivers.length; i++)
+	// {
+	// 	this.drivers[i].update.apply(null, args);
+	// }
 };
 
 module.exports = new ConnectionMotors;
