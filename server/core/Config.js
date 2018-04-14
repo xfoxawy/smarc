@@ -25,7 +25,7 @@ var Config = {
         // 'HeatSensors',
         // 'MotionSensors',
         // 'SmokeSensors',
-        'Motors',
+        // 'Motors',
         // 'Siren',
         'Rooms',
         'Scenes'

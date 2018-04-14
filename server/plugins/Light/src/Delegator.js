@@ -7,8 +7,6 @@ var Delegator = function(Core){
 	var e          = require(driverPath);
 	var Driver     = new e(Core);
 
-	if( Config.driver == "telnet" ) require("./ConnectionLight").subscribe(Driver);
-
 	this.toggle = function(pointNumber){
 		Driver.toggle(pointNumber);
 	};

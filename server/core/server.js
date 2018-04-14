@@ -1,19 +1,19 @@
 /**
  * require modules
  */
-var express        = require("express");
-var bodyParser     = require("body-parser");
-var Core           = {};
-    Core.app       = express();
-var server         = require('http').Server(Core.app);
-    Core.io        = require('socket.io')(server);
-var Config         = require("./Config");
-    Core.Config    = Config;
-var IOC            = require("./IOC");
-var path           = require("path");
-var MongoClient    = require('mongodb').MongoClient;
-var FCMAdmin       = require('firebase-admin');
-var serviceAccount = require("./../smarc-firebase-adminsdk.json");
+var express         = require("express");
+var bodyParser      = require("body-parser");
+var Core            = {};
+    Core.app        = express();
+var server          = require('http').Server(Core.app);
+    Core.io         = require('socket.io')(server);
+var Config          = require("./Config");
+    Core.Config     = Config;
+var IOC             = require("./IOC");
+var path            = require("path");
+var MongoClient     = require('mongodb').MongoClient;
+var FCMAdmin        = require('firebase-admin');
+var serviceAccount  = require("./../smarc-firebase-adminsdk.json");
 
 /**
  * setup Database Connection
@@ -25,7 +25,9 @@ function(db){
     /**
      * save database connection to Core to be ble to pass it to plugins
      */
-    Core.db = db;
+    Core.db         = db;
+    Core.Connection = require("./Connection.js")(Core);
+
 
     // hold all plugins instances
     Core.plugins = {};

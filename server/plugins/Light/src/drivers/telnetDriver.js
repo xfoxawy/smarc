@@ -1,4 +1,3 @@
-var Telnet = require('../ConnectionLight');
 var EventEmitter = new(require('events').EventEmitter);
 var Transformer = require('../Transformer');
 
@@ -10,396 +9,202 @@ var telnetDriver = function(Core){
     var model = "light";
     var db = Core.db;
     var io = Core.io;
-    var reconnectionInterval = 2000; // reconnection to dead nodes interval
-    var maxTries = 10 ; // reconnection to dead nodes max tries
-    
-    // all nodes placeholder
-    this.nodes = [];
-    // all errors placeholder
-    this.errors = [];
-    // hold all points mapped to their original 
-    this.mappedPoints = [];
-    // hold all rooms in array
-    this.rooms = [];
-    // holds all dead nodes
-    this.deadNodes = [];
+    var Connection = Core.Connection; // telnet connection
+    var points = [];
+    var mappedPoints = [];
 
-    // connect ready nodes in db
-    (function connectNodes(){
-        // load nodes from database
-        loadNodesLight(function(nodes){
-            for (var i = 0; i < nodes.length ; i++) 
-            {
-                Telnet.connect(nodes[i].ip, nodes[i].port);
-            }
-        });
-    }());
-
-    // interval to check if there any dead nodes and try to reconnect to them
-    setInterval(reConnectLight, reconnectionInterval);
-
-    // responsible of reconnection for dead nodes 
-    function reConnectLight()
-    {
-        if(self.deadNodes.length)
-        {
-            self.deadNodes.forEach(function(node){
-                if(node.tries < maxTries){
-                    Telnet.connect(node.ip, node.port);
-                    node.tries++;
-                }
-            });
-        }     
-    }
-
-    function pushInDeadNodesLight(node)
-    {
-        for (var i = 0; i < self.deadNodes.length; i++) {
-            if(self.deadNodes[i].ip == node.ip)
-                return true;
-        }
-        node.tries = 0;
-        self.deadNodes.push(node);
-    }
-
-    // function load nodes from db
-    function loadNodesLight(cb){
-        db.collection(model).find().toArray(function(err, docs){
-            if(err) throw err;
-            else if(docs.length){
-                docs.forEach(function(doc){
-                    self.nodes.push(doc);
-                })
-            }
-            cb(self.nodes);
-        });
-    };
+    // first register the driver into Telnet
+    Connection.subscribe({
+        telnetId: "I",
+        name: "light",
+        driver: self
+    });
 
     //once nodes loaded we can map them to be able to be used
-    function mapPointsLight(){
-        
-        self.mappedPoints = [];
-        for (var y = 0; y < self.nodes.length ; y++) 
-        {
-            for(var x = 0; x < self.nodes[y].points.length; x++)
-            {
-                    // if not saved in db ,, save it
-                    if(!self.nodes[y].points[x].p){
-                        self.nodes[y].points[x].p = "p" + Math.floor((Math.random()*100)+(Math.random()*100));
-                        saveMappedPoint(self.nodes[y].name , self.nodes[y].points[x])
-                    }
-
-                    // push if connected
-                    if(self.nodes[y].connected){
-                        var newMappedPoint = { 
-                                p : self.nodes[y].points[x].p , 
-                                i : self.nodes[y].points[x].i ,
-                                s : self.nodes[y].points[x].s,
-                                r : self.nodes[y].points[x].r,
-                                node_name : self.nodes[y].name , 
-                                node_status : self.nodes[y].connected, 
-                                node_ip : self.nodes[y].ip
-                            };
-                        
-                        self.mappedPoints.push(newMappedPoint);
-                    }
-            }
+    function mapPoints(cb){
+        if (self.mappedPoints.length) {
+            return self.mappedPoints;
         }
-        return self.mappedPoints;
+
+        // select light points from DB
+        getDBPoints(function(success) {
+            if (!success) {
+                throw new Error("failed to get Light Points from DB");
+            }
+
+            // for each point
+            for (var i = 0; i <= self.points; i++) {
+
+                // check if it's node connected
+                var nodeStatus = Connection.isNodeConnected( self.points[i].node_id );
+                if (nodeStatus) {
+                    // create point object and push it to mappedPoits
+                    self.mappedPoints.push({ 
+                        p : self.points[i].name,
+                        i : self.points[i].id,
+                        s : self.points[i].status,
+                        r : self.points[i].room_id,
+                        id : self.points[i]._id,
+                        node_status: nodeStatus,
+                        node_id: points[i].node_id
+                    });
+                }
+            }
+
+            return cb(success);
+        })
     };
 
-    // save the unique mapped id for each point after generating it
-    function saveMappedPoint(nodeName ,point)
-    {
-        db.collection(model).updateOne({"name" : nodeName, "points" : {$elemMatch:{ i : point.i}}}, {$set : {"points.$.p" : point.p}}, function(err,r){
+    function getDBPoints(cb) {
+        if (points.length) {
+            return cb(true);
+        }
+        db.collection(model).find({}).toArray(function(err, docs){
             if(err) throw err;
-            else 
-                return true;
-        });
-    };
 
-    function findPointInMappedPoints(pointNumber)
-    {
-        for (var x = 0; x < self.mappedPoints.length ; x++) 
-        {
-            if(self.mappedPoints[x].i == pointNumber)
-            {   
+            if(docs.length) {
+                self.points = self.points.concat(docs);
+                return cb(true);
+            }
+            return cb(false);
+        });
+    }
+
+    function findPointInMappedPoints(pointId) {
+        if (!pointId) return false;
+
+        for (var x = 0; x < self.mappedPoints.length ; x++) {
+            if(self.mappedPoints[x].i === pointId) {   
                 return self.mappedPoints[x];
             }
         }
-        return false;
-    };
-    // function to create new node
-    function saveNode(node){
-        Core.db.collection(model).insertOne(node, function(err,res){
-            if(err) throw err;
-            else
-                self.nodes.push(node);
-        });
-    };
 
-    // discconect and delete from db 
-    function destoryNode(ip){
-        var node = findNodeByIp(ip);
-        // disconnect node first
-        Telnet.disconnect(node.socket);
-        // delete it from nodes array
-        delete node;
-        // delete it from db
-        db.collection(model).findAndRemove({ip : ip}, function(err){
-            if(err) throw err;
-        });
-    };
-
-    // helper function to get node by ip
-    function findNodeByIp(ip){
-        for (var i = 0; i < self.nodes.length; i++) 
-        {
-            if(self.nodes[i].ip === ip)
-            {
-                return self.nodes[i];
-            }
-        }
         return false;
     };
 
-    /**
-     * Updates Point's Status in DB
-     * @param  {string} nodeName node's name in db
-     * @param  {INT} pointID  [description]
-     */
-    function updatePointStatusDBLight(nodeName, pointID , pointStatus)
-    {
-        db.collection(model).update({name : nodeName, points : {$elemMatch: { i : pointID } } }, { $set : { "points.$.s" : pointStatus} }, function(err){
+    function updateDBPoint(point) {
+        db.collection(model).update({_id : point.id}, {$set : { s : point.s}}, function(err){
             if(err) throw err;
         });
     }
 
-    /**
-     * publish a json statuses of all points to redis server
-     */
-    function publishPointsStatusUpdatesLight(point)
-    {
+    function pointsStatusChanged(point) {
         setTimeout(() => {
-            var points = mapPointsLight();
-            var po = points[point.i];
             var data = {
                 type: 'light',
-                data: po
+                data: point
             };
-            // use socketID to publish Events
+
             io.emit('stream', data);
         }, 100);
     }
 
     // find point object in node
-    function findPointInNode(node ,pointId){
-        for(var i = 0; i < node.points.length; i++)
-        {
-            if(node.points[i].i == pointId)
-            {
-                return node.points[i];
+    function findPointInNode(nodeId, pointId){
+        for(var i = 0; i < self.points.length; i++) {
+            if(self.points[i].node_id === nodeId && self.points[i].i === pointId) {
+                return self.points[i];
             }
         }
         return false;
     };
 
     // update node status
-    function setNodeStatusConnectedLight(ip, socket){
-        var node = findNodeByIp(ip);
-        node.connected = true;
-        node.socket = socket;
-        node.socket.write("R\r\n");
-        EventEmitter.emit("light/connected/"+ip);
-        return true;
+    this.nodeConnected = function(node){
+        Connection.run(node._id, "R");
     };
 
-    function setNodeStatusDisconnectedLight(ip){ 
-        var node = findNodeByIp(ip);
-        node.connected = false;
-        delete node.socket;
-        pushInDeadNodesLight(node);
-        EventEmitter.emit("light/disconnect/"+ip);
-        return true;
-    };
-
-    function setNodeStatusErrorLight(ip, error){
-        var node = findNodeByIp(ip);
-        node.connected = false;
-        self.errors.push({ip , error});
-        pushInDeadNodesLight(node);
-        EventEmitter.emit("light/error/"+ip);
-        console.log('this ' + ip + " has some connection issues : " + error);
-        return true;
-    };
-
-    function updateNodePointsStatusLight(ip, data){
-        console.log('light');
-        var node = findNodeByIp(ip);
-        if(/(^I\d+,\d$)/igm.test(data))
-        {
+    this.update = function(node, data){
+        // one point returned
+        if(/(^I\d+,\d$)/igm.test(data)) {
             var pointId = data.slice(1, -2);
             var newstatus = (Number(data.split(',')[1]) == 0) ? false : true;
-            var point = findPointInNode(node, pointId);
+            var point = findPointInNode(node._id, pointId);
             point.s = newstatus;
-            updatePointStatusDBLight(node.name , point.i , newstatus);
-            publishPointsStatusUpdatesLight(point);
+            updateDBPoint(point);
+            pointsStatusChanged(point);
             console.log("the status has been updated for " + pointId + " with status " + newstatus);
         }
+        // all points returned
         else if(/(I)*(\d*\d,[0-1]){1}-/.test(data)){
             // remove I and split on - delimiter
             var all = data.substring(1).trim().split('-');
-            // iterate and update the points statuses in memory and db          
+            // iterate and update the points statuses in memory and db
             for(var i = 0; i < all.length; i++){
-                if(all[i])
-                {
+                if(all[i]) {
                     var pointId = all[i].split(',')[0];
                     var newstatus = (Number(all[i].split(',')[1]) == 0) ? false : true;
-                    var point = findPointInNode(node,pointId);
-                    updatePointStatusDBLight(node.name , point , newstatus);
+                    var point = findPointInNode(node._id, pointId);
                     point.s = newstatus;
-                    publishPointsStatusUpdatesLight(point);
+                    updateDBPoint(point);
+                    pointsStatusChanged(point);
+                    console.log("the status has been updated for " + pointId + " with status " + newstatus);
                 }
             }
         }
     };
 
-    /**
-     * [update description]
-     * @param  {[type]} status [description]
-     * @param  {[type]} args   [description]
-     * @return {[type]}        [description]
-     */
-    this.updateLight = function(status , args){
-        switch(status){         
-            case 'connected': 
-                    setNodeStatusConnectedLight(args.address,args.socket);
-                break;
-            case 'end':
-                    setNodeStatusDisconnectedLight(args.address); 
-                break;
-            case 'timeout':
-                    setNodeStatusDisconnectedLight(args.address); 
-                break;
-            case 'error':
-                    setNodeStatusErrorLight(args.address, args.error);
-                break;
-            case 'data':
-                    updateNodePointsStatusLight(args.address, args.str);
-                break;
-        }
+    this.turnOn = function(point) {
+        var command = 'O' + point.i + ',1';
+        Connection.run(point.node_id, command);
     };
 
-    /**
-     * [exec description]
-     * @param  {[type]} nodeIp [description]
-     * @param  {[type]} order  [description]
-     * @return {[type]}        [description]
-     */
-    this.exec = function(nodeIp,order){
-        var node = findNodeByIp(nodeIp);
-        if(node.connected)
-        {
-            node.socket.write(order + '\r\n');
-            console.log("this order has been sent : " + order + '\r\n');
-        }
-        else{
-            console.log(node.ip + " is disconnected");
-        }   
+    this.turnOff =  function(point) {
+        var command = 'O' + point.i + ',0';
+        Connection.run(point.node_id, command);
     };
 
-    this.turnOn = function(point)
-    {
-        var order = 'O' + point.i + ',1';
-        self.exec(point.node_ip, order);
-    };
+    this.toggle = function(pointId){
+        mapPoints(function(success) {
+            if (!success) return [];
 
-    this.turnOff =  function(point)
-    {
-        var order = 'O' + point.i + ',0';
-        self.exec(point.node_ip, order);
-    };
-
-    this.toggle = function(pointNumber){
-        var pointNumber = pointNumber || '';
-        mapPointsLight();
-        var point = findPointInMappedPoints(pointNumber);
-        if(point.node_status === true)
-        {
-            if(point.s === false)
-            {
-                self.turnOn(point);
-            }
-            else if(point.s === true){
-                self.turnOff(point);
-            }
-            else {
-                throw "unknown point status , point number:-> " + pointNumber + " node ip:-> " + point.node_ip ;
-            }
-        }
-        else if(point.node_status === false){
-            console.log("its not connected");
-        }
-    };
-
-    this.scene = function(rowCommand){
-        mapPointsLight();
-        // for each point in rowCommand check the current status for this point
-        // if the status in rowCommand same as the real status ignore the point
-        // if NOT then change the status
-        for( var pointName in rowCommand ){
-            var point = findPointInMappedPoints( pointName );
-            if(point.node_status === true)
-            {
-
-                if( point.s != rowCommand[pointName] && point.s === false )
-                {
+            var point = findPointInMappedPoints(pointId);
+            if(point.node_status === true) {
+                if(point.s === false) {
                     self.turnOn(point);
-                }
-                else if( point.s != rowCommand[pointName] && point.s === true ){
+                } else if(point.s === true){
                     self.turnOff(point);
+                } else {
+                    throw "unknown point status , Light point ID:-> " + pointId;
                 }
-                else if( point.s != rowCommand[pointName] ) {
-                    throw "unknown point status , point number:-> " + pointName + " node ip:-> " + point.node_ip ;
-                }
-            }
-            else if(point.node_status === false){
+            } else if(point.node_status === false){
                 console.log("its not connected");
             }
-        }
-    };
-
-    this.createNewNode = function(node){
-        if(!node === null && typeof node !== 'object'  || node === undefined )
-            throw "type of input must be an object";
-        else if(!node.ip || !node.name || !node.points.length)
-            throw "invalid properties of such a node";
-        else if(!findNodeByIp(node.ip))
-            throw "node ip exists already";
-        else
-            saveNode(node);
-
-    };
-
-    this.deleteNode = function(nodeIp){
-        destoryNode(nodeIp);
-    };
-
-    this.getRooms = function(){
-        return this.rooms;
-    };
-
-
-    this.roomPoints = function(id){
-        if (!self.mappedPoints.length) {
-            mapPointsLight();
-        }
-        return self.mappedPoints.filter(function(point){
-            return point.r === id;
         });
     };
 
-    this.mapPoints = mapPointsLight;
+    this.scene = function(rowCommand){
+        mapPoints(function(success) {
+            if (!success) return [];
+
+            for( var pointId in rowCommand ) {
+                var point = findPointInMappedPoints( pointId );
+                if(point.node_status === true) {
+                    if( point.s != rowCommand[pointId] && point.s === false ) {
+                        self.turnOn(point);
+                    } else if( point.s != rowCommand[pointId] && point.s === true ){
+                        self.turnOff(point);
+                    } else if( point.s != rowCommand[pointId] ) {
+                        throw "unknown point status , Light point ID:-> " + pointId;
+                    }
+                } else {
+                    console.log("its not connected");
+                }
+            }
+        });
+    };
+
+    this.roomPoints = function(roomId){
+        mapPoints(function(success){
+            if (!success) return [];
+
+            return self.mappedPoints.filter(function(point){
+                return point.r.toString() === roomId;
+            });
+        });
+    };
+
+    this.mapPoints = mapPoints;
 };
 
 module.exports = telnetDriver;
