@@ -26,7 +26,8 @@ function(db){
      * save database connection to Core to be ble to pass it to plugins
      */
     Core.db         = db;
-    Core.Connection = require("./Connection.js")(Core);
+    Core.Connection = require("./Connection.js");
+    Core.Connection = new Core.Connection(Core);
 
 
     // hold all plugins instances

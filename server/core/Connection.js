@@ -23,7 +23,7 @@ var Connection = function(Core){
     // init Connection
     // connect with all registered nodes
     var db = Core.db;
-    this.connectNodes();
+    connectNodes();
     // interval to check if there any dead nodes and try to reconnect to them
     setInterval(reConnectLight, reconnectionInterval);
 
@@ -87,7 +87,10 @@ var Connection = function(Core){
         socket.on('error', function(error){
             var node = findNodeById(node._id);
             node.connected = false;
-            self.errors.push({node.ip , error});
+            self.errors.push({
+                node_ip: node.ip ,
+                error
+            });
             pushInDeadNodesLight(node);
             console.log('this ' + node.ip + " has some connection issues : " + node.error);
         });
@@ -150,7 +153,7 @@ var Connection = function(Core){
         return false;
     }
 
-    this.connectNodes = function() {
+    function connectNodes() {
         loadNodes(function(success){
             if (success) {
                 for (var i = 0; i < self.nodes.length ; i++) {
@@ -160,7 +163,7 @@ var Connection = function(Core){
         });
     }
 
-    this.isNodeConnected(nodeId) {
+    this.isNodeConnected = function(nodeId) {
         var node = self.nodes.filter(function(node) {
             return node._id === nodeId;
         })[0] || {};
@@ -168,7 +171,7 @@ var Connection = function(Core){
         return node.connected || false;
     }
 
-    this.run(nodeId, command) {
+    this.run = function(nodeId, command) {
         var node = findNodeById(nodeIp);
         if(node.connected) {
             node.socket.write(command + '\r\n');
@@ -223,4 +226,4 @@ var Connection = function(Core){
 
 };
 
-module.exports = new Connection;
+module.exports = Connection;
