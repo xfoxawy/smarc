@@ -9,33 +9,34 @@ var path = require("path");
  * @return {Object} [all options as object]
  */
 var Config = {
-    env: "development", // production, development
+    env: "production", // production, development
     log: true,
     logType : 'db', // or file
     logFile : __dirname + '/log.txt',
     logDBModel : 'logs',
     pluginsDir: __dirname + '/../plugins/',
-    // plugins just defined the order of loading, any unsorted plugins will load in alphabit order
+
+    // load just these Plugins in this Order
     plugins: [
         'Auth',
-        'Logger',
+        // 'Logger',
         'Light',
+        'Motors',
+        // 'Rooms',
+        // 'Scenes',
         // 'AccessControl',
         // 'Doors',
         // 'HeatSensors',
         // 'MotionSensors',
         // 'SmokeSensors',
-        // 'Motors',
         // 'Siren',
-        'Rooms',
-        'Scenes'
     ],
     secret: "randomstringtousedinencryption",
     jwtStorage: "file", // or cache
     db: {
         'host': '127.0.0.1',
         'port': 27017,
-        'name': 'smarc',
+        'name': 'new_smarc',
         'username': '',
         'password': '',
         'options': {

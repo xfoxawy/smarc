@@ -7,8 +7,6 @@ var Delegator = function(Core){
     var e          = require(driverPath);
 	var Driver     = new e(Core);
 
-	if( Config.driver == "telnet" ) require("./ConnectionMotors").subscribe(Driver);
-
 	this.up = function(id){
 		Driver.up(id);
 	};
@@ -21,19 +19,26 @@ var Delegator = function(Core){
 		Driver.stop(id);
 	};
 
-    this.scene = function(names){
-        Driver.scene(names);
-    };
+	this.motors = function(cb){
+        Driver.motors(function(success) {
+            if (success) {
+                var transformedMotorsValues = Transformer.transformMotors(Driver.mappedMotors);
+                return cb(transformedMotorsValues);             
+            }
 
-	this.motors = function(){
-        var mapPoints = Transformer.transformPoints(Driver.mapPoints());
-        return mapPoints;
+            return cb([]);
+        });
+
 	};
 
-    this.getRoomPoints = function(id){
-        var roomPoints = Transformer.transformPoints(Driver.roomPoints(id));
-        return roomPoints;
-    };
+    // this.scene = function(names){
+    //     Driver.scene(names);
+    // };
+
+    // this.getRoomPoints = function(id){
+    //     var roomPoints = Transformer.transformPoints(Driver.roomPoints(id));
+    //     return roomPoints;
+    // };
 
     Core.plugins.Motors = this;
 };

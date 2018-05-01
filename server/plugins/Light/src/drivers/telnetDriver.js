@@ -1,80 +1,69 @@
-var EventEmitter = new(require('events').EventEmitter);
-var Transformer = require('../Transformer');
-
 /**
  * Light Plugin Telnet Driver
  */
 var telnetDriver = function(Core){
     var self = this;
-    var model = "light";
-    var db = Core.db;
-    var io = Core.io;
-    var Connection = Core.Connection; // telnet connection
-    var points = [];
-    var mappedPoints = [];
+    this.model = "light";
+    this.db = Core.db;
+    this.io = Core.io;
+    this.Connection = Core.Connection; // telnet connection
+    this.mappedPoints = [];
+    this.telnetId = "I";
 
     // first register the driver into Telnet
-    Connection.subscribe({
-        telnetId: "I",
-        name: "light",
-        driver: self
-    });
+    this.Connection.subscribe(self);
 
-    //once nodes loaded we can map them to be able to be used
-    function mapPoints(cb){
+    // once nodes loaded we can map them to be able to use
+    this.mapPoints = function(cb){
         if (self.mappedPoints.length) {
-            return self.mappedPoints;
+            return cb(false);
         }
-
         // select light points from DB
-        getDBPoints(function(success) {
-            if (!success) {
-                throw new Error("failed to get Light Points from DB");
-            }
+        self.getDBPoints(function(err, docs) {
+            if (err) throw new Error("failed to get Light Points from DB");
 
             // for each point
-            for (var i = 0; i <= self.points; i++) {
-
+            for (var i = 0; i < docs.length; i++) {
                 // check if it's node connected
-                var nodeStatus = Connection.isNodeConnected( self.points[i].node_id );
+                var nodeStatus = self.Connection.isNodeConnected( docs[i].node_id );
                 if (nodeStatus) {
                     // create point object and push it to mappedPoits
-                    self.mappedPoints.push({ 
-                        p : self.points[i].name,
-                        i : self.points[i].id,
-                        s : self.points[i].status,
-                        r : self.points[i].room_id,
-                        id : self.points[i]._id,
+                    self.mappedPoints.push({
+                        p : docs[i].name,
+                        i : docs[i].id,
+                        s : docs[i].status,
+                        r : docs[i].room_id,
+                        id : docs[i]._id,
                         node_status: nodeStatus,
-                        node_id: points[i].node_id
+                        node_id: docs[i].node_id
                     });
                 }
             }
 
-            return cb(success);
-        })
+            return cb(false);
+        });
     };
 
-    function getDBPoints(cb) {
-        if (points.length) {
-            return cb(true);
+    this.getDBPoints = function(cb) {
+        if (self.mappedPoints.length) {
+            return cb(false, []);
         }
-        db.collection(model).find({}).toArray(function(err, docs){
+
+        self.db.collection(self.model).find({}).toArray(function(err, docs){
             if(err) throw err;
 
             if(docs.length) {
-                self.points = self.points.concat(docs);
-                return cb(true);
+                return cb(false, docs);
             }
-            return cb(false);
+
+            return cb(true, []);
         });
     }
 
-    function findPointInMappedPoints(pointId) {
+    this.findPointInMappedPoints = function(pointId) {
         if (!pointId) return false;
-
         for (var x = 0; x < self.mappedPoints.length ; x++) {
-            if(self.mappedPoints[x].i === pointId) {   
+            if(self.mappedPoints[x].id.toString() === pointId) {   
                 return self.mappedPoints[x];
             }
         }
@@ -82,36 +71,36 @@ var telnetDriver = function(Core){
         return false;
     };
 
-    function updateDBPoint(point) {
-        db.collection(model).update({_id : point.id}, {$set : { s : point.s}}, function(err){
+    this.updateDBPoint = function(point) {
+        self.db.collection(self.model).update({_id : point.id}, {$set : { status : point.s}}, function(err){
             if(err) throw err;
         });
     }
 
-    function pointsStatusChanged(point) {
-        setTimeout(() => {
-            var data = {
-                type: 'light',
-                data: point
-            };
-
-            io.emit('stream', data);
-        }, 100);
+    this.pointStatusChanged = function(point) {
+        self.io.emit('stream', {
+            type: 'light',
+            data: point
+        });
+        // setTimeout(() => {
+        // }, 10);
     }
 
     // find point object in node
-    function findPointInNode(nodeId, pointId){
-        for(var i = 0; i < self.points.length; i++) {
-            if(self.points[i].node_id === nodeId && self.points[i].i === pointId) {
-                return self.points[i];
+    this.findPointInNode = function(nodeId, pointId){
+        for(var i = 0; i < self.mappedPoints.length; i++) {
+            if(self.mappedPoints[i].node_id.toString() === nodeId.toString() && self.mappedPoints[i].i.toString() === pointId.toString()) {
+                return self.mappedPoints[i];
             }
         }
+
         return false;
     };
 
     // update node status
     this.nodeConnected = function(node){
-        Connection.run(node._id, "R");
+        // send R command to get status of all points
+        self.Connection.run(node._id, "R");
     };
 
     this.update = function(node, data){
@@ -119,46 +108,47 @@ var telnetDriver = function(Core){
         if(/(^I\d+,\d$)/igm.test(data)) {
             var pointId = data.slice(1, -2);
             var newstatus = (Number(data.split(',')[1]) == 0) ? false : true;
-            var point = findPointInNode(node._id, pointId);
+            var point = self.findPointInNode(node._id, pointId);
             point.s = newstatus;
-            updateDBPoint(point);
-            pointsStatusChanged(point);
+            self.updateDBPoint(point);
+            self.pointStatusChanged(point);
             console.log("the status has been updated for " + pointId + " with status " + newstatus);
         }
         // all points returned
         else if(/(I)*(\d*\d,[0-1]){1}-/.test(data)){
             // remove I and split on - delimiter
             var all = data.substring(1).trim().split('-');
-            // iterate and update the points statuses in memory and db
-            for(var i = 0; i < all.length; i++){
-                if(all[i]) {
+            // iterate and update the points status in memory and db
+            self.mapPoints(function(err){
+                if (err) throw Error("failed to map points");
+                for(var i = 0; i < all.length; i++){
                     var pointId = all[i].split(',')[0];
                     var newstatus = (Number(all[i].split(',')[1]) == 0) ? false : true;
-                    var point = findPointInNode(node._id, pointId);
+                    var point = self.findPointInNode(node._id, pointId);
                     point.s = newstatus;
-                    updateDBPoint(point);
-                    pointsStatusChanged(point);
+                    self.updateDBPoint(point);
+                    self.pointStatusChanged(point);
                     console.log("the status has been updated for " + pointId + " with status " + newstatus);
                 }
-            }
+            });
         }
     };
 
     this.turnOn = function(point) {
         var command = 'O' + point.i + ',1';
-        Connection.run(point.node_id, command);
+        self.Connection.run(point.node_id, command);
     };
 
     this.turnOff =  function(point) {
         var command = 'O' + point.i + ',0';
-        Connection.run(point.node_id, command);
+        self.Connection.run(point.node_id, command);
     };
 
     this.toggle = function(pointId){
-        mapPoints(function(success) {
-            if (!success) return [];
+        self.mapPoints(function(err) {
+            if (err) throw Error("mapPoints failed");
 
-            var point = findPointInMappedPoints(pointId);
+            var point = self.findPointInMappedPoints(pointId);
             if(point.node_status === true) {
                 if(point.s === false) {
                     self.turnOn(point);
@@ -168,17 +158,17 @@ var telnetDriver = function(Core){
                     throw "unknown point status , Light point ID:-> " + pointId;
                 }
             } else if(point.node_status === false){
-                console.log("its not connected");
+                console.log("it's not connected");
             }
         });
     };
 
     this.scene = function(rowCommand){
-        mapPoints(function(success) {
-            if (!success) return [];
+        self.mapPoints(function(err) {
+            if (err) return [];
 
             for( var pointId in rowCommand ) {
-                var point = findPointInMappedPoints( pointId );
+                var point = self.findPointInMappedPoints( pointId );
                 if(point.node_status === true) {
                     if( point.s != rowCommand[pointId] && point.s === false ) {
                         self.turnOn(point);
@@ -195,8 +185,8 @@ var telnetDriver = function(Core){
     };
 
     this.roomPoints = function(roomId){
-        mapPoints(function(success){
-            if (!success) return [];
+        self.mapPoints(function(err){
+            if (err) return [];
 
             return self.mappedPoints.filter(function(point){
                 return point.r.toString() === roomId;
@@ -204,7 +194,13 @@ var telnetDriver = function(Core){
         });
     };
 
-    this.mapPoints = mapPoints;
+    this.points = function(cb) {
+        self.mapPoints(function(err){
+            if (err) return cb([]);
+
+            return cb(self.mappedPoints);
+        })
+    }
 };
 
 module.exports = telnetDriver;

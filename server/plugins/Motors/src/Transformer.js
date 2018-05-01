@@ -1,28 +1,26 @@
 var Transformer =  function(){
 
-    this.transformPoints = function(data)
-    {
-        var points = {};
+    this.transformMotors = function(data) {
+        var motors = {};
         for(var i = 0; i < data.length; i++)
         {
-            points[data[i].i] = this.transformPoint( data[i] );
+            motors[data[i].id] = this.transformMotor( data[i] );
         }
-        return points;
+        return motors;
     };
 
-    this.transformPoint = function(point){
+    this.transformMotor = function(point) {
         return {
-            s : point.s,
-            p : point.p,
-            r : point.r,
-            type: 'motor',
-            node_name : point.node_name,
-            node_status : point.node_status,
-            node_ip : point.node_ip
+            i:           point.i,
+            p:           point.p,
+            r:           point.r,
+            id:          point.id,
+            node_status: point.node_status,
+            node_id:     point.node_id
         };
     };
 
-    this.transformRooms = function(data){
+    this.transformRooms = function(data) {
         var value = {};
 
         for(var i =0; i < data.length; i++)

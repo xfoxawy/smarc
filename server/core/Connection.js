@@ -10,26 +10,24 @@
 // also define which driver should notify
 // then notify it
 
+var net = require('net');
+
 var Connection = function(Core){
     var self = this;
-    var nodesCollection = "nodes";
-    var reconnectionInterval = 2000; // reconnection to dead nodes interval
-    var maxTries = 10 ; // reconnection to dead nodes max tries
+    this.nodesCollection = "nodes";
+    this.reconnectionInterval = 2000; // reconnection to dead nodes interval
+    this.maxTries = 10 ; // reconnection to dead nodes max tries
     this.drivers = [];
     this.nodes = [];
     this.errors = [];
     this.deadNodes = [];
-
-    // init Connection
-    // connect with all registered nodes
-    var db = Core.db;
-    connectNodes();
-    // interval to check if there any dead nodes and try to reconnect to them
-    setInterval(reConnectLight, reconnectionInterval);
+    this.db = Core.db;
 
     this.connect = function(node){
-        var socket = net.connect(node.port, node.address, function(){
-            console.log('connecting to ' + node.address);
+        var nodeObj = node;
+
+        var socket = net.connect(nodeObj.port, nodeObj.ip, function(){
+            console.log('connecting to ' + nodeObj.ip);
         });
 
         // set connection params
@@ -39,13 +37,12 @@ var Connection = function(Core){
 
         // handle on connect
         socket.on('connect', function(){
-            console.log(node.address + ' connected');
-            var node = findNodeById(node._id);
-            node.connected = true;
-            node.socket = socket;
+            console.log(nodeObj.ip + ' connected');
+            nodeObj.connected = true;
+            nodeObj.socket = socket;
 
             // notify all drivers to update there status
-            self.notifyConnectedNode(node);
+            self.notifyConnectedNode(nodeObj);
         });
 
         // handle on data
@@ -53,11 +50,11 @@ var Connection = function(Core){
         socket.on('data', function(data){
             if(!/(\n)/.test(data)) {
                 str += data
-            } else if(/(\n)/.test(data)) {
+            } else {
                 str += data;
                 str = str.trim();
 
-                self.notify(node, str);
+                self.notify(nodeObj, str);
                 str = '';
             }
         });
@@ -67,32 +64,29 @@ var Connection = function(Core){
         });
         // handle on connection timeout
         socket.on('timeout', function(){
-            console.log(node.address +" socket has been timeouted");
-            var node = findNodeById(node._id);
-            node.connected = false;
-            delete node.socket;
-            pushInDeadNodes(node);
+            console.log(nodeObj.ip +" socket has been timeouted");
+            nodeObj.connected = false;
+            delete nodeObj.socket;
+            self.pushInDeadNodes(nodeObj);
         });
 
         // handle on connection end
         socket.on('end', function(){
-            console.log(node.address +" socket has been closed");
-            var node = findNodeById(node._id);
-            node.connected = false;
-            delete node.socket;
-            pushInDeadNodes(node);
+            console.log(nodeObj.ip +" socket has been closed");
+            nodeObj.connected = false;
+            delete nodeObj.socket;
+            self.pushInDeadNodes(nodeObj);
         });
 
         // handle connection error
         socket.on('error', function(error){
-            var node = findNodeById(node._id);
-            node.connected = false;
+            nodeObj.connected = false;
             self.errors.push({
-                node_ip: node.ip ,
+                node_ip: nodeObj.ip ,
                 error
             });
-            pushInDeadNodesLight(node);
-            console.log('this ' + node.ip + " has some connection issues : " + node.error);
+            self.pushInDeadNodes(nodeObj);
+            console.log('this ' + nodeObj.ip + " has some connection issues : " + error);
         });
     };
 
@@ -133,8 +127,11 @@ var Connection = function(Core){
     // I2,0
     // I2,0-I3,1...
     this.notify = function(node, data) {
-        var driver = getDriverByResponse(data);
-        driver.update(node, data);
+        // remove this check when move to Production
+        if (data != "OK") {
+            var driver = self.getDriverByResponse(data);
+            driver.update(node, data);
+        }
     };
 
     this.notifyConnectedNode = function(node) {
@@ -143,9 +140,9 @@ var Connection = function(Core){
         }
     };
 
-    function getDriverByResponse(data) {
+    this.getDriverByResponse = function(data) {
         var firstChar = data.charAt(0);
-        for(var i =0; i < self.drivers.length; i++) {
+        for(var i = 0; i < self.drivers.length; i++) {
             if (self.drivers[i].telnetId === firstChar) {
                 return self.drivers[i];
             }
@@ -153,8 +150,8 @@ var Connection = function(Core){
         return false;
     }
 
-    function connectNodes() {
-        loadNodes(function(success){
+    this.connectNodes = function() {
+        self.loadNodes(function(success){
             if (success) {
                 for (var i = 0; i < self.nodes.length ; i++) {
                     self.connect(self.nodes[i]);
@@ -165,26 +162,25 @@ var Connection = function(Core){
 
     this.isNodeConnected = function(nodeId) {
         var node = self.nodes.filter(function(node) {
-            return node._id === nodeId;
+            return node._id.toString === nodeId.toString;
         })[0] || {};
 
         return node.connected || false;
     }
 
     this.run = function(nodeId, command) {
-        var node = findNodeById(nodeIp);
+        var node = self.findNodeById(nodeId);
         if(node.connected) {
             node.socket.write(command + '\r\n');
-            console.log("this command has been sent : " + command + '\r\n');
-        } else{
-            console.log(node._ip + " is disconnected");
+            console.log("this command has been sent => " + command + " To: " + node.ip);
+        } else {
+            console.log(node.ip + " is disconnected");
         }
     }
 
-    function loadNodes(cb) {
-        db.collection(nodesCollection).find({}).toArray(function(err, docs){
+    this.loadNodes = function(cb) {
+        self.db.collection(self.nodesCollection).find({}).toArray(function(err, docs){
             if(err) throw err;
-            
             if(docs.length) {
                 self.nodes = self.nodes.concat(docs);
                 return cb(true);
@@ -194,10 +190,10 @@ var Connection = function(Core){
     }
 
     // responsible of reconnection for dead nodes 
-    function reConnectLight() {
+    this.reConnectLight = function() {
         if(self.deadNodes.length) {
             self.deadNodes.forEach(function(node){
-                if(node.tries < maxTries){
+                if(node.tries < self.maxTries){
                     self.connect(node);
                     node.tries++;
                 }
@@ -205,9 +201,9 @@ var Connection = function(Core){
         }     
     }
 
-    function pushInDeadNodes(node) {
+    this.pushInDeadNodes = function(node) {
         for (var i = 0; i < self.deadNodes.length; i++) {
-            if(self.deadNodes[i]._id === node._id)
+            if(self.deadNodes[i]._id.toString() === node._id.toString())
                 return true;
         }
         node.tries = 0;
@@ -215,15 +211,22 @@ var Connection = function(Core){
     }
 
     // helper function to get node by ip
-    function findNodeById(id){
+    this.findNodeById = function(id){
         for (var i = 0; i < self.nodes.length; i++) {
-            if(self.nodes[i]._id === id) {
+            if (self.nodes[i]._id.toString() === id.toString()) {
                 return self.nodes[i];
             }
         }
+
         return false;
     };
 
+    /**
+     * Init Connection
+     */
+    this.connectNodes();
+    // interval to check if there any dead nodes and try to reconnect to them
+    setInterval(self.reConnectLight, this.reconnectionInterval);
 };
 
 module.exports = Connection;

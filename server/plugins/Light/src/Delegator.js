@@ -7,36 +7,42 @@ var Delegator = function(Core){
 	var e          = require(driverPath);
 	var Driver     = new e(Core);
 
-	this.toggle = function(pointNumber){
-		Driver.toggle(pointNumber);
+	this.toggle = function(pointId){
+		Driver.toggle(pointId);
 	};
 
-	this.getAllStatus = function(){
-		var transformedPointsValues = Transformer.transformPoints(Driver.mapPoints());
-		return transformedPointsValues;
+	this.points = function(cb){
+		Driver.points(function(success) {
+			if (success) {
+				var transformedPointsValues = Transformer.transformPoints(Driver.mappedPoints);
+				return cb(transformedPointsValues);
+			}
+
+			return cb([]);
+		});
 	};
 
-	this.createNewNode = function(nodeObject){
-		Driver.createNewNode(nodeObject);
-	};
+	// this.createNewNode = function(nodeObject){
+	// 	Driver.createNewNode(nodeObject);
+	// };
 
-	this.deleteNode = function(nodeIp){
-		Driver.deleteNode(nodeIp);
-	};
+	// this.deleteNode = function(nodeIp){
+	// 	Driver.deleteNode(nodeIp);
+	// };
 
-	// deprecated, will remove in the future
-    this.getRooms = function(){
-        return Transformer.transformRooms(Driver.getRooms());
-    };
+	// // deprecated, will remove in the future
+ //    this.getRooms = function(){
+ //        return Transformer.transformRooms(Driver.getRooms());
+ //    };
 
-	this.scene = function(names){
-		Driver.scene(names);
-	};
+	// this.scene = function(names){
+	// 	Driver.scene(names);
+	// };
 
-	this.getRoomPoints = function(id){
-		var roomPoints = Transformer.transformPoints(Driver.roomPoints(id));
-		return roomPoints;
-	};
+	// this.getRoomPoints = function(id){
+	// 	var roomPoints = Transformer.transformPoints(Driver.roomPoints(id));
+	// 	return roomPoints;
+	// };
 
     Core.plugins.Light = this;
 };
