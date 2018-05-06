@@ -77,22 +77,10 @@ var telnetDriver = function(Core){
     }
 
     this.pointStatusChanged = function(point) {
-        console.log("==========================");
-        console.log("pointStatusChanged");
-        // console.dir(Core.sockets.length, { depth: 20 });
-        console.log("==========================");
-        // Core.io.emit('stream', {
-        //     type: 'light',
-        //     data: point
-        // });
-
-        for (socket in Core.sockets) {
-            console.log(socket);
-            Core.sockets[socket].emit('stream', {
-                type: 'light',
-                data: point
-            });
-        }
+        Core.io.emit('stream', {
+            type: 'light',
+            data: point
+        });
     }
 
     // find point object in node

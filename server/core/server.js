@@ -23,7 +23,6 @@ function(db){
     /**
      * save database connection to Core to be ble to pass it to plugins
      */
-    Core.sockets    = {};
     Core.db         = db;
     Core.Connection = require("./Connection.js");
     Core.Connection = new Core.Connection(Core);
@@ -58,26 +57,18 @@ function(db){
         res.status(200).json({msg : 'ok'});
     });
 
-    /**
-     * load Plugins from IOC container
-     */
-    Core.app.set('globalIp', '192.168.100.101');
-
     // load SocketIO
     Core.io.on('connection', function (socket) {
         console.log('device Connected');
 
         socket.on('disconnect', function(socket){
             console.log('device Leaved');
-            delete Core.sockets[socket.id];
         });
-
-        Core.sockets[socket.id] = socket;
     });
 
-
-
-    // finally load Our Plug
+    /**
+     * finally load Plugins from IOC container
+     */
     IOC.loadPlugins(Core);
 },
 // connect failed with database

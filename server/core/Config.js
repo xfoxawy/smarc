@@ -19,7 +19,7 @@ var Config = {
     // load just these Plugins in this Order
     plugins: [
         'Auth',
-        // 'Logger',
+        'Logger',
         'Light',
         'Motors',
         'Rooms',

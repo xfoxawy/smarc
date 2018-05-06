@@ -35,9 +35,9 @@ var Delegator = function(Core){
  //        return Transformer.transformRooms(Driver.getRooms());
  //    };
 
-	// this.scene = function(names){
-	// 	Driver.scene(names);
-	// };
+	this.scene = function(names){
+		Driver.scene(names);
+	};
 
 	this.getRoomPoints = function(id, cb){
 		Driver.roomPoints(id, function(err, points){
