@@ -1,19 +1,17 @@
 /**
  * require modules
  */
-var express         = require("express");
-var bodyParser      = require("body-parser");
-var Core            = {};
-    Core.app        = express();
-var server          = require('http').Server(Core.app);
-    Core.io         = require('socket.io')(server);
-var Config          = require("./Config");
-    Core.Config     = Config;
-var IOC             = require("./IOC");
-var path            = require("path");
-var MongoClient     = require('mongodb').MongoClient;
-var FCMAdmin        = require('firebase-admin');
-var serviceAccount  = require("./../smarc-firebase-adminsdk.json");
+var express     = require("express");
+var bodyParser  = require("body-parser");
+var Core        = {};
+    Core.app    = express();
+var server      = require('http').Server(Core.app);
+    Core.io     = require('socket.io')(server);
+var Config      = require("./Config");
+    Core.Config = Config;
+var IOC         = require("./IOC");
+var path        = require("path");
+var MongoClient = require('mongodb').MongoClient;
 
 /**
  * setup Database Connection
@@ -25,10 +23,10 @@ function(db){
     /**
      * save database connection to Core to be ble to pass it to plugins
      */
+    Core.sockets    = {};
     Core.db         = db;
     Core.Connection = require("./Connection.js");
     Core.Connection = new Core.Connection(Core);
-
 
     // hold all plugins instances
     Core.plugins = {};
@@ -65,22 +63,19 @@ function(db){
      */
     Core.app.set('globalIp', '192.168.100.101');
 
-    // load FCM
-    FCMAdmin.initializeApp({
-        credential: FCMAdmin.credential.cert(serviceAccount),
-        databaseURL: "https://smarc-f116d.firebaseio.com"
-    });
-
-    Core.fcm = FCMAdmin;
-
     // load SocketIO
     Core.io.on('connection', function (socket) {
         console.log('device Connected');
+
+        socket.on('disconnect', function(socket){
+            console.log('device Leaved');
+            delete Core.sockets[socket.id];
+        });
+
+        Core.sockets[socket.id] = socket;
     });
 
-    Core.io.on('disconnect', function(socket){
-        console.log('device Leaved');
-    });
+
 
     // finally load Our Plug
     IOC.loadPlugins(Core);

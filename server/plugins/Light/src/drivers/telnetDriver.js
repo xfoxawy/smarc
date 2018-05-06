@@ -5,7 +5,6 @@ var telnetDriver = function(Core){
     var self = this;
     this.model = "light";
     this.db = Core.db;
-    this.io = Core.io;
     this.Connection = Core.Connection; // telnet connection
     this.mappedPoints = [];
     this.telnetId = "I";
@@ -78,12 +77,22 @@ var telnetDriver = function(Core){
     }
 
     this.pointStatusChanged = function(point) {
-        self.io.emit('stream', {
-            type: 'light',
-            data: point
-        });
-        // setTimeout(() => {
-        // }, 10);
+        console.log("==========================");
+        console.log("pointStatusChanged");
+        // console.dir(Core.sockets.length, { depth: 20 });
+        console.log("==========================");
+        // Core.io.emit('stream', {
+        //     type: 'light',
+        //     data: point
+        // });
+
+        for (socket in Core.sockets) {
+            console.log(socket);
+            Core.sockets[socket].emit('stream', {
+                type: 'light',
+                data: point
+            });
+        }
     }
 
     // find point object in node
@@ -184,13 +193,15 @@ var telnetDriver = function(Core){
         });
     };
 
-    this.roomPoints = function(roomId){
+    this.roomPoints = function(roomId, cb){
         self.mapPoints(function(err){
-            if (err) return [];
+            if (err) return cb(true);
 
-            return self.mappedPoints.filter(function(point){
+            var roomPoints = self.mappedPoints.filter(function(point){
                 return point.r.toString() === roomId;
             });
+
+            return cb(false, roomPoints);
         });
     };
 

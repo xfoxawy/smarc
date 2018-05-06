@@ -39,10 +39,12 @@ var Delegator = function(Core){
 	// 	Driver.scene(names);
 	// };
 
-	// this.getRoomPoints = function(id){
-	// 	var roomPoints = Transformer.transformPoints(Driver.roomPoints(id));
-	// 	return roomPoints;
-	// };
+	this.getRoomPoints = function(id, cb){
+		Driver.roomPoints(id, function(err, points){
+			if (err) return cb(true);
+			return cb(false, Transformer.transformPoints(points));
+		});
+	};
 
     Core.plugins.Light = this;
 };

@@ -5,8 +5,11 @@ module.exports = function(Core){
 
     // get light for a room
     Core.app.get('/rooms/:id/light', function(req,res){
-        var points = Core.plugins.Light.getRoomPoints(req.params.id);
-        return res.status(200).json(points);
+        Core.plugins.Light.getRoomPoints(req.params.id, function(err, points){
+            if (err) return res.status(400).json('erros');
+
+            return res.status(200).json(points);
+        });
     });
 
     // get doors for a room
@@ -23,8 +26,11 @@ module.exports = function(Core){
 
     // get motors for a room
     Core.app.get('/rooms/:id/motors', function(req,res){
-        var points = Core.plugins.Motors.getRoomPoints(req.params.id);
-        return res.status(200).json(points);
+        Core.plugins.Motors.getRoomMotors(req.params.id, function(err, points){
+            if (err) return res.status(400).json('erros');
+
+            return res.status(200).json(points);
+        });
     });
 
     // get smokes for a room
@@ -144,27 +150,9 @@ module.exports = function(Core){
     });
 
     function getLights(id, cb){
-        Core.db.collection('light').aggregate([
-            {
-                $match: {
-                    'points.r': id
-                }
-            },
-            {
-                $project: {
-                    _id: 0,
-                    points: {
-                        $filter: {
-                            input: '$points',
-                            as: 'points',
-                            cond: {
-                                $eq: ['$$points.r', id]
-                            }
-                        }
-                    }
-                }
-            }
-        ]).toArray(function(err, light){
+        Core.db.collection('light').find({
+            'room_id': ObjectID(id)
+        }).toArray(function(err, light){
             if(err) throw err;
 
             return cb(light);
@@ -172,27 +160,9 @@ module.exports = function(Core){
     }
 
     function getDoors(id, cb){
-        Core.db.collection('doors').aggregate([
-            {
-                $match: {
-                    'points.r': id
-                }
-            },
-            {
-                $project: {
-                    _id: 0,
-                    points: {
-                        $filter: {
-                            input: '$points',
-                            as: 'points',
-                            cond: {
-                                $eq: ['$$points.r', id]
-                            }
-                        }
-                    }
-                }
-            }
-        ]).toArray(function(err, doors){
+        Core.db.collection('doors').find({
+            'room_id': ObjectID(id)
+        }).toArray(function(err, doors){
             if(err) throw err;
 
             return cb(doors);
@@ -200,27 +170,9 @@ module.exports = function(Core){
     }
 
     function getHeatSensors(id, cb){
-        Core.db.collection('heats').aggregate([
-            {
-                $match: {
-                    'points.r': id
-                }
-            },
-            {
-                $project: {
-                    _id: 0,
-                    points: {
-                        $filter: {
-                            input: '$points',
-                            as: 'points',
-                            cond: {
-                                $eq: ['$$points.r', id]
-                            }
-                        }
-                    }
-                }
-            }
-        ]).toArray(function(err, heat){
+        Core.db.collection('heats').find({
+            'room_id': ObjectID(id)
+        }).toArray(function(err, heat){
             if(err) throw err;
 
             return cb(heat);
@@ -228,27 +180,9 @@ module.exports = function(Core){
     }
 
     function getMotors(id, cb){
-        Core.db.collection('motors').aggregate([
-            {
-                $match: {
-                    'points.r': id
-                }
-            },
-            {
-                $project: {
-                    _id: 0,
-                    points: {
-                        $filter: {
-                            input: '$points',
-                            as: 'points',
-                            cond: {
-                                $eq: ['$$points.r', id]
-                            }
-                        }
-                    }
-                }
-            }
-        ]).toArray(function(err, motors){
+        Core.db.collection('motors').find({
+            'room_id': ObjectID(id)
+        }).toArray(function(err, motors){
             if(err) throw err;
 
             return cb(motors);
@@ -256,27 +190,9 @@ module.exports = function(Core){
     }
 
     function getSmokeSensors(id, cb){
-        Core.db.collection('smokes').aggregate([
-            {
-                $match: {
-                    'points.r': id
-                }
-            },
-            {
-                $project: {
-                    _id: 0,
-                    points: {
-                        $filter: {
-                            input: '$points',
-                            as: 'points',
-                            cond: {
-                                $eq: ['$$points.r', id]
-                            }
-                        }
-                    }
-                }
-            }
-        ]).toArray(function(err, smoke){
+        Core.db.collection('smokes').find({
+            'room_id': ObjectID(id)
+        }).toArray(function(err, smoke){
             if(err) throw err;
 
             return cb(smoke);
@@ -284,27 +200,9 @@ module.exports = function(Core){
     }
 
     function getAccessControl(id, cb){
-        Core.db.collection('access_control').aggregate([
-            {
-                $match: {
-                    'points.r': id
-                }
-            },
-            {
-                $project: {
-                    _id: 0,
-                    points: {
-                        $filter: {
-                            input: '$points',
-                            as: 'points',
-                            cond: {
-                                $eq: ['$$points.r', id]
-                            }
-                        }
-                    }
-                }
-            }
-        ]).toArray(function(err, access){
+        Core.db.collection('access_control').find({
+            'room_id': ObjectID(id)
+        }).toArray(function(err, access){
             if(err) throw err;
 
             return cb(access);
@@ -312,27 +210,9 @@ module.exports = function(Core){
     }
 
     function getMotionSensors(id, cb){
-        Core.db.collection('motions').aggregate([
-            {
-                $match: {
-                    'points.r': id
-                }
-            },
-            {
-                $project: {
-                    _id: 0,
-                    points: {
-                        $filter: {
-                            input: '$points',
-                            as: 'points',
-                            cond: {
-                                $eq: ['$$points.r', id]
-                            }
-                        }
-                    }
-                }
-            }
-        ]).toArray(function(err, motions){
+        Core.db.collection('motions').find({
+            'room_id': ObjectID(id)
+        }).toArray(function(err, motions){
             if(err) throw err;
 
             return cb(motions);

@@ -28,17 +28,18 @@ var Delegator = function(Core){
 
             return cb([]);
         });
-
 	};
 
     // this.scene = function(names){
     //     Driver.scene(names);
     // };
 
-    // this.getRoomPoints = function(id){
-    //     var roomPoints = Transformer.transformPoints(Driver.roomPoints(id));
-    //     return roomPoints;
-    // };
+    this.getRoomMotors = function(id, cb){
+        Driver.roomMotors(id, function(err, motors){
+            if (err) return cb(true);
+            return cb(false, Transformer.transformMotors(motors));
+        });
+    };
 
     Core.plugins.Motors = this;
 };

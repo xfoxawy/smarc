@@ -1,3 +1,5 @@
+var Config = require("../Config");
+
 /**
  * Motor Plugin Telnet Driver
  */
@@ -181,13 +183,15 @@ var telnetDriver = function(Core){
         });
     };
 
-    this.roomMotors = function(roomId){
+    this.roomMotors = function(roomId, cb){
         self.mapMotors(function(err){
-            if (err) return [];
+            if (err) return cb(true);
 
-            return self.mappedMotors.filter(function(motor){
+            var roomMotors = self.mappedMotors.filter(function(motor){
                 return motor.r.toString() === roomId;
             });
+
+            return cb(false, roomMotors);
         });
     };
 
